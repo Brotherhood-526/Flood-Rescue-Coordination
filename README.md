@@ -1,18 +1,3 @@
-# Project PRJ301 - Flight ticket
+# PRJ301 Assignment
 
-## Introduction
-
-Nguyen van A - A828383
-
-## Requirements
-
-Adsfklds dsfds fds fds f dsf dsf dsf 
-
-![](img/hinh.png)
-
-## GUI
-
-
-## Database diagram
-
-
+> This is the README.md file for the PRJ301 Assignment.
