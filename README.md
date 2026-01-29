@@ -49,3 +49,101 @@ _Chức năng:_
 - _Quản lý đội nhóm (Rescue Teams):_ Thiết lập danh sách các đội cứu hộ, quản lý thành viên và khu vực hoạt động của từng đội.
 - _Quản lý phương tiện:_ Thêm, xóa, sửa danh sách phương tiện và cập nhật tình trạng sẵn sàng (Available/Maintenance).
 - _Tổng quát thống kê:_ Xem các chỉ số cơ bản bao gồm tổng số yêu cầu (Request), tỉ lệ thành công(%), số đội đang hoạt động, phương tiện có sẵn, hiệu suất của từng đội, danh sách tỉnh có nhiều yêu cầu gửi về nhất.
+
+# Prototype GUI and Sitemap
+
+## GUI Sitemap
+
+### Guest
+
+- S1 Landing Page
+- S2 Contact Page
+- S3 Guide
+
+### User (Citizen)
+
+- S4 User Login
+  - S5 Submit Request
+  - S6 View Requests
+
+### Staff (Rescue Team / Coordinator / Manager)
+
+- S7 Staff Login
+  - Rescue Team
+    - S9 Assignment List
+    - S10 Assignment Details
+    - S11 Map
+    - S12 Message Box
+
+  - Coordinator
+    - S14 Request List
+    - S15 Request Details
+    - S16 Map
+    - S17 Message Box
+
+  - Manager
+    - S19 Overview
+    - S20 Staff Management
+    - S21 Rescue Team Management
+    - S22 Vehicle Management
+
+---
+
+## GUI Prototype Images
+
+![S1 Landing Page](img/prototypeGUI/guest_landingPage.png)
+**S1. Landing Page**
+
+![S2 Contact Page](img/prototypeGUI/guest_contactPage.png)
+**S2. Contact Page**
+
+![S3 Guide](img/prototypeGUI/guest_guide.png)
+**S3. Guide**
+
+![S4 User Login](img/prototypeGUI/user_loginPage.png)
+**S4. User Login**
+
+![S5 Submit Request](img/prototypeGUI/user_submitRequest.png)
+**S5. Submit Request**
+
+![S6 View Requests](img/prototypeGUI/user_viewRequest.png)
+**S6. View Requests**
+
+![S7 Staff Login](img/prototypeGUI/staff_loginPage.png)
+**S7. Staff Login**
+
+![S9 Rescue Team – Assignment List](img/prototypeGUI/rescueTeam_assigmentList.png)
+**S9. Rescue Team – Assignment List**
+
+![S10 Rescue Team – Assignment Details](img/prototypeGUI/rescueTeam_assignmentDetail.png)
+**S10. Rescue Team – Assignment Details**
+
+![S11 Rescue Team – Map](img/prototypeGUI/rescueTeam_map.png)
+**S11. Rescue Team – Map**
+
+![S12 Rescue Team – Message Box](img/prototypeGUI/rescueTeam_messageBox.png)
+**S12. Rescue Team – Message Box**
+
+![S14 Coordinator – Request List](img/prototypeGUI/coordinator_requestList.png)
+**S14. Coordinator – Request List**
+
+![S15 Coordinator – Request Details](img/prototypeGUI/coordinator_requestDetail.png)
+**S15. Coordinator – Request Details**
+
+![S16 Coordinator – Map](img/prototypeGUI/coordinator_map.png)
+**S16. Coordinator – Map**
+
+![S17 Coordinator – Message Box](img/prototypeGUI/coordinator_messageBox.png)
+**S17. Coordinator – Message Box**
+
+![S19 Manager – Overview](img/prototypeGUI/manager_overview.png)
+**S19. Manager – Overview**
+
+![S20 Manager – Staff Management](img/prototypeGUI/manager_staffManagement.png)
+**S20. Manager – Staff Management**
+
+![S21 Manager – Rescue Team Management](img/prototypeGUI/manager_resueTeamManagement.png)
+**S21. Manager – Rescue Team Management**
+
+![S22 Manager – Vehicle Management](img/prototypeGUI/manager_vehicleManagement.png)
+**S22. Manager – Vehicle Management**
