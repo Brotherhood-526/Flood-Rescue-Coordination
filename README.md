@@ -12,7 +12,7 @@ _Chức năng:_
 
 - _Gửi yêu cầu cứu hộ:_ Gửi thông tin kèm vị trí định vị, mô tả chi tiết và hình ảnh hiện trường.
 - _Theo dõi trạng thái:_ Cập nhật trạng thái.
-- _Xác nhận hoàn tất:_ Xác nhận đã nhận được cứu trợ hoặc đã được giải cứu thành công.
+- _Xác nhận hoàn tất:_ Xác nhận đã được giải cứu thành công.
 - _Duy trì liên lạc:_ Cập nhật và ghi chú lại các thông tin cần thiết cho điều phối viên và đội cứu hộ.
 
 ### 1.2. Rescue Coordinator (Điều phối viên)
@@ -37,8 +37,7 @@ _Chức năng:_
 
 - _Nhận nhiệm vụ:_ Pop-up khi được phân công; xem danh sách các nhiệm vụ được giao.
 - _Xem chi tiết:_ Xem nội dung yêu cầu và vị trí của người dân trên bản đồ (dưới dạng marker tĩnh).
-- _Cập nhật trạng thái:_ Chuyển đổi trạng thái theo quy trình: Accepted (Đã nhận) → On the way (Đang đến) → Completed (Hoàn thành).
-- _Báo cáo kết quả:_ Nhập báo cáo kết quả cứu hộ dưới dạng văn bản (text).
+- _Cập nhật trạng thái:_ Chuyển đổi trạng thái: Có thể tạm hoãn, tiếp tục và hoàn thành nhiệm vụ.
 - _Thông báo hoàn tất:_ Khi gửi thông báo giải cứu thành công, hệ thống tự động cập nhật trạng thái đồng bộ lên bảng dữ liệu của Citizen và Rescue Team.
 - _Duy trì liên lạc:_ Cập nhật và ghi chú lại các thông tin cần thiết khi người dùng báo để hỗ trợ cho công tác cứu hộ (Có thêm sự hộ trợ của điều phối viên trong hộp thoại).
 
