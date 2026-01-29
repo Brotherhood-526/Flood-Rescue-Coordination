@@ -70,22 +70,22 @@ _Chức năng:_
 
 - S7 Staff Login
   - Rescue Team
-    - S9 Assignment List
-    - S10 Assignment Details
-    - S11 Map
-    - S12 Message Box
+    - S8 Assignment List
+    - S9 Assignment Details
+    - S10 Map
+    - S11 Message Box
 
   - Coordinator
-    - S14 Request List
-    - S15 Request Details
-    - S16 Map
-    - S17 Message Box
+    - S12 Request List
+    - S13 Request Details
+    - S14 Map
+    - S15 Message Box
 
   - Manager
-    - S19 Overview
-    - S20 Staff Management
-    - S21 Rescue Team Management
-    - S22 Vehicle Management
+    - S16 Overview
+    - S17 Staff Management
+    - S18 Rescue Team Management
+    - S19 Vehicle Management
 
 ---
 
@@ -112,38 +112,38 @@ _Chức năng:_
 ![S7 Staff Login](img/prototypeGUI/staff_loginPage.png)
 **S7. Staff Login**
 
-![S9 Rescue Team – Assignment List](img/prototypeGUI/rescueTeam_assigmentList.png)
-**S9. Rescue Team – Assignment List**
+![S8 Rescue Team – Assignment List](img/prototypeGUI/rescueTeam_assigmentList.png)
+**S8. Rescue Team – Assignment List**
 
-![S10 Rescue Team – Assignment Details](img/prototypeGUI/rescueTeam_assignmentDetail.png)
-**S10. Rescue Team – Assignment Details**
+![S9 Rescue Team – Assignment Details](img/prototypeGUI/rescueTeam_assignmentDetail.png)
+**S9. Rescue Team – Assignment Details**
 
-![S11 Rescue Team – Map](img/prototypeGUI/rescueTeam_map.png)
-**S11. Rescue Team – Map**
+![S10 Rescue Team – Map](img/prototypeGUI/rescueTeam_map.png)
+**S10. Rescue Team – Map**
 
-![S12 Rescue Team – Message Box](img/prototypeGUI/rescueTeam_messageBox.png)
-**S12. Rescue Team – Message Box**
+![S11 Rescue Team – Message Box](img/prototypeGUI/rescueTeam_messageBox.png)
+**S11. Rescue Team – Message Box**
 
-![S14 Coordinator – Request List](img/prototypeGUI/coordinator_requestList.png)
-**S14. Coordinator – Request List**
+![S12 Coordinator – Request List](img/prototypeGUI/coordinator_requestList.png)
+**S12. Coordinator – Request List**
 
-![S15 Coordinator – Request Details](img/prototypeGUI/coordinator_requestDetail.png)
-**S15. Coordinator – Request Details**
+![S13 Coordinator – Request Details](img/prototypeGUI/coordinator_requestDetail.png)
+**S13. Coordinator – Request Details**
 
-![S16 Coordinator – Map](img/prototypeGUI/coordinator_map.png)
-**S16. Coordinator – Map**
+![S14 Coordinator – Map](img/prototypeGUI/coordinator_map.png)
+**S14. Coordinator – Map**
 
-![S17 Coordinator – Message Box](img/prototypeGUI/coordinator_messageBox.png)
-**S17. Coordinator – Message Box**
+![S15 Coordinator – Message Box](img/prototypeGUI/coordinator_messageBox.png)
+**S15. Coordinator – Message Box**
 
-![S19 Manager – Overview](img/prototypeGUI/manager_overview.png)
-**S19. Manager – Overview**
+![S16 Manager – Overview](img/prototypeGUI/manager_overview.png)
+**S16. Manager – Overview**
 
-![S20 Manager – Staff Management](img/prototypeGUI/manager_staffManagement.png)
-**S20. Manager – Staff Management**
+![S17 Manager – Staff Management](img/prototypeGUI/manager_staffManagement.png)
+**S17. Manager – Staff Management**
 
-![S21 Manager – Rescue Team Management](img/prototypeGUI/manager_resueTeamManagement.png)
-**S21. Manager – Rescue Team Management**
+![S18 Manager – Rescue Team Management](img/prototypeGUI/manager_resueTeamManagement.png)
+**S18. Manager – Rescue Team Management**
 
-![S22 Manager – Vehicle Management](img/prototypeGUI/manager_vehicleManagement.png)
-**S22. Manager – Vehicle Management**
+![S19 Manager – Vehicle Management](img/prototypeGUI/manager_vehicleManagement.png)
+**S19. Manager – Vehicle Management**
