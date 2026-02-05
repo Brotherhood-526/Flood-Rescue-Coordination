@@ -56,94 +56,96 @@ _Chức năng:_
 
 ### Guest
 
-- S1 Landing Page
-- S2 Contact Page
-- S3 Guide
+- **S1** Landing Page
+- **S2** Contact Page
+- **S3** Guide / Quick Search
 
 ### User (Citizen)
 
-- S4 User Login
-  - S5 Submit Request
-  - S6 View Requests
+- **S4** User Login
+  - **S5** Submit Request
+  - **S6** View Requests
 
 ### Staff (Rescue Team / Coordinator / Manager)
 
-- S7 Staff Login
-  - Rescue Team
-    - S8 Assignment List
-    - S9 Assignment Details
-    - S10 Map
-    - S11 Message Box
+- **S7** Staff Login
 
-  - Coordinator
-    - S12 Request List
-    - S13 Request Details
-    - S14 Map
-    - S15 Message Box
+  **Rescue Team**
+  - **S8** Assignment List
+  - **S9** Assignment Details
+  - **S10** Map
+  - **S11** Message Box
 
-  - Manager
-    - S16 Overview
-    - S17 Staff Management
-    - S18 Rescue Team Management
-    - S19 Vehicle Management
+  **Coordinator**
+  - **S12** Request List
+  - **S13** Request Details
+  - **S14** Map
+  - **S15** Message Box
+
+  **Manager**
+  - **S16** Overview
+  - **S17** Staff Management
+  - **S18** Rescue Team Management
+  - **S19** Vehicle Management
 
 ---
 
 ## GUI Prototype Images
 
-![S1 Landing Page](img/prototypeGUI/guest_landingPage.png)
+![S1 Landing Page](img/prototypeGUI/guest_landingPage.png)  
 **S1. Landing Page**
 
-![S2 Contact Page](img/prototypeGUI/guest_contactPage.png)
+![S2 Contact Page](img/prototypeGUI/guest_contactPage.png)  
 **S2. Contact Page**
 
-![S3 Guide](img/prototypeGUI/guest_guide.png)
-**S3. Guide**
+![S3 Guide / Quick Search](img/prototypeGUI/guest_quickSearch.png)  
+**S3. Guide / Quick Search**
 
-![S4 User Login](img/prototypeGUI/user_loginPage.png)
+![S4 User Login](img/prototypeGUI/staff_login.png)  
 **S4. User Login**
 
-![S5 Submit Request](img/prototypeGUI/user_submitRequest.png)
+![S5 Submit Request](img/prototypeGUI/user_beforeRequest.png)  
 **S5. Submit Request**
 
-![S6 View Requests](img/prototypeGUI/user_viewRequest.png)
+![S6 View Requests](img/prototypeGUI/user_afterRequest.png)  
 **S6. View Requests**
 
-![S7 Staff Login](img/prototypeGUI/staff_loginPage.png)
+![S7 Staff Login](img/prototypeGUI/staff_login.png)  
 **S7. Staff Login**
 
-![S8 Rescue Team – Assignment List](img/prototypeGUI/rescueTeam_assigmentList.png)
+![S8 Rescue Team – Assignment List](img/prototypeGUI/rescueTeam_listAssignment.png)  
 **S8. Rescue Team – Assignment List**
 
-![S9 Rescue Team – Assignment Details](img/prototypeGUI/rescueTeam_assignmentDetail.png)
+![S9 Rescue Team – Assignment Details](img/prototypeGUI/rescueTeam_detailedAssignment.png)  
 **S9. Rescue Team – Assignment Details**
 
-![S10 Rescue Team – Map](img/prototypeGUI/rescueTeam_map.png)
+![S10 Rescue Team – Map](img/prototypeGUI/rescueTeam_map.png)  
 **S10. Rescue Team – Map**
 
-![S11 Rescue Team – Message Box](img/prototypeGUI/rescueTeam_messageBox.png)
+![S11 Rescue Team – Message Box](img/prototypeGUI/rescueTeam_chatBox.png)  
 **S11. Rescue Team – Message Box**
 
-![S12 Coordinator – Request List](img/prototypeGUI/coordinator_requestList.png)
+![S12 Coordinator – Request List](img/prototypeGUI/coordinator_listRequest.png)  
 **S12. Coordinator – Request List**
 
-![S13 Coordinator – Request Details](img/prototypeGUI/coordinator_requestDetail.png)
+![S13 Coordinator – Request Details](img/prototypeGUI/coordinator_detailedRequest.png)  
 **S13. Coordinator – Request Details**
 
-![S14 Coordinator – Map](img/prototypeGUI/coordinator_map.png)
+![S14 Coordinator – Map](img/prototypeGUI/coordinator_map.png)  
 **S14. Coordinator – Map**
 
-![S15 Coordinator – Message Box](img/prototypeGUI/coordinator_messageBox.png)
+![S15 Coordinator – Message Box](img/prototypeGUI/coordinator_chatBox.png)  
 **S15. Coordinator – Message Box**
 
-![S16 Manager – Overview](img/prototypeGUI/manager_overview.png)
+![S16 Manager – Overview](img/prototypeGUI/manager_overview.png)  
 **S16. Manager – Overview**
 
-![S17 Manager – Staff Management](img/prototypeGUI/manager_staffManagement.png)
+![S17 Manager – Staff Management](img/prototypeGUI/manager_staffManagement.png)  
 **S17. Manager – Staff Management**
 
-![S18 Manager – Rescue Team Management](img/prototypeGUI/manager_resueTeamManagement.png)
+![S18 Manager – Rescue Team Management](img/prototypeGUI/manager_rescueTeamManagement.png)  
 **S18. Manager – Rescue Team Management**
 
-![S19 Manager – Vehicle Management](img/prototypeGUI/manager_vehicleManagement.png)
+![S19 Manager – Vehicle Management](img/prototypeGUI/manager_vehicleManagement.png)  
 **S19. Manager – Vehicle Management**
+
