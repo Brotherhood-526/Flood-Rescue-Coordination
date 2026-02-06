@@ -63,31 +63,37 @@ _Chức năng:_
 ### User (Citizen)
 
 - **S4** User Login
-  - **S5** Submit Request
-  - **S6** View Requests
+- **S05** Submit Request
+- **S06** View Requests
+- **S07** Message Box
 
 ### Staff (Rescue Team / Coordinator / Manager)
 
-- **S7** Staff Login
+- **S8** Staff Login
 
   **Rescue Team**
-  - **S8** Assignment List
-  - **S9** Assignment Details
-  - **S10** Map
-  - **S11** Message Box
+  - **S9** Assignment List
+  - **S10** Assignment Details
+  - **S11** Map
+  - **S12** Message Box
 
   **Coordinator**
-  - **S12** Request List
-  - **S13** Request Details
-  - **S14** Map
-  - **S15** Message Box
+  - **S13** Request List
+  - **S14** Request Details
+  - **S15** Map
+  - **S16** Message Box
 
   **Manager**
-  - **S16** Overview
-  - **S17** Staff Management
-  - **S18** Rescue Team Management
-  - **S19** Vehicle Management
-
+  - **S17** Overview
+  - **S18** Staff Management
+  - **S19** Add Employee
+  - **S20** Edit Staff
+  - **S21** Add Rescue Team
+  - **S22** Edit Rescue Team
+  - **S23** Rescue Team Management
+  - **S24** Vehicle Management
+  - **S25** Add Vehicle
+  - **S26** Edit Vehicle
 ---
 
 ## GUI Prototype Images
@@ -110,42 +116,56 @@ _Chức năng:_
 ![S6 View Requests](img/prototypeGUI/user_afterRequest.png)  
 **S6. View Requests**
 
-![S7 Staff Login](img/prototypeGUI/staff_login.png)  
-**S7. Staff Login**
+![S7 Message Box](img/prototypeGUI/user_messageBox.jpg)
+**S7** Message Box
 
-![S8 Rescue Team – Assignment List](img/prototypeGUI/rescueTeam_listAssignment.png)  
-**S8. Rescue Team – Assignment List**
+![S8 Staff Login](img/prototypeGUI/staff_login.png)  
+**S8. Staff Login**
 
-![S9 Rescue Team – Assignment Details](img/prototypeGUI/rescueTeam_detailedAssignment.png)  
-**S9. Rescue Team – Assignment Details**
+![S9 Rescue Team – Assignment List](img/prototypeGUI/rescueTeam_listAssignment.png)  
+**S9. Rescue Team – Assignment List**
 
-![S10 Rescue Team – Map](img/prototypeGUI/rescueTeam_map.png)  
-**S10. Rescue Team – Map**
+![S10 Rescue Team – Assignment Details](img/prototypeGUI/rescueTeam_detailedAssignment.png)  
+**S10. Rescue Team – Assignment Details**
 
-![S11 Rescue Team – Message Box](img/prototypeGUI/rescueTeam_chatBox.png)  
-**S11. Rescue Team – Message Box**
+![S11 Rescue Team – Map](img/prototypeGUI/rescueTeam_map.png)  
+**S11. Rescue Team – Map**
 
-![S12 Coordinator – Request List](img/prototypeGUI/coordinator_listRequest.png)  
-**S12. Coordinator – Request List**
+![S12 Rescue Team – Message Box](img/prototypeGUI/rescueTeam_chatBox.png)  
+**S13. Rescue Team – Message Box**
 
-![S13 Coordinator – Request Details](img/prototypeGUI/coordinator_detailedRequest.png)  
-**S13. Coordinator – Request Details**
+![S13 Coordinator – Request List](img/prototypeGUI/coordinator_listRequest.png)  
+**S13. Coordinator – Request List**
 
-![S14 Coordinator – Map](img/prototypeGUI/coordinator_map.png)  
-**S14. Coordinator – Map**
+![S14 Coordinator – Request Details](img/prototypeGUI/coordinator_detailedRequest.png)  
+**S14. Coordinator – Request Details**
 
-![S15 Coordinator – Message Box](img/prototypeGUI/coordinator_chatBox.png)  
-**S15. Coordinator – Message Box**
+![S15 Coordinator – Map](img/prototypeGUI/coordinator_map.png)  
+**S15. Coordinator – Map**
 
-![S16 Manager – Overview](img/prototypeGUI/manager_overview.png)  
-**S16. Manager – Overview**
+![S16 Coordinator – Message Box](img/prototypeGUI/coordinator_chatBox.png)  
+**S16. Coordinator – Message Box**
 
-![S17 Manager – Staff Management](img/prototypeGUI/manager_staffManagement.png)  
-**S17. Manager – Staff Management**
+![S17 Overview](img/prototypeGUI/manager_overview.png)  
+**S17. Manager – Overview**
+![S18 Staff Management](img/prototypeGUI/manager_staffManagement.png)  
+**S18. Manager – Staff Management**
+![S19 Add Employee](img/prototypeGUI/manager_addStaff.jpg)  
+**S19. Manager – Add Employee**
+![S20 Edit Staff](img/prototypeGUI/manager_editStaff.jpg)  
+**S20. Manager – Edit Staff**
+![S21 Add Rescue Team](img/prototypeGUI/manager_addRescueTeam.jpg)  
+**S21. Manager – Add Rescue Team**
+![S22 Edit Rescue Team](img/prototypeGUI/manager_editRescueTeam.jpg)  
+**S22. Manager – Edit Rescue Team**
+![S23 Rescue Team Management](img/prototypeGUI/manager_rescueTeamManagement.png)  
+**S23. Manager – Rescue Team Management**
+![S24 Vehicle Management](img/prototypeGUI/manager_vehicleManagement.png)  
+**S24. Manager – Vehicle Management**
+![S25 Add Vehicle](img/prototypeGUI/manager_addVehicle.jpg)  
+**S25. Manager – Add Vehicle**
+![S26 Edit Vehicle](img/prototypeGUI/manager_editVehicle.jpg)  
+**S26. Manager – Edit Vehicle**
 
-![S18 Manager – Rescue Team Management](img/prototypeGUI/manager_rescueTeamManagement.png)  
-**S18. Manager – Rescue Team Management**
-
-![S19 Manager – Vehicle Management](img/prototypeGUI/manager_vehicleManagement.png)  
-**S19. Manager – Vehicle Management**
-
+# ERD Diagram
+![ERD Diagram](img/database/ERD_Diagram.jpg) 
