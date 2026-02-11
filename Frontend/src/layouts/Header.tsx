@@ -2,10 +2,6 @@ import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button'
-
-
-import logo from '@/assets/logo.png';
-
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '@/components/ui/navigation-menu';
 
 export default function Header() {
@@ -18,16 +14,13 @@ export default function Header() {
   return (
     <header className="bg-white shadow-md">
       <div className="w-full fixed top-0 left-0 bg-white shadow z-50 ">
-        <div className="flex justify-between items-center h-20 px-8 py-4">
+        <div className="flex justify-between items-center h-20 px-4 py-4">
           {/* Logo */}
-         
             <img
-              src={logo}
+              src="/Logo.png"
               alt="Flood Rescue Logo"
               className="h-12 w-auto"
             />
-        
-
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <NavigationMenu>
