@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 
-import banner from "@/assets/Banner.png";
+import banner from "@/assets/Banner.svg";
 
 import p1 from "@/assets/problem1.png";
 import p2 from "@/assets/problem2.png";
