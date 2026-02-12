@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, ArrowRight, Loader2, FileQuestion, AlertCircle } from 'lucide-react'; 
+import { Search, ArrowRight, Loader2, FileQuestion } from 'lucide-react'; 
 import { Button } from '@/components/ui/button';
 
 // --- PHẦN 1: INTERFACES (GIỮ NGUYÊN) ---
