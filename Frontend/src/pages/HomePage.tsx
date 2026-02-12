@@ -12,6 +12,7 @@ import s1 from "@/assets/solution1.png";
 import s2 from "@/assets/solution2.png";
 import s3 from "@/assets/solution3.png";
 import s4 from "@/assets/solution4.png";
+import Footer from "@/layouts/Footer";
 
 
 export default function HomePage() {
@@ -120,7 +121,9 @@ export default function HomePage() {
             </div>
 
           
-            
+        <Footer/>
         </div>
+
+        
     );
 }
