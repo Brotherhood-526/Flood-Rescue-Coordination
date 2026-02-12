@@ -53,7 +53,7 @@ rescue-system-frontend/
 │ │ │ ├── GuidePage.jsx # TODO: Hướng dẫn sử dụng
 │ │ │ └── SearchPage.jsx # TODO: Tìm kiếm yêu cầu
 │ │ │
-│ │ ├── user/ # USER role pages
+│ │ ├── citizen/ # USER role pages
 │ │ │ ├── RequestPage.jsx # TODO: Form tạo yêu cầu cứu hộ (với map picker)
 │ │ │ ├── AfterRequestPage.jsx # TODO: Xem chi tiết sau khi tạo request
 │ │ │ ├── EditRequestPage.jsx # TODO: Chỉnh sửa yêu cầu
@@ -74,7 +74,7 @@ rescue-system-frontend/
 │ │ ├── coordinator/ # COORDINATOR role pages
 │ │ │ ├── RequestList.jsx # TODO: Table danh sách yêu cầu với filters
 │ │ │ ├── RequestDetail.jsx # TODO: Chi tiết yêu cầu + phân công team
-│ │ │ ├── Chat.jsx # TODO: Chat box với users/teams
+│ │ │ ├── Chat.jsx # TODO: Chat box với citizen/teams
 │ │ │ └── Map.jsx # TODO: Bản đồ hiển thị các requests
 │ │ │
 │ │ └── rescueteam/ # RESCUE_TEAM role pages

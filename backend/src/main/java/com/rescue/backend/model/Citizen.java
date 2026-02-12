@@ -1,6 +1,7 @@
 package com.rescue.backend.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,9 +11,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "Citizen")
 @Getter @Setter @NoArgsConstructor
-public class User {
+public class Citizen {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -23,6 +24,6 @@ public class User {
     @Column(unique = true, nullable = false)
     private String phone;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "citizen")
     private List<Request> requests;
 }

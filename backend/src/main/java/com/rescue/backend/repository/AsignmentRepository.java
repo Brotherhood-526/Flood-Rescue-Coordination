@@ -1,4 +1,9 @@
 package com.rescue.backend.repository;
 
-public class AsignmentRepository {
+import com.rescue.backend.model.RescueTeamAssignment;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface AsignmentRepository extends JpaRepository<RescueTeamAssignment, UUID> {
 }

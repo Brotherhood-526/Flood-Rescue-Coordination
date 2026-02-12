@@ -4,15 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.PrecisionModel;
 
 import org.locationtech.jts.geom.Point;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
-
-
 @Entity
 @Table(name = "Request")
 @Getter @Setter @NoArgsConstructor
@@ -23,7 +20,7 @@ public class Request {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private Citizen citizen;
 
     @Column(nullable = false, length = 20)
     private String type;
@@ -34,20 +31,17 @@ public class Request {
     @Column(length = 200)
     private String address;
 
-    @Column(precision = 10, scale = 8, nullable = false)
+    @Column(precision = 18, scale = 10, nullable = false)
     private BigDecimal latitude;
 
-    @Column(precision = 10, scale = 8, nullable = false)
+    @Column(precision = 18, scale = 10, nullable = false)
     private BigDecimal longitude;
 
-    @Column(name = "geo_location", columnDefinition = "GEOGRAPHY", nullable = false)
+    @Column(name = "geo_location", columnDefinition = "geography", insertable = false, updatable = false)
     private Point geoLocation;
 
-    @Column(name = "additional_url", length = 200)
+    @Column(name = "additional_link", length = 200)
     private String additionalLink;
-
-    @Column(name = "img_url", length = 500)
-    private String imgUrl;
 
     @Column(length = 20)
     private String status = "processing";
@@ -58,14 +52,14 @@ public class Request {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public void setGeoLocation() {
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+    @OneToMany(mappedBy = "request")
+    private List<RequestImage> images;
 
-        this.geoLocation = geometryFactory.createPoint(
-                new org.locationtech.jts.geom.Coordinate(
-                        this.longitude.doubleValue(),
-                        this.latitude.doubleValue()
-                )
-        );
-    }
+    @OneToMany(mappedBy = "request")
+    private List<Message> messages;
+
+    @OneToMany(mappedBy = "request")
+    private List<RescueTeamAssignment> rescueTeamAssignment;
 }
+
+
