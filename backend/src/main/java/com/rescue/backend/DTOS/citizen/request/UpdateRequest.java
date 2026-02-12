@@ -4,17 +4,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
-public record RescueRequest (
-        String type,
+public record UpdateRequest(
+        UUID requestId,
+        String citizenName,
+        String citizenPhone,
+        String Type,
         String address,
         BigDecimal latitude,
         BigDecimal longitude,
+        String additionLink,
         String description,
-        String name,
-        String phone,
-        String additionalLink,
-        List<MultipartFile> images
+        List<MultipartFile> images,
+        List<UUID> deleteImageIds
 ) {
 
 }
