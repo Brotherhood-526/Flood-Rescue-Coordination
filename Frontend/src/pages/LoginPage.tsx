@@ -95,9 +95,9 @@ export default function Login() {
                                     BẢN ĐỒ
                                 </a>{' '}
                                 nếu chưa gửi yêu cầu. Nếu đã gửi yêu cầu và cần xem trạng thái, vui lòng qua trang{' '}
-                                <a href="#" className="text-2xl font-extrabold text-black hover:text-black hover:underline decoration-2 underline-offset-4 transition-all">
+                                <Link to="/search" className="text-2xl font-extrabold text-black hover:text-black hover:underline decoration-2 underline-offset-4 transition-all">
                                     TRA CỨU
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
