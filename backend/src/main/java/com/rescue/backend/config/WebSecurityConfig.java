@@ -2,8 +2,13 @@ package com.rescue.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -18,19 +23,11 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. Tắt CSRF để có thể gọi API POST từ Swagger/Postman
                 .csrf(csrf -> csrf.disable())
-
-                // 2. Mở cửa cho Swagger và các API công khai
                 .authorizeHttpRequests(auth -> auth
-                        // Cho phép vào giao diện Swagger
-                        .requestMatchers("/api/v1/swagger-ui/**", "/api/v1/v3/api-docs/**", "/api/v1/swagger-ui.html").permitAll()
-                        // Cho phép gọi API gửi yêu cầu cứu hộ
-                        .requestMatchers("/api/v1/citizen/**").permitAll()
-                        // Các request khác tạm thời cho phép hết để bạn dễ test
-                        .anyRequest().permitAll()
+                        .requestMatchers("/api/v1/auth/**", "/api/v1/swagger-ui/**", "/api/v1/v3/api-docs/**").permitAll()
+                        .anyRequest().permitAll() // Đang để permitAll để bạn test
                 );
-
         return http.build();
     }
 
@@ -43,5 +40,10 @@ public class WebSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

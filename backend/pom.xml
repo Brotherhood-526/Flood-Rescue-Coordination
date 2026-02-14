@@ -84,6 +84,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>me.paulschwarz</groupId>
+			<artifactId>spring-dotenv</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-spatial</artifactId>
 			<version>8.0.0.Alpha1</version>
