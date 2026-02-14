@@ -7,6 +7,8 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Image } from "lucide-react"
+import vietmapgl from "@vietmap/vietmap-gl-js"
+import { useVietMap } from "@/lib/MapProvider"
 
 export default function RequestPage() {
   const [form, setForm] = useState({
@@ -20,27 +22,20 @@ export default function RequestPage() {
 
   const inputRef = useRef<HTMLInputElement>(null)
   const mapContainer = useRef<HTMLDivElement | null>(null)
-  const mapRef = useRef<any>(null)
-  const markerRef = useRef<any>(null)
+  const markerRef = useRef<vietmapgl.Marker | null>(null)
 
-  const TILEMAP_KEY = import.meta.env.VITE_TILEMAP_KEY
+  const { map, mapLoaded, mount, unmount } = useVietMap()
 
-  // ================= MAP =================
+  // ================= MAP (mount vào container của page) =================
   useEffect(() => {
-    if (!mapContainer.current || !TILEMAP_KEY) return
+    if (!mapContainer.current) return
+    mount(mapContainer.current)
 
-    const map = new vietmapgl.Map({
-      container: mapContainer.current,
-      style: `https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${TILEMAP_KEY}`,
-      center: [106.70098, 10.77689],
-      zoom: 13,
-    })
-
-    map.addControl(new vietmapgl.NavigationControl())
-    mapRef.current = map
-
-    return () => map.remove()
-  }, [TILEMAP_KEY])
+    return () => {
+      // nếu bạn muốn map tồn tại xuyên page thì comment dòng này
+      unmount()
+    }
+  }, [mount, unmount])
 
   // ================= IMAGE PREVIEW =================
   const preview = useMemo(() => {
@@ -57,11 +52,7 @@ export default function RequestPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
-    setForm((prev) => ({
-      ...prev,
-      image: file,
-    }))
+    setForm((prev) => ({ ...prev, image: file }))
   }
 
   // ================= GEOLOCATION =================
@@ -81,18 +72,14 @@ export default function RequestPage() {
           address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
         }))
 
-        if (mapRef.current) {
-          mapRef.current.flyTo({
-            center: [lng, lat],
-            zoom: 15,
-          })
+        if (!map) return
 
-          if (markerRef.current) markerRef.current.remove()
+        map.flyTo({ center: [lng, lat], zoom: 15 })
 
-          markerRef.current = new vietmapgl.Marker()
-            .setLngLat([lng, lat])
-            .addTo(mapRef.current)
-        }
+        if (markerRef.current) markerRef.current.remove()
+        markerRef.current = new vietmapgl.Marker()
+          .setLngLat([lng, lat])
+          .addTo(map)
       },
       () => alert("Bạn chưa cấp quyền định vị")
     )
@@ -108,16 +95,9 @@ export default function RequestPage() {
     formData.append("description", form.description)
     formData.append("phone", form.phone)
     formData.append("name", form.name)
+    if (form.image) formData.append("image", form.image)
 
-    if (form.image) {
-      formData.append("image", form.image)
-    }
-
-    await fetch("/api/request", {
-      method: "POST",
-      body: formData,
-    })
-
+    await fetch("/api/request", { method: "POST", body: formData })
     alert("Gửi yêu cầu thành công!")
   }
 
@@ -125,12 +105,11 @@ export default function RequestPage() {
     <div className="flex h-full w-full">
       {/* LEFT FORM */}
       <div className="w-[420px] bg-white p-6 shadow-md overflow-y-auto">
-        <h1 className="text-lg font-bold mb-4 text-center">
+        <h1 className="text-2xl font-bold mb-4 text-center">
           Gửi thông tin cứu hộ
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-
           {/* Phân loại */}
           <div>
             <Label>Phân loại</Label>
@@ -139,14 +118,12 @@ export default function RequestPage() {
                 <button
                   type="button"
                   key={item}
-                  className={`rounded-full border px-4 py-1 text-sm transition ${
+                  className={`rounded-full border-2 px-4 py-1 text-sm transition ${
                     form.type === item
                       ? "bg-red-500 text-white"
                       : "hover:bg-red-300"
                   }`}
-                  onClick={() =>
-                    setForm((prev) => ({ ...prev, type: item }))
-                  }
+                  onClick={() => setForm((prev) => ({ ...prev, type: item }))}
                 >
                   {item}
                 </button>
@@ -162,10 +139,7 @@ export default function RequestPage() {
               className="mt-2 w-full rounded-md border px-3 py-2"
               value={form.address}
               onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  address: e.target.value,
-                }))
+                setForm((prev) => ({ ...prev, address: e.target.value }))
               }
             />
             <button
@@ -185,10 +159,7 @@ export default function RequestPage() {
               className="mt-2 w-full rounded-md border px-3 py-2"
               value={form.description}
               onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  description: e.target.value,
-                }))
+                setForm((prev) => ({ ...prev, description: e.target.value }))
               }
             />
           </div>
@@ -201,10 +172,7 @@ export default function RequestPage() {
               className="mt-2 w-full rounded-md border px-3 py-2"
               value={form.phone}
               onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  phone: e.target.value,
-                }))
+                setForm((prev) => ({ ...prev, phone: e.target.value }))
               }
             />
           </div>
@@ -217,10 +185,7 @@ export default function RequestPage() {
               className="mt-2 w-full rounded-md border px-3 py-2"
               value={form.name}
               onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  name: e.target.value,
-                }))
+                setForm((prev) => ({ ...prev, name: e.target.value }))
               }
             />
           </div>
@@ -238,9 +203,7 @@ export default function RequestPage() {
                 />
                 <button
                   type="button"
-                  onClick={() =>
-                    setForm((prev) => ({ ...prev, image: null }))
-                  }
+                  onClick={() => setForm((prev) => ({ ...prev, image: null }))}
                   className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white"
                 >
                   Xoá
