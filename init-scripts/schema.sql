@@ -1,4 +1,9 @@
-﻿CREATE TABLE Citizen (
+﻿DROP DATABASE IF EXISTS FloodRescueCoordination
+GO
+CREATE DATABASE FloodRescueCoordination
+GO
+
+CREATE TABLE Citizen (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     name NVARCHAR(50) NOT NULL,
     phone VARCHAR(20) UNIQUE NOT NULL 
@@ -13,7 +18,7 @@ CREATE TABLE Account (
     team_name NVARCHAR(50),
     team_size INT,
     latitude DECIMAL(18, 10),
-    longitude DECIMAL(10, 10),
+    longitude DECIMAL(18, 10),
     
     account_state VARCHAR(20) DEFAULT 'offline',
 
@@ -90,6 +95,7 @@ CREATE TABLE Message (
 
     CONSTRAINT CK_Message_SenderRole CHECK (sender_role IN ('citizen', 'coordinator', 'rescue team'))
 );
+GO
 
 /*
 CREATE INDEX IX_Citizen_Phone ON Citizen(phone); 
@@ -140,16 +146,7 @@ DROP INDEX IF EXISTS IX_Vehicle_State_Type_Owner ON Vehicle;
 
 
 
-DELETE FROM Message;
-DELETE FROM RescueTeamAssignment;
-DELETE FROM RequestImage;
-DELETE FROM Vehicle;
-DELETE FROM Request;
-DELETE FROM Account;
-DELETE FROM Citizen;
-
-
-
+/*
 SELECT * FROM sys.spatial_reference_systems WHERE spatial_reference_id = 4326;
 GO
 
@@ -182,7 +179,7 @@ END;
 
 
 DROP TRIGGER IF EXISTS TRG_UpdateGeography
-
+*/
 SELECT 
     name AS [Object Name], 
     type_desc AS [Object Type], 
@@ -285,7 +282,7 @@ VALUES (
     N'Đã hoàn thành việc sơ tán 5 người già và 2 trẻ em an toàn.'
 );
 
--- KIỂM TRA DỮ LIỆU
+-- KIỂM TRA DỮ LIỆU PHÂN CÔNG
 SELECT 
     r.id AS [requestId],
     r.address AS [address],
@@ -330,15 +327,20 @@ WHERE c.phone = '0912345678'
 ORDER BY r.created_at DESC
 
     
-
+/*
 SELECT * FROM Citizen c
 JOIN Request r ON c.id = r.user_id
 WHERE r.status IN ('processing', 'delayed')
 AND c.phone = '0912345678'
 
 
-SELECT id, phone, LEN(phone) as Length FROM Citizen WHERE phone LIKE '%0912345678%';
-
+DELETE FROM Message;
+DELETE FROM RescueTeamAssignment;
+DELETE FROM RequestImage;
+DELETE FROM Vehicle;
+DELETE FROM Request;
+DELETE FROM Account;
+DELETE FROM Citizen;
 
 DROP TABLE IF EXISTS Message;
 DROP TABLE IF EXISTS RescueTeamAssignment;
@@ -348,3 +350,5 @@ DROP TABLE IF EXISTS Request;
 DROP TABLE IF EXISTS Account;
 DROP TABLE IF EXISTS Citizen;
 GO
+
+*/
