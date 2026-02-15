@@ -160,6 +160,12 @@ button:focus-visible {
 }
 
 @layer base {
+  /*Ẩn thanh cuộn trên Chrome,Safari,Edge và Opera */ 
+  ::-webkit-scrollbar {
+      display: none;
+    }
+
+
   * {
     @apply border-border outline-ring/50;
   }

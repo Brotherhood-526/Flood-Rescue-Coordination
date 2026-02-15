@@ -7,7 +7,7 @@ function MainLayout({role}:{role:number}) {
 
       <Header role={role} />
 
-      <main className="flex-1 overflow-hidden pt-15">
+      <main className="flex-1 w-full pt-20">
         <Outlet />
       </main>
 

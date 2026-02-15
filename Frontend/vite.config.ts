@@ -18,4 +18,14 @@ export default defineConfig({
   optimizeDeps: {
     include: ["@vietmap/vietmap-gl-js"],
   },
+
+  server: {
+    proxy: {
+      '/vietmap-api': {
+        target: 'https://maps.vietmap.vn', // Trỏ tới máy chủ Vietmap
+        changeOrigin: true,                
+        rewrite: (path) => path.replace(/^\/vietmap-api/, '')
+      }
+    }
+  }
 })

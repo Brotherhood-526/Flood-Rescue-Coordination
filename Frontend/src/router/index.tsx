@@ -3,13 +3,13 @@ import Login from '@/pages/LoginPage';
 import { ROUTES } from './routes';
 import MainLayout from "@/layouts/MainLayout";
 import HomePage from '@/pages/HomePage';
-import RequestPage from '@/pages/RequestPage';
+import RequestPage from '@/pages/User/RequestPage';
 import FindRequestPage from '@/pages/FindRequestPage';
-import ContactPage from '@/pages/User/ContactPage';
-import GuidePage from '@/pages/User/GuidePage';
-import ListRequestPage from "@/pages/ListRequestPage.tsx";
-import RequestDetailPage from "@/pages/RequestDetailPage.tsx";
-import FullMapPage from "@/pages/FullMapPage.tsx";
+import ContactPage from '@/pages/ContactPage';
+import GuidePage from '@/pages/GuidePage';
+import ListRequestPage from "@/pages/Coordinator/ListRequestPage";
+import RequestDetailPage from "@/pages/Coordinator/RequestDetailPage";
+import FullMapPage from "@/pages/Coordinator/FullMapPage";
 
 export const router = createBrowserRouter([
   {
@@ -28,11 +28,7 @@ export const router = createBrowserRouter([
         path: ROUTES.REQUEST,
         element: <RequestPage />,
       },
-<<<<<<< HEAD
       {
-=======
-      {      
->>>>>>> 21041494d1dca055dba049af16d0f84d4eb028d4
         path: ROUTES.SEARCH, 
         element: <FindRequestPage />,
       },

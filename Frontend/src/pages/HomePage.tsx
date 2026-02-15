@@ -18,17 +18,23 @@ import Footer from "@/layouts/Footer";
 export default function HomePage() {
     return (
         <div className="w-full overflow-x-hidden"> 
-            <div>
-                <div className="relative w-full flex justify-center">
-                    <img
-                        src={banner}
-                        alt="Cứu hộ"
-                        className="max-h-full max-w-full w-20xl object-contain object-center"
-                    />
-                    <Link to="/map"
-                        className="absolute bottom-16 left-1/2 -translate-x-1/2 inline-flex items-center justify-center rounded-lg
-                                bg-white px-8 py-3 text-base font-semibold !text-[#167E30] shadow-md transition-all duration-300 
-                                hover:bg-[#167E30] hover:!text-white hover:scale-105 active:scale-95">
+            <div className="relative w-full h-[400px] md:h-[550px]">
+                <img
+                    src={banner}
+                    alt="Cứu hộ"
+                    className="absolute inset-0 h-full w-full object-cover object-center"
+                />
+                
+                <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+                    
+                    <h1 className="mb-10 max-w-4xl text-2xl font-bold leading-snug text-white md:text-4xl lg:text-5xl">
+                        Dự án cộng đồng nhằm chia sẻ và trực quan hóa thông tin cứu hộ, giúp kết nối người dân và lực lượng hỗ trợ trong các tình huống thiên tai.
+                    </h1>
+
+                    <Link 
+                        to="/map"
+                        className="inline-flex items-center justify-center rounded-xl bg-white px-9 py-3 text-lg font-bold text-[#167E30] shadow-lg transition-all duration-300 hover:scale-105 hover:bg-[#167E30] hover:text-white active:scale-95"
+                    >
                         Xem bản đồ
                     </Link>
                 </div>

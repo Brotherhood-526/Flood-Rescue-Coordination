@@ -79,7 +79,7 @@ export function UserHeader({
   const location = useLocation();
 
   const getLinkClass = (path: string) => {
-    const base = "px-3 py-2 font-medium transition";
+    const base = "px-5 py-2 font-medium transition";
     const active = "text-blue-600 font-bold underline";
     const inactive = "text-gray-700 hover:text-blue-600";
     return location.pathname === path

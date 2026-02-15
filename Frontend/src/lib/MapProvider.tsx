@@ -39,22 +39,27 @@ export const MapProvider = ({ children }: { children: React.ReactNode }) => {
 
   const mount = useCallback(
     (container: HTMLElement) => {
-      if (!TILEMAP_KEY) return
-
-      
-      if (mapRef.current && containerRef.current === container) return
-
+      if (!TILEMAP_KEY) 
+        return
+      if (mapRef.current && containerRef.current === container) 
+        return
       if (mapRef.current && containerRef.current !== container) {
         destroyMap()
       }
+      const hcmBounds: [number, number][] = [
+        [106.3500, 10.3500],
+        [107.1500, 11.1500]
+      ];
 
       const map = new vietmapgl.Map({
         container,
         style: buildStyleUrl(),
         center: [106.70098, 10.77689],
         zoom: 13,
+        maxBounds: hcmBounds,
       })
-
+      map.setMinZoom(10);
+      
       map.addControl(new vietmapgl.NavigationControl())
 
       map.on("load", () => {
