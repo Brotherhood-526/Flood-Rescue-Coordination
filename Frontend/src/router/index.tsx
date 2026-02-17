@@ -3,7 +3,7 @@ import Login from '@/pages/LoginPage';
 import { ROUTES } from './routes';
 import MainLayout from "@/layouts/MainLayout";
 import HomePage from '@/pages/HomePage';
-import RequestPage from '@/pages/User/RequestPage';
+import RequestPage from '@/pages/User/Request';
 import FindRequestPage from '@/pages/FindRequestPage';
 import ContactPage from '@/pages/ContactPage';
 import GuidePage from '@/pages/GuidePage';
