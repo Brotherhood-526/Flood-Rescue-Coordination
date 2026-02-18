@@ -25,7 +25,12 @@ export const requestSchema = z.object({
       },
       { message: "Link không hợp lệ. Vui lòng dán đúng đường dẫn chia sẻ từ Google Maps!" }
     ),
-  image: z.any().optional(),
+  image: z
+  .array(z.instanceof(File))
+  .min(1, { message: "Vui lòng tải lên ít nhất 1 ảnh" })
+  .max(3, { message: "Tối đa 3 ảnh" })
+  .optional()
+  .or(z.undefined())
 });
 
 export type RequestSchemaType = z.infer<typeof requestSchema>;
