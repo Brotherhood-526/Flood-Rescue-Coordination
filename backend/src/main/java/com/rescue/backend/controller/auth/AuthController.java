@@ -29,7 +29,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("Success", "Đăng nhập thành công", account)
             );
-        } catch (BadCredentialsException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     new ResponseObject("Failure", "Số điện thoại hoặc mật khẩu không đúng", null)
             );
