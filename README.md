@@ -168,4 +168,4 @@ _Chức năng:_
 **S26. Manager – Edit Vehicle**
 
 # ERD Diagram
-![ERD Diagram](img/database/ERD_Diagram.jpg) 
+![ERD Diagram](img/database/ERD_diagram.png) 
