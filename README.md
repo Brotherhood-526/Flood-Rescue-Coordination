@@ -62,10 +62,10 @@ _Chức năng:_
 
 ### User (Citizen)
 
-- **S04** Submit Request
-- **S05** View Requests
-- **S06** Edit Requests
-- **S07** Message Box
+- **S4** User Login
+- **S5** Submit Request
+- **S6** View Requests
+- **S7** Message Box
 
 ### Staff (Rescue Team / Coordinator / Manager)
 
