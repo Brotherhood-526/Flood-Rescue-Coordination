@@ -8,7 +8,7 @@ import type { RefObject } from "react"
 
 interface EditRequestDialogProps {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (open: boolean) => void; // ← props này là 1 function
   isSubmitted: boolean;
   isSubmitting: boolean;
   onSubmitForm: (e?: React.BaseSyntheticEvent) => Promise<void>;
@@ -111,7 +111,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                   {previews.map((src, index) => (
                     <div key={index} className="relative aspect-square w-full group rounded-xl bg-gray-50 border border-gray-200">
                       <img src={src} alt={`preview-${index}`} className="h-full w-full rounded-xl object-cover" />
-                      <button type="button" onClick={() => handleRemoveImage(index)} className="absolute -right-2 -top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition-all hover:scale-110 hover:bg-red-600" title="Xóa ảnh"><X className="w-3.5 h-3.5" strokeWidth={3} /></button>
+                      <button type="button" onClick={() => handleRemoveImage(index)} className="absolute -right-2 -top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-gray-300 text-black transition-all hover:scale-120" title="Xóa ảnh"><X className="w-3.5 h-3.5" strokeWidth={3} /></button>
                     </div>
                   ))}
                   {previews.length < 3 && (
