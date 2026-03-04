@@ -51,17 +51,22 @@ export default function Login() {
                             </CardTitle>
                         </CardHeader>
 
-        <div className="flex-1 flex justify-center w-full pt-24">
-          <Card className="w-full max-w-[500px] border-0 shadow-none">
-            <CardHeader className="text-center p-0 mb-10">
-              <CardTitle className="text-5xl font-bold text-slate-900">
+        {/* Form */}
+        <div className="flex-1 flex justify-center w-full pt-16 px-6">
+          <Card className="w-full max-w-[480px] border-0 shadow-none bg-transparent">
+            <CardHeader className="text-center p-0 mb-3">
+              <CardTitle className="text-5xl font-extrabold text-slate-900 tracking-tight">
                 Đăng nhập
               </CardTitle>
+              <p className="text-sm text-gray-400 mt-2 font-medium">
+                Dành cho nhân viên & điều phối viên
+              </p>
             </CardHeader>
 
-            <CardContent className="p-0">
-              <form className="space-y-5">
-                <div className="space-y-2">
+            <CardContent className="p-0 mt-8">
+              <form className="space-y-4" onSubmit={handleLogin}>
+                {/* Phone */}
+                <div className="relative">
                   <Input
                     id="phone"
                     name="name"
@@ -71,17 +76,12 @@ export default function Login() {
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     required
-                    style={
-                      {
-                        "--autofill-bg": "white",
-                        "--autofill-color": "black",
-                      } as React.CSSProperties
-                    }
-                    className="h-16 bg-white border-black rounded-xl px-5 text-lg text-black font-bold placeholder:text-gray-400 placeholder:font-bold focus-visible:ring-2 focus-visible:ring-[#54b38a] transition-all"
+                    className="h-14 bg-gray-100 border-gray-200 rounded-xl pl-11 pr-5 text-base text-black font-semibold placeholder:text-gray-400 placeholder:font-normal focus-visible:ring-2 focus-visible:ring-[#25a863] focus-visible:bg-white transition-all"
                   />
                 </div>
 
-                <div className="space-y-2 mt-6">
+                {/* Password */}
+                <div className="relative">
                   <Input
                     id="password"
                     name="password"
@@ -91,59 +91,148 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="h-16 bg-white border-black rounded-xl px-5 text-lg text-black font-bold placeholder:text-gray-400 placeholder:font-bold focus-visible:ring-2 focus-visible:ring-[#54b38a] transition-all"
+                    className="h-14 bg-gray-100 border-gray-200 rounded-xl pl-11 pr-5 text-base text-black font-semibold placeholder:text-gray-400 placeholder:font-normal focus-visible:ring-2 focus-visible:ring-[#25a863] focus-visible:bg-white transition-all"
                   />
                 </div>
 
+                {/* Submit */}
                 <Button
                   type="submit"
-                  className="w-full h-16 bg-[#54b38a] hover:bg-[#3da076] text-white text-lg font-bold rounded-xl mt-6 shadow-lg transition-all"
-                  onClick={handleLogin}
+                  className="w-full h-14 bg-[#25a863] hover:bg-[#1a7a4a] text-white text-base font-bold rounded-xl shadow-lg shadow-green-200 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-green-200 mt-2"
                 >
-                  Đăng nhập với tư cách nhân viên
+                  Đăng nhập với tư cách nhân viên →
                 </Button>
+
+                {/* Divider */}
+                <div className="flex items-center gap-3 py-1">
+                  <div className="flex-1 h-px bg-gray-200" />
+                  <span className="text-xs text-gray-400 font-medium">
+                    hoặc truy cập nhanh (Người dân)
+                  </span>
+                  <div className="flex-1 h-px bg-gray-200" />
+                </div>
+
+                {/* Quick links */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Link
+                    to="/map"
+                    className="flex items-center gap-2.5 px-4 py-3 border-[1.5px] border-gray-200 rounded-xl text-sm font-semibold text-gray-600 bg-white hover:border-[#25a863] hover:text-[#1a7a4a] hover:bg-green-50 transition-all"
+                  >
+                    <span className="w-7 h-7 bg-green-100 rounded-md flex items-center justify-center text-sm flex-shrink-0">
+                      🗺️
+                    </span>
+                    Bản đồ cứu hộ
+                  </Link>
+                  <Link
+                    to="/search"
+                    className="flex items-center gap-2.5 px-4 py-3 border-[1.5px] border-gray-200 rounded-xl text-sm font-semibold text-gray-600 bg-white hover:border-[#25a863] hover:text-[#1a7a4a] hover:bg-green-50 transition-all"
+                  >
+                    <span className="w-7 h-7 bg-green-100 rounded-md flex items-center justify-center text-sm flex-shrink-0">
+                      🔍
+                    </span>
+                    Tra cứu yêu cầu
+                  </Link>
+                </div>
               </form>
             </CardContent>
           </Card>
         </div>
+
+        <p className="text-center text-xs text-gray-400 py-6">
+          © 2026 Cứu Hộ – Hệ thống điều phối khẩn cấp
+        </p>
       </div>
 
-      {/* --- RIGHT SIDE --- */}
-      <div className="hidden lg:flex flex-col items-center bg-[#29C58E] p-12 text-white h-full">
-        <div className="h-20 w-full shrink-0" />
-        <div className="flex-1 flex justify-center w-full pt-24">
-          <div className="max-w-xl">
-            <h1 className="text-5xl font-bold text-center mb-10 tracking-tight">
-              Chào mừng trở lại!
-            </h1>
+      {/* ══ RIGHT SIDE ══ */}
+      <div className="hidden lg:flex flex-col bg-[#25a863] h-full overflow-hidden relative">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
 
-            <ul className="space-y-3 text-xl leading-relaxed list-disc pl-6 font-medium">
-              <li>
-                Cổng thông tin điều phối cứu hộ. Cảm ơn bạn đã chung tay cùng
-                cộng đồng.
-              </li>
-              <li>
-                Các điều phối viên và quản lý sẽ được cấp tài khoản riêng để
-                đăng nhập.
-              </li>
-              <li>
-                Bạn là người dân cần cứu hộ? Vui lòng qua trang{" "}
-                <Link
-                  to="/map"
-                  className="text-2xl font-extrabold text-black hover:text-black hover:underline decoration-2 underline-offset-4 transition-all"
+        {/* Decorative blobs */}
+        <div className="absolute -top-24 -right-20 w-72 h-72 rounded-full bg-white/[0.07] pointer-events-none" />
+        <div className="absolute -bottom-10 -left-16 w-48 h-48 rounded-full bg-white/[0.07] pointer-events-none" />
+        <div className="absolute bottom-44 right-10 w-24 h-24 rounded-full bg-white/[0.05] pointer-events-none" />
+
+        <div className="h-20 w-full shrink-0" />
+
+        <div className="flex-1 flex justify-center w-full pt-16 px-12 relative z-10">
+          <div className="max-w-xl w-full text-white">
+            {/* Live badge */}
+            <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur border border-white/25 rounded-full px-4 py-1.5 text-xs font-semibold tracking-wide mb-6">
+              <span className="w-2 h-2 rounded-full bg-[#7fffb8] shadow-[0_0_8px_#7fffb8] animate-pulse" />
+              HỆ THỐNG ĐANG HOẠT ĐỘNG
+            </div>
+
+            <h1 className="text-5xl font-extrabold tracking-tight mb-3 leading-tight">
+              Chào mừng trở lại! 👋
+            </h1>
+            <p className="text-white/75 text-sm mb-8 leading-relaxed">
+              Cổng thông tin điều phối cứu hộ.
+              <br />
+              Cảm ơn bạn đã chung tay cùng cộng đồng.
+            </p>
+
+            {/* Feature cards */}
+            <div className="space-y-3">
+              {[
+                {
+                  icon: "🏢",
+                  title: "Tài khoản nhân viên",
+                  desc: "Điều phối viên và quản lý được cấp tài khoản riêng để đăng nhập hệ thống.",
+                },
+                {
+                  icon: "🆘",
+                  title: "Người dân cần cứu hộ?",
+                  desc: (
+                    <>
+                      Vui lòng truy cập trang{" "}
+                      <Link
+                        to="/map"
+                        className="text-[#b5ffd9] font-bold hover:underline"
+                      >
+                        BẢN ĐỒ
+                      </Link>{" "}
+                      để gửi yêu cầu khẩn cấp.
+                    </>
+                  ),
+                },
+                {
+                  icon: "📋",
+                  title: "Theo dõi yêu cầu",
+                  desc: (
+                    <>
+                      Đã gửi yêu cầu? Kiểm tra tiến độ tại trang{" "}
+                      <Link
+                        to="/search"
+                        className="text-[#b5ffd9] font-bold hover:underline"
+                      >
+                        TRA CỨU
+                      </Link>
+                      .
+                    </>
+                  ),
+                },
+              ].map(({ icon, title, desc }) => (
+                <div
+                  key={title}
+                  className="flex items-start gap-4 bg-white/[0.12] backdrop-blur border border-white/20 rounded-2xl px-5 py-4 hover:bg-white/[0.20] hover:translate-x-1 transition-all cursor-default"
                 >
-                  BẢN ĐỒ
-                </Link>
-                nếu chưa gửi yêu cầu. Nếu đã gửi yêu cầu và cần xem trạng thái,
-                vui lòng qua trang{" "}
-                <Link
-                  to="/search"
-                  className="text-2xl font-extrabold text-black hover:text-black hover:underline decoration-2 underline-offset-4 transition-all"
-                >
-                  TRA CỨU
-                </Link>
-              </li>
-            </ul>
+                  <span className="text-xl mt-0.5 flex-shrink-0">{icon}</span>
+                  <div>
+                    <p className="font-bold text-sm mb-0.5">{title}</p>
+                    <p className="text-white/80 text-sm leading-relaxed">
+                      {desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
