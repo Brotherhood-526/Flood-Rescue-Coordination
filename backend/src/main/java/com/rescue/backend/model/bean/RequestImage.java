@@ -16,7 +16,8 @@ public class RequestImage {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "image_url", columnDefinition = "NVARCHAR(MAX)", nullable = false)
+    @Lob
+    @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)

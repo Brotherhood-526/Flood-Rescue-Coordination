@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import org.locationtech.jts.geom.Point;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +24,7 @@ public class Request {
     @Column(nullable = false, length = 20)
     private String type;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Lob
     private String description;
 
     @Column(length = 200)
@@ -36,9 +35,6 @@ public class Request {
 
     @Column(precision = 18, scale = 10, nullable = false)
     private BigDecimal longitude;
-
-    @Column(name = "geo_location", columnDefinition = "geography", insertable = false, updatable = false)
-    private Point geoLocation;
 
     @Column(name = "additional_link", length = 200)
     private String additionalLink;
