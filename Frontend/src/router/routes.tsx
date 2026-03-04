@@ -9,4 +9,5 @@ export const ROUTES = {
   REQUESTDETAILS: '/coordination/requestdetails',
   FULLMAP: '/coordination/fullmap',
   TESTCHATBOX: '/testchatbox',
+  RESCUE: '/rescue',
 } as const;

@@ -1,0 +1,58 @@
+package com.rescue.backend.controller.controller.auth;
+
+import com.rescue.backend.model.service.AuthService;
+import com.rescue.backend.view.dto.auth.request.LoginRequest;
+import com.rescue.backend.view.dto.auth.response.LoginResponse;
+import com.rescue.backend.view.dto.common.ResponseObject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    @Autowired
+    private AuthService authService;
+
+    @PostMapping("/login")
+    public ResponseEntity<ResponseObject> login(@RequestBody LoginRequest loginRequest, HttpServletRequest session) {
+
+        //HttpServletRequest: Đại diện cho toàn bộ một yêu cầu HTTP. Nó chứa mọi thứ: Header, Cookies, IP người gửi, Body, Parameters... và cả Session bên trong nó.
+        //HttpSession: Chỉ đại diện cho phiên làm việc của một người dùng cụ thể. Nó là một "ngăn chứa đồ" riêng biệt trên server dành cho user đó.
+        //Nguyên tắc vàng: Tầng Service chỉ nên xử lý Logic (check pass, check phone). KHông cần phải biết về "HTTP", "Request" hay "Session".
+        try {
+            LoginResponse account = authService.authenticateUser(loginRequest);
+
+            session.setAttribute("TEAM_ID", account.accountId());
+            session.setAttribute("ACCOUNT_ROLE", account.role());
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject(200, "Đăng nhập thành công", account)
+            );
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new ResponseObject(401, "Số điện thoại hoặc mật khẩu không đúng", null)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Lỗi hệ thống", e.getMessage())
+            );
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseObject> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject(200, "Đã đăng xuất thành công", null)
+        );
+    }
+}
