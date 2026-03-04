@@ -2,23 +2,35 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {Link, useNavigate} from 'react-router-dom';
-import {ROUTES} from "@/router/routes.tsx";
-
+import { Link, useNavigate } from 'react-router-dom';
+import { ROUTES } from "@/router/routes.tsx";
+import { useAuth } from "@/hooks/useAuth"
 export default function Login() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState('');
+    const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        navigate(ROUTES.COORDINATE);
+        try {
+            const user = await login(phoneNumber, password);
+
+            if (user?.role === "coordinate") {
+                navigate(ROUTES.COORDINATE);
+            } else {
+                navigate("/");
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
         <div className="w-full min-h-screen grid lg:grid-cols-2">
-            
+
             {/* --- LEFT SIDE --- */}
             <div className="flex flex-col h-full">
                 <div className="flex h-20 px-4 py-4 shrink-0">
@@ -30,7 +42,7 @@ export default function Login() {
                         />
                     </Link>
                 </div>
-            
+
                 <div className="flex-1 flex justify-center w-full pt-24">
                     <Card className="w-full max-w-[500px] border-0 shadow-none">
                         <CardHeader className="text-center p-0 mb-10">
