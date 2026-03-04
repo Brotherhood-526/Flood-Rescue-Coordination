@@ -5,25 +5,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/router/routes.tsx";
 import { useAuth } from "@/hooks/useAuth";
-import { Phone, Lock, ArrowRight } from "lucide-react";
+import {
+  Phone,
+  Lock,
+  ArrowRight,
+  User,
+  LifeBuoy,
+  ClipboardCheck,
+} from "lucide-react";
 
 export default function Login() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
-
+  const [showPassword, setShowPassword] = useState(false);
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       const user = await login(phoneNumber, password);
-
-      // Kiểm tra role: "coordinate" hoặc "rescue coordinator" tùy theo backend của bạn
       if (user?.role === "coordinate" || user?.role === "rescue coordinator") {
         navigate(ROUTES.COORDINATE);
       } else {
-        navigate("/");
+        navigate("/login");
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -34,7 +39,6 @@ export default function Login() {
     <div className="w-full min-h-screen grid lg:grid-cols-2">
       {/* --- LEFT SIDE --- */}
       <div className="flex flex-col h-full bg-white">
-        {/* Logo Header */}
         <div className="flex h-20 px-8 py-4 shrink-0">
           <Link to="/">
             <img
@@ -45,7 +49,6 @@ export default function Login() {
           </Link>
         </div>
 
-        {/* Form Container */}
         <div className="flex-1 flex flex-col justify-center items-center px-6 pb-12">
           <Card className="w-full max-w-[480px] border-0 shadow-none bg-transparent">
             <CardHeader className="text-center p-0 mb-8">
@@ -61,7 +64,7 @@ export default function Login() {
               <form className="space-y-5" onSubmit={handleLogin}>
                 {/* Phone Input */}
                 <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black">
                     <Phone size={18} />
                   </div>
                   <Input
@@ -73,26 +76,69 @@ export default function Login() {
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     required
-                    className="h-14 bg-gray-50 border-gray-200 rounded-xl pl-12 pr-5 text-base text-black font-semibold placeholder:text-gray-400 placeholder:font-normal focus-visible:ring-2 focus-visible:ring-[#25a863] focus-visible:bg-white transition-all"
+                    className="h-14 bg-gray-50 border-black rounded-xl pl-12 pr-5 text-base text-black font-semibold placeholder:text-gray-400 placeholder:font-normal focus-visible:ring-2 focus-visible:ring-[#25a863] focus-visible:bg-white transition-all"
                   />
                 </div>
 
                 {/* Password Input */}
                 <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black">
                     <Lock size={18} />
                   </div>
                   <Input
                     id="password"
                     name="password"
                     autoComplete="current-password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Mật khẩu"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="h-14 bg-gray-50 border-gray-200 rounded-xl pl-12 pr-5 text-base text-black font-semibold placeholder:text-gray-400 placeholder:font-normal focus-visible:ring-2 focus-visible:ring-[#25a863] focus-visible:bg-white transition-all"
+                    className="h-14 bg-gray-50 border-black rounded-xl pl-12 pr-12 text-base text-black font-semibold placeholder:text-gray-400 placeholder:font-normal focus-visible:ring-2 focus-visible:ring-[#25a863] focus-visible:bg-white transition-all"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    )}
+                  </button>
                 </div>
 
                 {/* Submit Button */}
@@ -157,13 +203,11 @@ export default function Login() {
         {/* Decorative blobs */}
         <div className="absolute -top-24 -right-20 w-72 h-72 rounded-full bg-white/[0.07] pointer-events-none" />
         <div className="absolute -bottom-10 -left-16 w-48 h-48 rounded-full bg-white/[0.07] pointer-events-none" />
-        <div className="absolute bottom-44 right-10 w-24 h-24 rounded-full bg-white/[0.05] pointer-events-none" />
 
         <div className="h-20 w-full shrink-0" />
 
         <div className="flex-1 flex justify-center w-full pt-16 px-12 relative z-10">
           <div className="max-w-xl w-full text-white">
-            {/* Live badge */}
             <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur border border-white/25 rounded-full px-4 py-1.5 text-xs font-semibold tracking-wide mb-6">
               <span className="w-2 h-2 rounded-full bg-[#7fffb8] shadow-[0_0_8px_#7fffb8] animate-pulse" />
               HỆ THỐNG ĐANG HOẠT ĐỘNG
@@ -178,63 +222,63 @@ export default function Login() {
               Cảm ơn bạn đã tiếp tục cống hiến vì cộng đồng.
             </p>
 
-            {/* Feature cards */}
             <div className="space-y-4">
-              {[
-                {
-                  icon: "🏢",
-                  title: "Tài khoản nhân viên",
-                  desc: "Điều phối viên và quản lý được cấp tài khoản riêng để quản lý các yêu cầu khẩn cấp.",
-                },
-                {
-                  icon: "🆘",
-                  title: "Người dân cần cứu hộ?",
-                  desc: (
-                    <>
-                      Vui lòng truy cập trang{" "}
-                      <Link
-                        to="/map"
-                        className="text-[#b5ffd9] font-bold hover:underline"
-                      >
-                        BẢN ĐỒ
-                      </Link>{" "}
-                      để gửi yêu cầu khẩn cấp ngay lập tức.
-                    </>
-                  ),
-                },
-                {
-                  icon: "📋",
-                  title: "Theo dõi yêu cầu",
-                  desc: (
-                    <>
-                      Người dân có thể kiểm tra trạng thái xử lý trực tiếp tại
-                      mục{" "}
-                      <Link
-                        to="/search"
-                        className="text-[#b5ffd9] font-bold hover:underline"
-                      >
-                        TRA CỨU
-                      </Link>
-                      .
-                    </>
-                  ),
-                },
-              ].map(({ icon, title, desc }) => (
-                <div
-                  key={title}
-                  className="flex items-start gap-4 bg-white/[0.08] backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.15] hover:translate-x-1 transition-all cursor-default group"
-                >
-                  <span className="text-2xl mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform">
-                    {icon}
-                  </span>
-                  <div>
-                    <p className="font-bold text-base mb-1">{title}</p>
-                    <p className="text-white/70 text-sm leading-relaxed">
-                      {desc}
-                    </p>
-                  </div>
+              <div className="flex items-start gap-4 bg-white/[0.08] backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.15] hover:translate-x-1 transition-all cursor-default group">
+                <span className="mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <User className="text-white" size={24} />
+                </span>
+                <div>
+                  <p className="font-bold text-base mb-1 text-white">
+                    Tài khoản nhân viên
+                  </p>
+                  <p className="text-white/70 text-sm leading-relaxed">
+                    Điều phối viên và quản lý được cấp tài khoản riêng để quản
+                    lý các yêu cầu khẩn cấp.
+                  </p>
                 </div>
-              ))}
+              </div>
+
+              <div className="flex items-start gap-4 bg-white/[0.08] backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.15] hover:translate-x-1 transition-all cursor-default group">
+                <span className="mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <LifeBuoy className="text-white" size={24} />
+                </span>
+                <div>
+                  <p className="font-bold text-base mb-1 text-white">
+                    Người dân cần cứu hộ?
+                  </p>
+                  <p className="text-white/70 text-sm leading-relaxed">
+                    Vui lòng truy cập trang{" "}
+                    <Link
+                      to="/map"
+                      className="text-[#b5ffd9] font-bold hover:underline"
+                    >
+                      BẢN ĐỒ
+                    </Link>{" "}
+                    để gửi yêu cầu khẩn cấp ngay lập tức.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 bg-white/[0.08] backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.15] hover:translate-x-1 transition-all cursor-default group">
+                <span className="mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <ClipboardCheck className="text-white" size={24} />
+                </span>
+                <div>
+                  <p className="font-bold text-base mb-1 text-white">
+                    Theo dõi yêu cầu
+                  </p>
+                  <p className="text-white/70 text-sm leading-relaxed">
+                    Người dân có thể kiểm tra trạng thái xử lý trực tiếp tại mục{" "}
+                    <Link
+                      to="/search"
+                      className="text-[#b5ffd9] font-bold hover:underline"
+                    >
+                      TRA CỨU
+                    </Link>
+                    .
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
