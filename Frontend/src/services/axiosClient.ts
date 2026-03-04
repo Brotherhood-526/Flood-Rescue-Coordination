@@ -2,7 +2,9 @@ import axios from "axios";
 
 // Create instance
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // Nhớ config .env
+
+  baseURL: import.meta.env.VITE_BACKEND_URL, // Nhớ config .env
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

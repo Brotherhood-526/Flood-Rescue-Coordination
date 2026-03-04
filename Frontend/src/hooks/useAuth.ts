@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/services/axiosClient";
-import { useAuthStore } from "@/store/authStore";
-import { ROUTES } from "@/router/routes";
+import { useAuthStore, type User } from "@/store/authStore";
 
 export function useAuth() {
   const [loading, setLoading] = useState(false);
@@ -16,28 +15,24 @@ export function useAuth() {
     try {
       setLoading(true);
 
-      const res = await apiClient.post("/auth/login", {
+      const user = await apiClient.post("/auth/login", {
         phone,
         password,
-      });
+      }) as User;
 
-      console.log(res);
-      const user = res.data.data;
-      
+      console.log(user);
+      // const user = res.data;
+
       setUser(user);
 
-      if (user.role === "coordinate") {
-        navigate(ROUTES.COORDINATE);
-      } else {
-        navigate("/");
-      }
+      return user;
 
     } catch (error) {
       console.error("Login failed:", error);
     } finally {
       setLoading(false);
     }
-    return user;
+
   };
 
   const logout = () => {
