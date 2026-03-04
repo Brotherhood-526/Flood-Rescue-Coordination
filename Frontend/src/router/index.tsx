@@ -44,6 +44,13 @@ export const router = createBrowserRouter([
     ],
   },
     {
+        path: ROUTES.RESCUE,
+        element: <MainLayout role={2}/>,
+        children: [
+
+        ],
+    },
+    {
         path: ROUTES.COORDINATE,
         element: <MainLayout role={3} />,
         children: [

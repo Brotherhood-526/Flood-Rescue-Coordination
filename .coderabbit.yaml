@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+early_access: false
+
+reviews:
+  profile: "chill" # tone review: chill / strict (tùy schema hỗ trợ)
+  request_changes_workflow: false # không ép "request changes" workflow
+  high_level_summary: true # summary đầu PR
+  review_status: true # status check (nếu tích hợp)
+  review_details: false # bớt dài dòng
+  poem: false # tắt thơ cho gọn 😅
+
+  auto_review:
+    enabled: true
+    drafts: false # không review PR draft
+
+chat:
+  auto_reply: true # tự trả lời khi mention/ hỏi trong PR
