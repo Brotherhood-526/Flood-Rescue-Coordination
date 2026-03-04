@@ -13,8 +13,8 @@ interface MapContextType {
 const MapContext = createContext<MapContextType>({
   map: null,
   mapLoaded: false,
-  mount: () => {},
-  unmount: () => {},
+  mount: () => { },
+  unmount: () => { },
 })
 
 export const MapProvider = ({ children }: { children: React.ReactNode }) => {
@@ -23,7 +23,7 @@ export const MapProvider = ({ children }: { children: React.ReactNode }) => {
   const [mapLoaded, setMapLoaded] = useState(false)
 
   const TILEMAP_KEY = import.meta.env.VITE_TILEMAP_KEY
-  const theme: Theme = "light" 
+  const theme: Theme = "light"
 
   const buildStyleUrl = () =>
     `https://maps.vietmap.vn/api/maps/${theme}/styles.json?apikey=${TILEMAP_KEY}`
@@ -39,16 +39,16 @@ export const MapProvider = ({ children }: { children: React.ReactNode }) => {
 
   const mount = useCallback(
     (container: HTMLElement) => {
-      if (!TILEMAP_KEY) 
+      if (!TILEMAP_KEY)
         return
-      if (mapRef.current && containerRef.current === container) 
+      if (mapRef.current && containerRef.current === container)
         return
       if (mapRef.current && containerRef.current !== container) {
         destroyMap()
       }
-      const hcmBounds: [number, number][] = [
-        [106.3500, 10.3500],
-        [107.1500, 11.1500]
+      const hcmBounds: [[number, number], [number, number]] = [
+        [106.35, 10.35],
+        [107.15, 11.15],
       ];
 
       const map = new vietmapgl.Map({
@@ -59,7 +59,7 @@ export const MapProvider = ({ children }: { children: React.ReactNode }) => {
         maxBounds: hcmBounds,
       })
       map.setMinZoom(10);
-      
+
       map.addControl(new vietmapgl.NavigationControl())
 
       map.on("load", () => {
@@ -73,7 +73,7 @@ export const MapProvider = ({ children }: { children: React.ReactNode }) => {
   )
 
   const unmount = useCallback(() => {
-    
+
     destroyMap()
   }, [destroyMap])
 
