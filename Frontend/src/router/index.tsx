@@ -3,13 +3,14 @@ import Login from '@/pages/LoginPage';
 import { ROUTES } from './routes';
 import MainLayout from "@/layouts/MainLayout";
 import HomePage from '@/pages/HomePage';
-import RequestPage from '@/pages/User/RequestPage';
+import RequestPage from '@/pages/User/Request';
 import FindRequestPage from '@/pages/FindRequestPage';
 import ContactPage from '@/pages/ContactPage';
 import GuidePage from '@/pages/GuidePage';
-import ListRequestPage from "@/pages/Coordinator/ListRequestPage";
-import RequestDetailPage from "@/pages/Coordinator/RequestDetailPage";
-import FullMapPage from "@/pages/Coordinator/FullMapPage";
+import ListRequestPage from "@/pages/Coordinator/ListRequestPage.tsx";
+import RequestDetailPage from "@/pages/Coordinator/RequestDetailPage.tsx";
+import FullMapPage from "@/pages/Coordinator/FullMapPage.tsx";
+import TestChatBox from "@/pages/Coordinator/TestChatBox";
 
 export const router = createBrowserRouter([
   {
@@ -43,6 +44,13 @@ export const router = createBrowserRouter([
     ],
   },
     {
+        path: ROUTES.RESCUE,
+        element: <MainLayout role={2}/>,
+        children: [
+
+        ],
+    },
+    {
         path: ROUTES.COORDINATE,
         element: <MainLayout role={3} />,
         children: [
@@ -58,5 +66,9 @@ export const router = createBrowserRouter([
     {
         path: ROUTES.FULLMAP,
         element: <FullMapPage/>,
+    },
+    {
+        path: ROUTES.TESTCHATBOX,
+        element: <TestChatBox/>
     }
 ]);

@@ -1,12 +1,9 @@
 import {Button} from "@/components/ui/button.tsx";
+import {CommonTable} from "@/layouts/DataTable.tsx";
 import {
-    Table,
-    TableBody,
     TableCell,
-    TableHead,
-    TableHeader,
     TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table.tsx";
 import { ClipboardPlus, RefreshCcw, Clock, SquareCheck, CircleX, SlidersVertical } from 'lucide-react';
 import {useNavigate} from "react-router-dom";
 import {ROUTES} from "@/router/routes.tsx";
@@ -93,7 +90,7 @@ export function Filters(){
         "flex flex-col items-center justify-center gap-2";
 
     return (
-        <div className="!w-full bg-white flex-[2] !pt-[2vh] !pb-[1vh]
+        <div className="!w-full bg-white flex-[2] !pt-[4vh] !pb-[1vh]
         flex flex-row justify-center items-center gap-10">
             <Button className={filterButton}>
                 <ClipboardPlus className="!w-10 !h-10"/>
@@ -126,37 +123,61 @@ export function Requests(){
         navigate(ROUTES.REQUESTDETAILS);
     }
 
+    const columns = [
+        "ID",
+        "Số điện thoại",
+        "Người cứu hộ",
+        "Trạng thái",
+        "Thời gian tạo",
+    ];
+
     return (
         <div className="!w-full bg-white flex-[8] p-4
         flex flex-col !items-center justify-start">
             <div className="w-full flex justify-end mb-2">
                 <SlidersVertical className="!w-10 !h-10 cursor-pointer"/>
             </div>
-            <Table className="table-fixed w-full">
-                <TableHeader className="bg-gray-200 [&_th]:text-center [&_th]:font-bold [&_th]:text-base">
-                    <TableRow>
-                        <TableHead className="w-20">ID</TableHead>
-                        <TableHead>Số điện thoại</TableHead>
-                        <TableHead>Người cứu hộ</TableHead>
-                        <TableHead>Trạng thái</TableHead>
-                        <TableHead>Thời gian tạo</TableHead>
-                    </TableRow>
-                </TableHeader>
+            {/*<Table className="table-fixed w-full">*/}
+            {/*    <TableHeader className="bg-gray-200 [&_th]:text-center [&_th]:font-bold [&_th]:text-base">*/}
+            {/*        <TableRow>*/}
+            {/*            <TableHead className="w-20">ID</TableHead>*/}
+            {/*            <TableHead>Số điện thoại</TableHead>*/}
+            {/*            <TableHead>Người cứu hộ</TableHead>*/}
+            {/*            <TableHead>Trạng thái</TableHead>*/}
+            {/*            <TableHead>Thời gian tạo</TableHead>*/}
+            {/*        </TableRow>*/}
+            {/*    </TableHeader>*/}
 
-                <TableBody className="text-center cursor-pointer">
-                    {fakeRequests.map((r) => (
-                        <TableRow key={r.id} onClick={handleOpenRequest}>
-                            <TableCell className="font-semibold">0{r.id}</TableCell>
-                            <TableCell>{r.phone}</TableCell>
-                            <TableCell>{r.rescuer}</TableCell>
-                            <TableCell>
-                <Status status={r.status}/>
-                            </TableCell>
-                            <TableCell>{r.createdAt}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+            {/*    <TableBody className="text-center cursor-pointer">*/}
+            {/*        {fakeRequests.map((r) => (*/}
+            {/*            <TableRow key={r.id} onClick={handleOpenRequest}>*/}
+            {/*                <TableCell className="font-semibold">0{r.id}</TableCell>*/}
+            {/*                <TableCell>{r.phone}</TableCell>*/}
+            {/*                <TableCell>{r.rescuer}</TableCell>*/}
+            {/*                <TableCell>*/}
+            {/*    <Status status={r.status}/>*/}
+            {/*                </TableCell>*/}
+            {/*                <TableCell>{r.createdAt}</TableCell>*/}
+            {/*            </TableRow>*/}
+            {/*        ))}*/}
+            {/*    </TableBody>*/}
+            {/*</Table>*/}
+
+            <CommonTable
+                columns={columns}
+                data={fakeRequests}
+                renderRow={(r) => (
+                    <TableRow key={r.id} onClick={handleOpenRequest}>
+                        <TableCell className="font-semibold">0{r.id}</TableCell>
+                        <TableCell>{r.phone}</TableCell>
+                        <TableCell>{r.rescuer}</TableCell>
+                        <TableCell>
+                            <Status status={r.status} />
+                        </TableCell>
+                        <TableCell>{r.createdAt}</TableCell>
+                    </TableRow>
+                )}
+            />
         </div>
     );
 }

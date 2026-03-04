@@ -50,13 +50,11 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
 }
 
-
 /* body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
 } */
-
 
 /* button {
   border-radius: 8px;
@@ -160,11 +158,10 @@ button:focus-visible {
 }
 
 @layer base {
-  /*Ẩn thanh cuộn trên Chrome,Safari,Edge và Opera */ 
+  /*Ẩn thanh cuộn trên Chrome,Safari,Edge và Opera */
   ::-webkit-scrollbar {
-      display: none;
-    }
-
+    display: none;
+  }
 
   * {
     @apply border-border outline-ring/50;
@@ -172,4 +169,16 @@ button:focus-visible {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--autofill-bg, white) inset !important;
+  -webkit-text-fill-color: var(--autofill-color, black) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }

@@ -6,7 +6,7 @@ import MainLayout from "./layouts/MainLayout";
 function App() {
   return (
     <div>
-      <MainLayout />
+      <MainLayout role={1}/>
     </div>
   );
 }

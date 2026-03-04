@@ -5,11 +5,11 @@ import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} f
 import {useState, useEffect, useRef} from "react";
 import {useNavigate} from "react-router-dom";
 import {ROUTES} from "@/router/routes.tsx";
-import { useVietMap } from "@/lib/MapProvider";
+import { useVietMap } from "@/lib/MapProvider.tsx";
 import vietmapgl from "@vietmap/vietmap-gl-js";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
+import { Textarea } from "@/components/ui/textarea.tsx";
+import { Input } from "@/components/ui/input.tsx";
 
 const rescueTeams: string[] = [
     "Đội cứu hộ A",
@@ -53,7 +53,7 @@ export default function RequestDetailPage() {
 
     return (
         <div className="flex flex-col w-full h-full">
-            <div className="flex flex-col flex-1 w-full bg-white pt-[4vh]">
+            <div className="flex flex-col flex-1 w-full bg-white pt-[6vh]">
                 <div className="flex flex-row flex-[0.5] justify-between items-center
             px-[2vw] mb-[2vh]">
                     <div className="flex flex-row gap-[1vw]">

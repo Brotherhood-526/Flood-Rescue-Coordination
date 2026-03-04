@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react"
 import { ArrowBigLeft } from "lucide-react"
-import { useVietMap } from "@/lib/MapProvider"
+import { useVietMap } from "@/lib/MapProvider.tsx"
 import vietmapgl from "@vietmap/vietmap-gl-js"
 
 const DEFAULT_CENTER: [number, number] = [106.7009, 10.7769]
