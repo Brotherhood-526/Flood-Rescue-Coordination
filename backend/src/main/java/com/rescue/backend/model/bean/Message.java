@@ -31,7 +31,7 @@ public class Message {
     @Column(name = "sender_name", nullable = false)
     private String senderName;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Lob
     private String content;
 
     @Column(name = "send_at")

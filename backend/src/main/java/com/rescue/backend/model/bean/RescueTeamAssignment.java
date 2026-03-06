@@ -35,6 +35,6 @@ public class RescueTeamAssignment {
     @Column(length = 20)
     private String status = "on the way";
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Lob
     private String report;
 }
