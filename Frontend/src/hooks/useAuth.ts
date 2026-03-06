@@ -20,15 +20,13 @@ export function useAuth() {
         password,
       }) as User;
 
-      console.log(user);
-      // const user = res.data;
-
       setUser(user);
 
       return user;
 
     } catch (error) {
       console.error("Login failed:", error);
+      throw error;
     } finally {
       setLoading(false);
     }

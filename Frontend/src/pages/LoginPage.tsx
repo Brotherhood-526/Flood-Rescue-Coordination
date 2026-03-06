@@ -27,10 +27,21 @@ export default function Login() {
 
     try {
       const user = await login(phoneNumber, password);
-      if (user?.role === "coordinate" || user?.role === "rescue coordinator") {
+      if (!user)
+        return;
+      const role = user.role?.trim().toLowerCase();
+
+      if (role === "rescue team") {
+        navigate(ROUTES.RESCUE);
+        return;
+      } else if (role === "rescue coordinator") {
         navigate(ROUTES.COORDINATE);
+        return;
+      } else if (role === "manager") {
+        navigate("/");
+        return;
       } else {
-        navigate("/login");
+        console.error("Unknown role received:", user?.role);
       }
     } catch (error) {
       console.error("Login failed:", error);
