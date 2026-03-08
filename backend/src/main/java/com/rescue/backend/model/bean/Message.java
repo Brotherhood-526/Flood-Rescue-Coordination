@@ -1,7 +1,7 @@
 package com.rescue.backend.model.bean;
 
 import jakarta.persistence.*;
-        import lombok.Getter;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 

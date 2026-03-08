@@ -91,8 +91,8 @@ public class CitizenService {
     public CitizenRescueResponse mapToRequestResponse(Request request) {
         List<LookupImageResponse> imageList = (request.getImages() != null)
                 ? request.getImages().stream()
-                        .map(img -> new LookupImageResponse(img.getId(), img.getImageUrl()))
-                                .toList()
+                .map(img -> new LookupImageResponse(img.getId(), img.getImageUrl()))
+                .toList()
                 : List.of();
 
         String coordinator = (request.getCoordinator() != null)
@@ -109,23 +109,23 @@ public class CitizenService {
 
 
         return new CitizenRescueResponse(
-            request.getId(),
-            request.getAddress(),
-            request.getDescription(),
-            request.getAdditionalLink(),
-            request.getCreatedAt(),
-            request.getLatitude(),
-            request.getLongitude(),
-            request.getStatus(),
-            request.getType(),
-            request.getUrgency(),
-            request.getCitizen().getId(),
-            request.getCitizen().getName(),
-            request.getCitizen().getPhone(),
-            imageList,
-            coordinator,
-            leader,
-            vehicleType
+                request.getId(),
+                request.getAddress(),
+                request.getDescription(),
+                request.getAdditionalLink(),
+                request.getCreatedAt(),
+                request.getLatitude(),
+                request.getLongitude(),
+                request.getStatus(),
+                request.getType(),
+                request.getUrgency(),
+                request.getCitizen().getId(),
+                request.getCitizen().getName(),
+                request.getCitizen().getPhone(),
+                imageList,
+                coordinator,
+                leader,
+                vehicleType
         );
     }
 

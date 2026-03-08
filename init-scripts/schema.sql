@@ -17,95 +17,95 @@ GO
 
 -- 1. BẢNG Citizen (Công dân - Thay thế cho [User])
 CREATE TABLE Citizen (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    name NVARCHAR(50) NOT NULL,
-    phone VARCHAR(20) UNIQUE NOT NULL 
+                         id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+                         name NVARCHAR(50) NOT NULL,
+                         phone VARCHAR(20) UNIQUE NOT NULL
 );
 
 -- 2. BẢNG Staff (Cán bộ / Đội cứu hộ)
 CREATE TABLE Staff (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    name NVARCHAR(255) NOT NULL,
-    phone VARCHAR(30) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL, -- Độ dài 255 để chứa BCrypt bảo mật
-    role VARCHAR(20) NOT NULL,
-    team_name NVARCHAR(50),
-    team_size INT,
-    latitude DECIMAL(18, 10),
-    longitude DECIMAL(18, 10),
-    geo_location GEOGRAPHY,
-    staff_state VARCHAR(20) DEFAULT 'offline',
+                       id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+                       name NVARCHAR(255) NOT NULL,
+                       phone VARCHAR(30) UNIQUE NOT NULL,
+                       password VARCHAR(255) NOT NULL, -- Độ dài 255 để chứa BCrypt bảo mật
+                       role VARCHAR(20) NOT NULL,
+                       team_name NVARCHAR(50),
+                       team_size INT,
+                       latitude DECIMAL(18, 10),
+                       longitude DECIMAL(18, 10),
+                       geo_location GEOGRAPHY,
+                       staff_state VARCHAR(20) DEFAULT 'offline',
 
-    CONSTRAINT CK_Staff_Role CHECK (role IN ('manager', 'coordinator', 'rescue team')),
-    CONSTRAINT CK_Staff_State CHECK (staff_state IN ('active', 'offline'))
+                       CONSTRAINT CK_Staff_Role CHECK (role IN ('manager', 'coordinator', 'rescue team')),
+                       CONSTRAINT CK_Staff_State CHECK (staff_state IN ('active', 'offline'))
 );
 
 -- 3. BẢNG Vehicle (Phương tiện)
 CREATE TABLE Vehicle (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    type VARCHAR(30) NOT NULL,
-    rescue_team_id UNIQUEIDENTIFIER NOT NULL,
-    state VARCHAR(20) DEFAULT 'free',
+                         id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+                         type VARCHAR(30) NOT NULL,
+                         rescue_team_id UNIQUEIDENTIFIER NOT NULL,
+                         state VARCHAR(20) DEFAULT 'free',
 
-    FOREIGN KEY (rescue_team_id) REFERENCES Staff(id),
+                         FOREIGN KEY (rescue_team_id) REFERENCES Staff(id),
 
-    CONSTRAINT CK_Vehicle_Type CHECK (type IN ('Boat', 'Rescue Vehicle', 'Helicopter')),
-    CONSTRAINT CK_Vehicle_State CHECK (state IN ('using', 'free', 'maintenance'))
+                         CONSTRAINT CK_Vehicle_Type CHECK (type IN ('Boat', 'Rescue Vehicle', 'Helicopter')),
+                         CONSTRAINT CK_Vehicle_State CHECK (state IN ('using', 'free', 'maintenance'))
 );
 
 -- 4. BẢNG Request (Yêu cầu cứu hộ - Đã gộp Assignment)
 CREATE TABLE Request (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    user_id UNIQUEIDENTIFIER NOT NULL, -- FK tới bảng Citizen
-    type VARCHAR(20) NOT NULL,
-    description NVARCHAR(MAX),
-    address NVARCHAR(200),
-    latitude DECIMAL(18, 10) NOT NULL,
-    longitude DECIMAL(18, 10) NOT NULL,
-    geo_location GEOGRAPHY NULL,
-    additional_link NVARCHAR(200),
-    status VARCHAR(20) DEFAULT 'processing',
-    urgency VARCHAR(20) NULL,
-    created_at DATETIME DEFAULT GETDATE(),
-    
-    -- Các trường điều phối và xử lý trực tiếp
-    coordinator_id UNIQUEIDENTIFIER NULL,
-    rescue_team_id UNIQUEIDENTIFIER NULL,
-    vehicle_id UNIQUEIDENTIFIER NULL,
-    report NVARCHAR(MAX) NULL,
+                         id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+                         user_id UNIQUEIDENTIFIER NOT NULL, -- FK tới bảng Citizen
+                         type VARCHAR(20) NOT NULL,
+                         description NVARCHAR(MAX),
+                         address NVARCHAR(200),
+                         latitude DECIMAL(18, 10) NOT NULL,
+                         longitude DECIMAL(18, 10) NOT NULL,
+                         geo_location GEOGRAPHY NULL,
+                         additional_link NVARCHAR(200),
+                         status VARCHAR(20) DEFAULT 'processing',
+                         urgency VARCHAR(20) NULL,
+                         created_at DATETIME DEFAULT GETDATE(),
 
-    FOREIGN KEY (user_id) REFERENCES Citizen(id) ON DELETE CASCADE,
-    FOREIGN KEY (coordinator_id) REFERENCES Staff(id),
-    FOREIGN KEY (rescue_team_id) REFERENCES Staff(id),
-    FOREIGN KEY (vehicle_id) REFERENCES Vehicle(id),
-    
-    CONSTRAINT CK_Request_Type CHECK (type IN ('goods', 'rescue', 'others')),
-    CONSTRAINT CK_Request_Status CHECK (status IN ('processing', 'reject', 'delayed', 'completed', 'accept')),
-    CONSTRAINT CK_Request_Urgency CHECK (urgency IN ('high', 'medium', 'low'))
+    -- Các trường điều phối và xử lý trực tiếp
+                         coordinator_id UNIQUEIDENTIFIER NULL,
+                         rescue_team_id UNIQUEIDENTIFIER NULL,
+                         vehicle_id UNIQUEIDENTIFIER NULL,
+                         report NVARCHAR(MAX) NULL,
+
+                         FOREIGN KEY (user_id) REFERENCES Citizen(id) ON DELETE CASCADE,
+                         FOREIGN KEY (coordinator_id) REFERENCES Staff(id),
+                         FOREIGN KEY (rescue_team_id) REFERENCES Staff(id),
+                         FOREIGN KEY (vehicle_id) REFERENCES Vehicle(id),
+
+                         CONSTRAINT CK_Request_Type CHECK (type IN ('goods', 'rescue', 'others')),
+                         CONSTRAINT CK_Request_Status CHECK (status IN ('processing', 'reject', 'delayed', 'completed', 'accept')),
+                         CONSTRAINT CK_Request_Urgency CHECK (urgency IN ('high', 'medium', 'low'))
 );
 
 -- 5. BẢNG RequestImage (Ảnh đính kèm)
 CREATE TABLE RequestImage (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    request_id UNIQUEIDENTIFIER NOT NULL,
-    image_url NVARCHAR(MAX) NOT NULL,
-    FOREIGN KEY (request_id) REFERENCES Request(id) ON DELETE CASCADE
+                              id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+                              request_id UNIQUEIDENTIFIER NOT NULL,
+                              image_url NVARCHAR(MAX) NOT NULL,
+                              FOREIGN KEY (request_id) REFERENCES Request(id) ON DELETE CASCADE
 );
 
 -- 6. BẢNG Message (Trao đổi trực tuyến)
 CREATE TABLE Message (
-    id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    request_id UNIQUEIDENTIFIER NOT NULL,
-    sender_user_id UNIQUEIDENTIFIER NULL, -- FK tới Citizen (nếu người gửi là công dân)
-    sender_staff_id UNIQUEIDENTIFIER NULL, -- FK tới Staff (nếu người gửi là nhân viên)
-    sender_role VARCHAR(20) NOT NULL,
-    content NVARCHAR(MAX),
-    send_at DATETIME DEFAULT GETDATE(),
+                         id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+                         request_id UNIQUEIDENTIFIER NOT NULL,
+                         sender_user_id UNIQUEIDENTIFIER NULL, -- FK tới Citizen (nếu người gửi là công dân)
+                         sender_staff_id UNIQUEIDENTIFIER NULL, -- FK tới Staff (nếu người gửi là nhân viên)
+                         sender_role VARCHAR(20) NOT NULL,
+                         content NVARCHAR(MAX),
+                         send_at DATETIME DEFAULT GETDATE(),
 
-    FOREIGN KEY (request_id) REFERENCES Request(id) ON DELETE CASCADE,
-    FOREIGN KEY (sender_user_id) REFERENCES Citizen(id),
-    FOREIGN KEY (sender_staff_id) REFERENCES Staff(id),
-    CONSTRAINT CK_Message_SenderRole CHECK (sender_role IN ('user', 'coordinator', 'rescue team'))
+                         FOREIGN KEY (request_id) REFERENCES Request(id) ON DELETE CASCADE,
+                         FOREIGN KEY (sender_user_id) REFERENCES Citizen(id),
+                         FOREIGN KEY (sender_staff_id) REFERENCES Staff(id),
+                         CONSTRAINT CK_Message_SenderRole CHECK (sender_role IN ('user', 'coordinator', 'rescue team'))
 );
 GO
 
@@ -114,11 +114,11 @@ GO
 CREATE OR ALTER TRIGGER TRG_UpdateGeography_Request ON Request AFTER INSERT, UPDATE AS
 BEGIN
     SET NOCOUNT ON;
-    UPDATE r 
-    SET r.geo_location = CASE 
-        WHEN i.latitude IS NOT NULL AND i.longitude IS NOT NULL 
-        THEN geography::Point(CAST(i.latitude AS FLOAT), CAST(i.longitude AS FLOAT), 4326) 
-        ELSE r.geo_location 
+UPDATE r
+SET r.geo_location = CASE
+                         WHEN i.latitude IS NOT NULL AND i.longitude IS NOT NULL
+                             THEN geography::Point(CAST(i.latitude AS FLOAT), CAST(i.longitude AS FLOAT), 4326)
+                         ELSE r.geo_location
     END
     FROM Request r 
     INNER JOIN inserted i ON r.id = i.id;
@@ -128,11 +128,11 @@ GO
 CREATE OR ALTER TRIGGER TRG_UpdateGeography_Staff ON Staff AFTER INSERT, UPDATE AS
 BEGIN
     SET NOCOUNT ON;
-    UPDATE s 
-    SET s.geo_location = CASE 
-        WHEN i.latitude IS NOT NULL AND i.longitude IS NOT NULL 
-        THEN geography::Point(CAST(i.latitude AS FLOAT), CAST(i.longitude AS FLOAT), 4326) 
-        ELSE s.geo_location 
+UPDATE s
+SET s.geo_location = CASE
+                         WHEN i.latitude IS NOT NULL AND i.longitude IS NOT NULL
+                             THEN geography::Point(CAST(i.latitude AS FLOAT), CAST(i.longitude AS FLOAT), 4326)
+                         ELSE s.geo_location
     END
     FROM Staff s 
     INNER JOIN inserted i ON s.id = i.id;
@@ -182,7 +182,7 @@ VALUES (@Vehicle2Id, 'Rescue Vehicle', @RescueTeam2Id, 'free');
 -- 3. TẠO CÔNG DÂN
 -- ==========================================================
 DECLARE @CitizenId UNIQUEIDENTIFIER = NEWID();
-INSERT INTO Citizen (id, name, phone) 
+INSERT INTO Citizen (id, name, phone)
 VALUES (@CitizenId, N'Nguyễn Văn Dân', '0912345678');
 
 -- ==========================================================
@@ -192,18 +192,18 @@ VALUES (@CitizenId, N'Nguyễn Văn Dân', '0912345678');
 -- YÊU CẦU 1: ĐÃ HOÀN THÀNH (Dữ liệu phân công nằm ngay tại bảng Request)
 DECLARE @ReqCompletedId UNIQUEIDENTIFIER = NEWID();
 INSERT INTO Request (id, user_id, type, description, address, latitude, longitude, status, urgency, created_at, coordinator_id, rescue_team_id, vehicle_id, report)
-VALUES (@ReqCompletedId, @CitizenId, 'rescue', N'Cần sơ tán khẩn cấp (Đã xong)', N'789 Đường ven đê', 10.7890, 106.7890, 
+VALUES (@ReqCompletedId, @CitizenId, 'rescue', N'Cần sơ tán khẩn cấp (Đã xong)', N'789 Đường ven đê', 10.7890, 106.7890,
         'completed', 'high', DATEADD(HOUR, -2, GETDATE()), @Coordinator2Id, @RescueTeam2Id, @Vehicle2Id, N'Đã hoàn thành việc sơ tán 5 người già và 2 trẻ em an toàn.');
 
 -- YÊU CẦU 2: BỊ TỪ CHỐI
 DECLARE @ReqRejectId UNIQUEIDENTIFIER = NEWID();
 INSERT INTO Request (id, user_id, type, description, address, latitude, longitude, status, urgency, created_at)
-VALUES (@ReqRejectId, @CitizenId, 'goods', N'Cần hỗ trợ lương thực (Bị từ chối)', N'456 Đường Hẻm Sâu', 10.5678, 106.5678, 
+VALUES (@ReqRejectId, @CitizenId, 'goods', N'Cần hỗ trợ lương thực (Bị từ chối)', N'456 Đường Hẻm Sâu', 10.5678, 106.5678,
         'reject', 'medium', DATEADD(HOUR, -1, GETDATE()));
 -- YÊU CẦU 3: ĐANG XỬ LÝ (Gán cho Đội Cá Heo)
 DECLARE @ReqActiveId UNIQUEIDENTIFIER = NEWID();
 INSERT INTO Request (id, user_id, type, description, address, latitude, longitude, status, urgency, created_at, coordinator_id, rescue_team_id, vehicle_id, report)
-VALUES (@ReqActiveId, @CitizenId, 'rescue', N'Nước đang dâng cao, cần xuồng gấp (Mới nhất)', N'123 Đường ven sông', 10.1234, 106.1234, 
+VALUES (@ReqActiveId, @CitizenId, 'rescue', N'Nước đang dâng cao, cần xuồng gấp (Mới nhất)', N'123 Đường ven sông', 10.1234, 106.1234,
         'accept', 'high', GETDATE(), @CoordinatorId, @RescueTeamId, @VehicleId, N'Đang di chuyển tiếp cận hiện trường');
 
 -- ==========================================================
@@ -252,10 +252,10 @@ SELECT
     ) AS [images]
 
 FROM Request r
-INNER JOIN Citizen c ON r.user_id = c.id
-LEFT JOIN Staff s_coord ON r.coordinator_id = s_coord.id -- Join trực tiếp vào Staff
-LEFT JOIN Staff s_team ON r.rescue_team_id = s_team.id   -- Join trực tiếp vào Staff
-LEFT JOIN Vehicle v ON r.vehicle_id = v.id              -- Join trực tiếp vào Vehicle
+    INNER JOIN Citizen c ON r.user_id = c.id
+    LEFT JOIN Staff s_coord ON r.coordinator_id = s_coord.id -- Join trực tiếp vào Staff
+    LEFT JOIN Staff s_team ON r.rescue_team_id = s_team.id   -- Join trực tiếp vào Staff
+    LEFT JOIN Vehicle v ON r.vehicle_id = v.id              -- Join trực tiếp vào Vehicle
 WHERE c.phone = '0912345678'
 ORDER BY r.created_at DESC;
 -- Xem tất cả nhân viên (Manager, Coordinator, Rescue Team)
