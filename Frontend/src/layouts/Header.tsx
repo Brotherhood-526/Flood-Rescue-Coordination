@@ -44,7 +44,7 @@ export function RescueHeader({ noty }: { noty: boolean }) {
   const displayUserName = staff?.name ?? "null";
 
   return (
-    <header className="flex items-center justify-between w-full px-6 py-4 bg-[#141e2e] font-sans">
+    <header className="flex items-center justify-between w-full px-6 py-6 bg-[#141e2e] font-sans">
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-bold text-white tracking-wide">
           Bảng quản lý cứu hộ
