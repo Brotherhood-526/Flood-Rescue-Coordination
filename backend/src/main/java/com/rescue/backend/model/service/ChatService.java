@@ -18,15 +18,32 @@ public class ChatService {
 
     private final MessageDAO messageDAO;
 
-    public ChatHistoryResponse getChatHistory (UUID requestId) {
+    public ChatHistoryResponse getChatHistory(UUID requestId) {
+        // Lấy danh sách message từ database
         List<Message> messages = messageDAO.findByRequestIdOrderBySendAtAsc(requestId);
 
-        List<MessageResponse> messageHistory = messages.stream().map(m -> new MessageResponse(
-            m.getId(), m.getSenderId(), m.getSenderName(), m.getSenderRole(), m.getContent(), m.getSendAt()
-        )).toList();
+        List<MessageResponse> messageHistory = messages.stream().map(m -> {
+            // Xác định ID người gửi (lấy cái nào không null)
+            UUID senderId = (m.getSenderUser().getId() != null) ? m.getSenderUser().getId() : m.getSenderStaff().getId();
 
+            // Xác định tên người gửi
+            String senderName = "";
+            if (m.getSenderUser().getId() != null) {
+                senderName = m.getSenderUser().getName();
+            } else if (m.getSenderStaff().getId() != null) {
+                senderName = m.getSenderStaff().getName();
+            }
+
+            return new MessageResponse(
+                    m.getId(),
+                    senderId,
+                    senderName,
+                    m.getSenderRole(),
+                    m.getContent(),
+                    m.getSendAt()
+            );
+        }).toList();
 
         return new ChatHistoryResponse(messageHistory);
     }
-
 }

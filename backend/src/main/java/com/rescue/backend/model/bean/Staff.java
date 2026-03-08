@@ -56,4 +56,7 @@ public class Staff {
     //Danh sách những nhiệm vụ mà Staff này phải đi làm (với vai trò Rescue Team).
     @OneToMany(mappedBy = "rescueTeam")
     private List<Request> assignedTasks;
+
+    @OneToMany(mappedBy = "senderStaff")
+    private List<Message> messages;
 }

@@ -30,7 +30,7 @@ public class MissionController {
             @RequestParam(required = false) UUID testAccountId,
             HttpSession session
     ){
-        UUID teamId = (testAccountId != null) ? testAccountId : (UUID) session.getAttribute("TEAM_ID");
+        UUID teamId = (testAccountId != null) ? testAccountId : (UUID) session.getAttribute("STAFF_ID");
 
         // Kiểm tra cuối cùng nếu cả 2 đều null
         if (teamId == null) {
@@ -55,10 +55,21 @@ public class MissionController {
 
     @GetMapping("/tasks/{id}")
     public ResponseEntity<ResponseObject> getTaskById(@PathVariable UUID id){
-        TaskDetailResponse detailResponse = rescueTeamService.getAssignmentDetail(id);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject(200,"Danh sách yêu cầu tải thành công",detailResponse)
-        );
+        try {
+            TaskDetailResponse detailResponse = rescueTeamService.getAssignmentDetail(id);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject(200,"Danh sách yêu cầu tải thành công",detailResponse)
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseObject(404, e.getMessage(), null)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, e.getMessage(), null)
+            );
+        }
+
     }
 
     @PatchMapping("/tasks/{id}/status")
@@ -66,9 +77,16 @@ public class MissionController {
             @PathVariable UUID id,
             @RequestBody UpdateTaskRequest updateRequest
     ){
-        String result = rescueTeamService.updateAssignment(id, updateRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject(201,"Tự động chuyển về trang task",result)
-        );
+        try {
+            String result = rescueTeamService.updateAssignment(id, updateRequest);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject(201,"Tự động chuyển về trang task",result)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, e.getMessage(), null)
+            );
+        }
+
     }
 }
