@@ -1,26 +1,34 @@
 import { create } from "zustand";
-
-export interface User {
+import { persist, createJSONStorage } from "zustand/middleware";
+export interface Staff {
   accountId: string;
+  name: string;
   phone: string;
   role: string;
-  name: string;
-  teamName: string;
-  teamSize: number;
+  teamName: string | null;
+  teamSize: number | null;
   latitude: number | null;
   longitude: number | null;
 }
 
 interface AuthState {
-  user: User | null;
-  setUser: (user: User) => void;
-  clearUser: () => void;
+  staff: Staff | null;
+  setStaff: (staff: Staff) => void;
+  clearStaff: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      staff: null,
 
-  setUser: (user) => set({ user }),
+      setStaff: (staff) => set({ staff }),
 
-  clearUser: () => set({ user: null }),
-}));
+      clearStaff: () => set({ staff: null }),
+    }),
+    {
+      name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
+    },
+  ),
+);
