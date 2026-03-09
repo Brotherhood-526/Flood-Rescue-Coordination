@@ -11,6 +11,8 @@ export const ROUTES = {
   COORDINATE_DETAIL: "/coordinate/detail",
   COORDINATE_MAP: "/coordinate/map",
   COORDINATE_CHAT: "/testchatbox",
+  REQUESTDETAILS: "/coordinate/detail",
+  FULLMAP: "/coordinate/map",
 
   // Nhóm Rescue
   RESCUE: "/rescue",

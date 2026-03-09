@@ -102,11 +102,11 @@ export const router = createBrowserRouter([
   {
     element: <ProtectedRoute allowedRoles={["manager", "rescue manager"]} />,
     children: [
-      // {
-      //   path: ROUTES.MANAGER,
-      //   element: <MainLayout role={3} />,
-      //   children: [{ index: true, element: <OverviewPage /> }],
-      // },
+      {
+        path: ROUTES.MANAGER,
+        element: <MainLayout role={3} />,
+        children: [{ index: true, element: <HomePage /> }],
+      },
       // {
       //   path: ROUTES.MANAGER_EMPLOYEE,
       //   element: <MainLayout role={3} />,

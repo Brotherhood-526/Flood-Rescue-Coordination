@@ -20,6 +20,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const normalizeRole = (value?: string | null) => (value ?? "").trim().toLowerCase();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,18 +30,14 @@ export default function Login() {
       const staff = await login(phoneNumber, password);
       if (!staff) return;
 
-      const role = staff.role?.toLowerCase();
+      const role = normalizeRole(staff.role);
 
-      if (role === "rescue manager") {
+      if (role === "rescue manager" || role === "manager") {
         navigate(ROUTES.MANAGER);
       } else if (role === "rescue team") {
         navigate(ROUTES.RESCUE);
       } else if (role === "rescue coordinator") {
         navigate(ROUTES.COORDINATE);
-        return;
-      } else if (role === "manager") {
-        navigate("/");
-        return;
       } else {
         navigate("/");
       }
