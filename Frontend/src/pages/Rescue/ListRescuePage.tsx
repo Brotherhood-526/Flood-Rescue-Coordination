@@ -3,23 +3,61 @@ import {
   RotateCw,
   MessageSquareWarning,
   CheckSquare,
-  SlidersHorizontal,
   Loader2,
-  ArrowUpDown,
+  ArrowDownNarrowWide,
+  ArrowUpNarrowWide,
 } from "lucide-react";
+
 import { useRescueTeam } from "@/hooks/useRescueTeam";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/router/routes";
 
 export default function ListRescuePage() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   const { data: requests, isLoading, error } = useRescueTeam();
 
-  const filteredData = requests.filter((item) => {
-    if (!activeFilter) return true;
-    if (activeFilter === "Tạm hoãn") return item.status === "Tạm hoãn cứu hộ";
-    if (activeFilter === "Hoàn thành") return item.status === "Đã hoàn thành";
-    return item.status === activeFilter;
-  });
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const parseDate = (dateStr: string) => {
+    try {
+      const [datePart, timePart] = dateStr.split(" ");
+      const [day, month, year] = datePart.split("/");
+      return new Date(`${year}-${month}-${day}T${timePart}:00`).getTime();
+    } catch {
+      return 0;
+    }
+  };
+
+  const processedData = requests
+    .filter((item) => {
+      if (!activeFilter) return true;
+      if (activeFilter === "Tạm hoãn") return item.status === "Tạm hoãn cứu hộ";
+      if (activeFilter === "Hoàn thành") return item.status === "Đã hoàn thành";
+      return item.status === activeFilter;
+    })
+    .sort((a, b) => {
+      const timeA = parseDate(a.time);
+      const timeB = parseDate(b.time);
+      return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
+    });
+
+  const renderSortContent = () => {
+    if (sortOrder === "desc") {
+      return (
+        <>
+          <ArrowDownNarrowWide size={18} strokeWidth={2} />
+          <span className="font-bold">Mới nhất trước</span>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <ArrowUpNarrowWide size={18} strokeWidth={2} />
+          <span className="font-bold">Cũ nhất trước</span>
+        </>
+      );
+    }
+  };
 
   const renderStatusBadge = (status: string) => {
     const baseClass =
@@ -52,6 +90,9 @@ export default function ListRescuePage() {
     }
   };
 
+  const handleRowClick = (requestId: string) => {
+    navigate(`${ROUTES.RESCUE_DETAIL}?id=${requestId}`);
+  };
   return (
     <div className="w-full min-h-[calc(100vh-80px)] p-8 bg-[#fdfdfd] font-sans">
       <div className="flex flex-col items-center justify-center w-full -mt-5 mb-10">
@@ -142,25 +183,31 @@ export default function ListRescuePage() {
 
       <div className="w-full flex flex-col gap-3">
         <div className="flex justify-end w-full">
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition-all bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 hover:text-black focus:ring-2 focus:ring-gray-200">
-            <SlidersHorizontal size={18} strokeWidth={2} />
-            <span>Lọc thời gian</span>
+          <button
+            onClick={
+              () => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc")) // toán tử 3 ngôi
+            }
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black transition-all bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 hover:text-black"
+          >
+            {renderSortContent()}
           </button>
         </div>
 
         {/* Bảng Table */}
-        <div className="w-full bg-white rounded-md shadow-sm border border-gray-100">
+        <div className="w-full bg-white rounded-md">
           <table className="w-full text-center border-collapse">
             <thead>
               <tr className="bg-[#e2e8f0]">
-                <th className="py-4 font-bold text-gray-800 w-24 rounded-tl-md">
+                <th className="py-4 font-extrabold text-black w-24 rounded-tl-md">
                   ID
                 </th>
-                <th className="py-4 font-bold text-gray-800">Số điện thoại</th>
-                <th className="py-4 font-bold text-gray-800 w-64">
+                <th className="py-4 font-extrabold text-black">
+                  Số điện thoại
+                </th>
+                <th className="py-4 font-extrabold text-black w-64">
                   Trạng thái
                 </th>
-                <th className="py-4 font-bold text-gray-800 rounded-tr-md">
+                <th className="py-4 font-extrabold text-black rounded-tr-md">
                   Thời gian tạo
                 </th>
               </tr>
@@ -189,18 +236,17 @@ export default function ListRescuePage() {
                     {error}
                   </td>
                 </tr>
-              ) : filteredData.length > 0 ? (
-                filteredData.map((row, index) => (
+              ) : processedData.length > 0 ? (
+                processedData.map((row, index) => (
                   <tr
                     key={index}
-                    className="transition-colors border-b border-gray-100 hover:bg-gray-50"
+                    onClick={() => handleRowClick(row.id)}
+                    className="transition-colors border-b border-2 hover:bg-gray-200 cursor-pointer"
                   >
-                    <td className="py-5 font-bold text-gray-800">{row.id}</td>
-                    <td className="py-5 text-gray-600 font-medium">
-                      {row.phone}
-                    </td>
+                    <td className="py-5 text-black">{row.id}</td>
+                    <td className="py-5 text-black">{row.phone}</td>
                     <td className="py-5">{renderStatusBadge(row.status)}</td>
-                    <td className="py-5 text-gray-500">{row.time}</td>
+                    <td className="py-5 text-black">{row.time}</td>
                   </tr>
                 ))
               ) : (

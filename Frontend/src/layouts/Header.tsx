@@ -28,7 +28,7 @@ export default function Header({ role }: { role: number }) {
     case 2:
       return <RescueHeader noty={false} />;
     case 3:
-      return <ManagerHeader />;
+      return <ManagerHeader noty={false} />;
     case 4:
       return <CoordinatorHeader noty={false} />;
     default:

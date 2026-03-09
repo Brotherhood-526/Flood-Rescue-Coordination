@@ -14,7 +14,7 @@ export const useRescueTeam = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const result = await rescueTeamService.getMyTeamRequests();
+      const result = await rescueTeamService.getRequests();
       setData(result);
     } catch (err) {
       console.error("Lỗi khi tải danh sách cứu hộ:", err);

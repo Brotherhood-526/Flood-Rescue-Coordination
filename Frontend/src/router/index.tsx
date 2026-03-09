@@ -13,9 +13,9 @@ import GuidePage from "@/pages/GuidePage";
 
 // Rescue Pages
 import ListRescuePage from "@/pages/Rescue/ListRescuePage";
-// import RescueDetailPage from "@/pages/Rescue/RescueDetailPage";
-// import FullMapRescuePage from "@/pages/Rescue/FullMapRescuePage";
-// import ChatBox from "@/pages/Rescue/ChatBox";
+import RescueDetailPage from "@/pages/Rescue/RescueDetailPage";
+import FullMapRescuePage from "@/pages/Rescue/FullMapRescuePage";
+import RescueChatBox from "@/pages/Rescue/RescueChatBox";
 
 // Manager Pages
 // import OverviewPage from "@/pages/Manager/OverviewPage";
@@ -75,17 +75,26 @@ export const router = createBrowserRouter([
         element: <MainLayout role={2} />,
         children: [{ index: true, element: <ListRescuePage /> }],
       },
-      // {
-      //   path: ROUTES.RESCUE_DETAIL,
-      //   element: <MainLayout role={2} />,
-      //   children: [{ index: true, element: <RescueDetailPage /> }],
-      // },
-      // {
-      //   path: ROUTES.RESCUE_CHAT,
-      //   element: <MainLayout role={2} />,
-      //   children: [{ index: true, element: <ChatBox /> }],
-      // },
-      // { path: ROUTES.RESCUE_MAP, element: <FullMapRescuePage /> },
+      {
+        path: ROUTES.RESCUE_DETAIL,
+        element: <MainLayout role={2} />,
+        children: [{ index: true, element: <RescueDetailPage /> }],
+      },
+      { path: ROUTES.COORDINATE_MAP, element: <FullMapCoordinatorPage /> },
+      { path: ROUTES.COORDINATE_CHAT, element: <TestChatBox /> },
+    ],
+  },
+
+  // NHÓM ĐỘI CỨU HỘ
+  {
+    element: <ProtectedRoute allowedRoles={["rescue team", "rescue"]} />,
+    children: [
+      {
+        path: ROUTES.RESCUE_CHAT,
+        element: <MainLayout role={2} />,
+        children: [{ index: true, element: <RescueChatBox /> }],
+      },
+      { path: ROUTES.RESCUE_MAP, element: <FullMapRescuePage /> },
     ],
   },
 
