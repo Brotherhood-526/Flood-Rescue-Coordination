@@ -4,76 +4,77 @@ import {
     TableCell,
     TableRow,
 } from "@/components/ui/table.tsx";
-import { ClipboardPlus, RefreshCcw, Clock, SquareCheck, CircleX, SlidersVertical } from 'lucide-react';
+import { ClipboardPlus, RefreshCcw, Clock, SquareCheck, CircleX, SlidersVertical, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import {useNavigate} from "react-router-dom";
 import {ROUTES} from "@/router/routes.tsx";
+import {useRequestList} from "@/hooks/useRequestList.ts";
 
 export type RescueRequest = {
-    id: number;
+    id: string;
     phone: string;
-    rescuer: string;
-    status: "active" | "offline";
+    name: string;
+    status: "accept" | "reject" | "delayed" | "processing";
     createdAt: string;
 };
 
-const fakeRequests: RescueRequest[] = [
-    {
-        id: 1,
-        phone: "0723456789",
-        rescuer: "Nguyễn Văn A",
-        status: "offline",
-        createdAt: "01/01/2026 00:00",
-    },
-    {
-        id: 2,
-        phone: "0988123123",
-        rescuer: "Trần Văn B",
-        status: "active",
-        createdAt: "02/01/2026 09:12",
-    },
-    {
-        id: 3,
-        phone: "0912345678",
-        rescuer: "Lê Văn C",
-        status: "active",
-        createdAt: "03/01/2026 14:30",
-    },
-    {
-        id: 4,
-        phone: "0901112233",
-        rescuer: "Phạm Văn D",
-        status: "active",
-        createdAt: "04/01/2026 08:45",
-    },
-    {
-        id: 5,
-        phone: "0377778888",
-        rescuer: "Hoàng Văn E",
-        status: "active",
-        createdAt: "05/01/2026 11:10",
-    },
-    {
-        id: 6,
-        phone: "0399991111",
-        rescuer: "Đỗ Văn F",
-        status: "offline",
-        createdAt: "06/01/2026 16:22",
-    },
-    {
-        id: 7,
-        phone: "0351234567",
-        rescuer: "Bùi Văn G",
-        status: "active",
-        createdAt: "07/01/2026 19:05",
-    },
-    {
-        id: 8,
-        phone: "0384567890",
-        rescuer: "Vũ Văn H",
-        status: "active",
-        createdAt: "08/01/2026 07:50",
-    },
-];
+// const fakeRequests: RescueRequest[] = [
+//     {
+//         id: 1,
+//         phone: "0723456789",
+//         rescuer: "Nguyễn Văn A",
+//         status: "reject",
+//         createdAt: "01/01/2026 00:00",
+//     },
+//     {
+//         id: 2,
+//         phone: "0988123123",
+//         rescuer: "Trần Văn B",
+//         status: "accept",
+//         createdAt: "02/01/2026 09:12",
+//     },
+//     {
+//         id: 3,
+//         phone: "0912345678",
+//         rescuer: "Lê Văn C",
+//         status: "delayed",
+//         createdAt: "03/01/2026 14:30",
+//     },
+//     {
+//         id: 4,
+//         phone: "0901112233",
+//         rescuer: "Phạm Văn D",
+//         status: "accept",
+//         createdAt: "04/01/2026 08:45",
+//     },
+//     {
+//         id: 5,
+//         phone: "0377778888",
+//         rescuer: "Hoàng Văn E",
+//         status: "accept",
+//         createdAt: "05/01/2026 11:10",
+//     },
+//     {
+//         id: 6,
+//         phone: "0399991111",
+//         rescuer: "Đỗ Văn F",
+//         status: "processing",
+//         createdAt: "06/01/2026 16:22",
+//     },
+//     {
+//         id: 7,
+//         phone: "0351234567",
+//         rescuer: "Bùi Văn G",
+//         status: "processing",
+//         createdAt: "07/01/2026 19:05",
+//     },
+//     {
+//         id: 8,
+//         phone: "0384567890",
+//         rescuer: "Vũ Văn H",
+//         status: "processing",
+//         createdAt: "08/01/2026 07:50",
+//     },
+// ];
 
 export default function ListRequestPage() {
     return (
@@ -117,11 +118,14 @@ export function Filters(){
 }
 
 export function Requests(){
+
+    const { pageNumber, pageSize, requestList, handlePageChange } = useRequestList();
+
     const navigate = useNavigate();
 
     const handleOpenRequest = () => {
         navigate(ROUTES.REQUESTDETAILS);
-    }
+    };
 
     const columns = [
         "ID",
@@ -137,40 +141,15 @@ export function Requests(){
             <div className="w-full flex justify-end mb-2">
                 <SlidersVertical className="!w-10 !h-10 cursor-pointer"/>
             </div>
-            {/*<Table className="table-fixed w-full">*/}
-            {/*    <TableHeader className="bg-gray-200 [&_th]:text-center [&_th]:font-bold [&_th]:text-base">*/}
-            {/*        <TableRow>*/}
-            {/*            <TableHead className="w-20">ID</TableHead>*/}
-            {/*            <TableHead>Số điện thoại</TableHead>*/}
-            {/*            <TableHead>Người cứu hộ</TableHead>*/}
-            {/*            <TableHead>Trạng thái</TableHead>*/}
-            {/*            <TableHead>Thời gian tạo</TableHead>*/}
-            {/*        </TableRow>*/}
-            {/*    </TableHeader>*/}
-
-            {/*    <TableBody className="text-center cursor-pointer">*/}
-            {/*        {fakeRequests.map((r) => (*/}
-            {/*            <TableRow key={r.id} onClick={handleOpenRequest}>*/}
-            {/*                <TableCell className="font-semibold">0{r.id}</TableCell>*/}
-            {/*                <TableCell>{r.phone}</TableCell>*/}
-            {/*                <TableCell>{r.rescuer}</TableCell>*/}
-            {/*                <TableCell>*/}
-            {/*    <Status status={r.status}/>*/}
-            {/*                </TableCell>*/}
-            {/*                <TableCell>{r.createdAt}</TableCell>*/}
-            {/*            </TableRow>*/}
-            {/*        ))}*/}
-            {/*    </TableBody>*/}
-            {/*</Table>*/}
 
             <CommonTable
                 columns={columns}
-                data={fakeRequests}
-                renderRow={(r) => (
-                    <TableRow key={r.id} onClick={handleOpenRequest}>
-                        <TableCell className="font-semibold">0{r.id}</TableCell>
+                data={requestList}
+                renderRow={(r, idx) => (
+                    <TableRow key={pageNumber*pageSize + idx + 1} onClick={handleOpenRequest}>
+                        <TableCell className="font-semibold">0{pageNumber*pageSize + idx + 1}</TableCell>
                         <TableCell>{r.phone}</TableCell>
-                        <TableCell>{r.rescuer}</TableCell>
+                        <TableCell>{r.name}</TableCell>
                         <TableCell>
                             <Status status={r.status} />
                         </TableCell>
@@ -178,19 +157,49 @@ export function Requests(){
                     </TableRow>
                 )}
             />
+            <div className="mt-[1vh]">
+                <Button
+                    className="rounded-full bg-gray-100 hover:bg-gray-300 p-2 mr-[0.5vw]"
+                    variant="ghost"
+                    onClick={() => handlePageChange(true)}
+                >
+                    <ChevronsLeft className="w-4 h-4" />
+                </Button>
+                <Button
+                    className="rounded-full bg-gray-100 hover:bg-gray-300 p-2 ml-[0.5vw]"
+                    variant="ghost"
+                    onClick={() => handlePageChange(false)}
+                >
+                    <ChevronsRight className="w-4 h-4" />
+                </Button>
+            </div>
         </div>
     );
 }
 
 export function Status({status}:{status:string}){
     switch(status){
-        case "active":
+        case "accept":
             return  <span className="px-4 py-1 rounded-full bg-emerald-200 text-emerald-700">
-                        Hoạt động
+                        Chấp nhận
                     </span>;
-        case "offline":
+        case "reject":
             return <span className="px-4 py-1 rounded-full bg-red-200 text-red-700">
-                        Tạm dừng
+                        Từ chối
                     </span>;
+        case "processing":
+            return <span className="px-4 py-1 rounded-full bg-yellow-200 text-yellow-800">
+                        Đang xử lý
+                    </span>
+
+        case "delayed":
+            return <span className="px-4 py-1 rounded-full bg-sky-200 text-sky-700">
+                        Tạm Hoãn
+                    </span>
+
+        case "completed":
+            return <span className="px-4 py-1 rounded-full bg-indigo-200 text-indigo-700">
+                        Tạm Hoãn
+                    </span>
     }
 }

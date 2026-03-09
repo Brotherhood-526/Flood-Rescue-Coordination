@@ -18,6 +18,7 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    // Citizen gửi request
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Citizen citizen;
@@ -37,7 +38,9 @@ public class Request {
     @Column(precision = 18, scale = 10, nullable = false)
     private BigDecimal longitude;
 
-    @Column(name = "geo_location", columnDefinition = "geography", insertable = false, updatable = false)
+    // DB trigger sẽ tự cập nhật
+    @Column(name = "geo_location", columnDefinition = "geography",
+            insertable = false, updatable = false)
     private Point geoLocation;
 
     @Column(name = "additional_link", length = 200)
@@ -50,14 +53,29 @@ public class Request {
     private String urgency;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
+
+    // Coordinator
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coordinator_id")
+    private Staff coordinator;
+
+    // Rescue team
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rescue_team_id")
+    private Staff rescueTeam;
+
+    // Vehicle
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
+
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String report;
 
     @OneToMany(mappedBy = "request")
     private List<RequestImage> images;
 
     @OneToMany(mappedBy = "request")
     private List<Message> messages;
-
-    @OneToMany(mappedBy = "request")
-    private List<RescueTeamAssignment> rescueTeamAssignment;
 }

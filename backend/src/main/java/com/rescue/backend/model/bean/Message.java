@@ -22,14 +22,14 @@ public class Message {
     @JoinColumn(name = "request_id", nullable = false)
     private Request request;
 
-    @Column(name = "sender_id", nullable = false)
-    private UUID senderId;
+    @Column(name = "sender_user_id")
+    private UUID senderUserId;
+
+    @Column(name = "sender_staff_id")
+    private UUID senderStaffId;
 
     @Column(name = "sender_role", nullable = false, length = 20)
     private String senderRole;
-
-    @Column(name = "sender_name", nullable = false)
-    private String senderName;
 
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String content;

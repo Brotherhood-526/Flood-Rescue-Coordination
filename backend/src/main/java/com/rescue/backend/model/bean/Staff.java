@@ -4,17 +4,18 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.geo.Point;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Account")
+@Table(name = "Staff")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Account {
+public class Staff {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -31,7 +32,7 @@ public class Account {
     @Column(nullable = false, length = 20)
     private String role;
 
-    @Column(length = 255, name = "team_name")
+    @Column(name = "team_name", length = 50)
     private String teamName;
 
     @Column(name = "team_size")
@@ -43,9 +44,15 @@ public class Account {
     @Column(precision = 18, scale = 10)
     private BigDecimal longitude;
 
-    @Column(name = "account_state")
-    private String accountState = "offline";
+    @Column(name = "geo_location",
+            columnDefinition = "geography",
+            insertable = false,
+            updatable = false)
+    private Point geoLocation;
 
-    @OneToMany(mappedBy = "account")
+    @Column(name = "staff_state")
+    private String staffState = "offline";
+
+    @OneToMany(mappedBy = "rescueTeam")
     private List<Vehicle> vehicles;
 }

@@ -27,6 +27,7 @@ export default function Login() {
 
     try {
       const user = await login(phoneNumber, password);
+      console.log(user?.role);
       if (user?.role === "coordinate" || user?.role === "rescue coordinator") {
         navigate(ROUTES.COORDINATE);
       } else {

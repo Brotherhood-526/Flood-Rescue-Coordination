@@ -18,15 +18,15 @@ public class ChatService {
 
     private final MessageDAO messageDAO;
 
-    public ChatHistoryResponse getChatHistory (UUID requestId) {
-        List<Message> messages = messageDAO.findByRequestIdOrderBySendAtAsc(requestId);
-
-        List<MessageResponse> messageHistory = messages.stream().map(m -> new MessageResponse(
-            m.getId(), m.getSenderId(), m.getSenderName(), m.getSenderRole(), m.getContent(), m.getSendAt()
-        )).toList();
-
-
-        return new ChatHistoryResponse(messageHistory);
-    }
+//    public ChatHistoryResponse getChatHistory (UUID requestId) {
+//        List<Message> messages = messageDAO.findByRequestIdOrderBySendAtAsc(requestId);
+//
+//        List<MessageResponse> messageHistory = messages.stream().map(m -> new MessageResponse(
+//            m.getId(), m.getSenderStaffId(), m.getSenderName(), m.getSenderRole(), m.getContent(), m.getSendAt()
+//        )).toList();
+//
+//
+//        return new ChatHistoryResponse(messageHistory);
+//    }
 
 }

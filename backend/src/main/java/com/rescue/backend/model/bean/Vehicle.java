@@ -13,6 +13,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class Vehicle {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -25,5 +26,5 @@ public class Vehicle {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rescue_team_id", nullable = false)
-    private Account account;
+    private Staff rescueTeam;
 }
