@@ -89,3 +89,115 @@ D:/FPT_University/prj301/Flood-Rescue-Coordination/.env
 2. Click **Run ▶** (green triangle icon) to start the backend server.
 
 ---
+# 9. Setup MySQL Database
+
+To run the backend successfully, you must install **MySQL Server** and initialize the database used by the Flood Rescue Coordination system.
+
+---
+
+## Step 9.1: Download MySQL Installer
+
+Download the **MySQL Installer** from the provided **Google Drive link**.
+
+[Download MySQL Installer](https://drive.google.com/drive/u/0/folders/1-o-26cV1B0YvS_QCc-L3dLvUD78nGFRn)
+
+Or watch database setup on **[youtube link](https://www.youtube.com/watch?v=F5mDv9Tjztg)**.
+
+After downloading, run the installer to begin the setup process.
+
+---
+
+## Step 9.2: Choose Setup Type
+
+During installation, when the **Choosing a Setup Type** window appears:
+
+Select:
+
+**Full**
+
+This option installs:
+
+- MySQL Server
+- MySQL Workbench
+- Required connectors and development tools
+
+Then click **Next**.
+
+---
+
+## Step 9.3: Install MySQL
+
+Continue the installation process by clicking:
+
+Next → Next → Next
+
+Wait until the installation completes.
+
+---
+
+## Step 9.4: Product Configuration
+
+In the **Product Configuration** step:
+
+Only configure the following component:
+
+**MySQL Server 8.0.44**
+
+Continue clicking **Next** until reaching the account configuration step.
+
+---
+
+## Step 9.5: Configure Account & Role
+
+In the **Accounts and Roles** section, set the MySQL root account as follows:
+
+| Field | Value |
+|------|------|
+| Username | `root` |
+| Password | `12345` |
+
+These credentials will be used by the backend application to connect to the database.
+
+Click **Next**.
+
+---
+
+## Step 9.6: Apply Configuration
+
+At the **Apply Configuration** step:
+
+Click:
+
+**Execute**
+
+Wait until all configuration steps display **Complete**, then click **Finish**.
+
+---
+
+## Step 9.7: Open MySQL Workbench
+
+Launch **MySQL Workbench**.
+
+Connect using the following credentials:
+
+| Field | Value |
+|------|------|
+| Username | `root` |
+| Password | `12345` |
+
+---
+
+## Step 9.8: Run Database Script
+
+1. Open the file: schema.sql
+
+inside the project folder.
+
+2. Copy the SQL script.
+
+3. Paste it into the **MySQL Workbench SQL Editor**.
+
+4. Click the **⚡ Lightning icon (Execute)** to run the script.
+
+This script will create the required database schema for the system.
+ 
