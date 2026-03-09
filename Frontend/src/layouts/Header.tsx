@@ -29,8 +29,8 @@ export default function Header({ role }: { role: number }) {
       );
     case 2:
       return <RescueHeader noty={false} />;
-    case 3:
-      return <ManagerHeader noty={false} />;
+    // case 3:
+    //   return <ManagerHeader noty={false} />;
     case 4:
       return <CoordinatorHeader noty={false} />;
     default:
@@ -112,8 +112,8 @@ export function CoordinatorHeader({ noty }: { noty: boolean }) {
         </div>
 
         <div className="flex gap-4 items-center">
-          <Button className="!bg-gray-200 !text-black relative">
-            <Bell className="!h-6 !w-6" fill="currentColor" strokeWidth={2.5} />
+          <Button className="bg-gray-200! text-black! relative">
+            <Bell className="h-6! w-6!" fill="currentColor" strokeWidth={2.5} />
             Thông báo
             {noty && (
               <div className="absolute top-0 right-0 w-3 h-3 bg-rose-500 rounded-full"></div>
@@ -285,6 +285,6 @@ export function UserHeader({
   );
 }
 
-/*  MANAGER HEADER */
+// /*  MANAGER HEADER */
 
-export function ManagerHeader({ noty }: { noty: boolean }) {}
+// export function ManagerHeader({ noty }: { noty: boolean }) {}
