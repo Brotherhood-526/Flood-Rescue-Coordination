@@ -14,26 +14,27 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 
-
 export default function Login() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-
     try {
-      const user = await login(phoneNumber, password);
-      if (!user)
-        return;
-      const role = user.role?.trim().toLowerCase();
+      // Đổi từ user sang staff
+      const staff = await login(phoneNumber, password);
+      if (!staff) return;
 
-      if (role === "rescue team") {
+      const role = staff.role?.toLowerCase();
+
+      if (role === "rescue manager") {
+        navigate(ROUTES.MANAGER);
+      } else if (role === "rescue team") {
         navigate(ROUTES.RESCUE);
-        return;
       } else if (role === "rescue coordinator") {
         navigate(ROUTES.COORDINATE);
         return;
@@ -41,13 +42,12 @@ export default function Login() {
         navigate("/");
         return;
       } else {
-        console.error("Unknown role received:", user?.role);
+        navigate("/");
       }
     } catch (error) {
       console.error("Login failed:", error);
     }
   };
-
 
   return (
     <div className="w-full min-h-screen grid lg:grid-cols-2">
@@ -63,7 +63,6 @@ export default function Login() {
           </Link>
         </div>
 
-
         <div className="flex-1 flex flex-col justify-center items-center px-6 pb-12">
           <Card className="w-full max-w-[480px] border-0 shadow-none bg-transparent">
             <CardHeader className="text-center p-0 mb-8">
@@ -74,7 +73,6 @@ export default function Login() {
                 Dành cho nhân viên & điều phối viên hệ thống
               </p>
             </CardHeader>
-
 
             <CardContent className="p-0">
               <form className="space-y-5" onSubmit={handleLogin}>
@@ -95,7 +93,6 @@ export default function Login() {
                     className="h-14 bg-gray-50 border-black rounded-xl pl-12 pr-5 text-base text-black font-semibold placeholder:text-gray-400 placeholder:font-normal focus-visible:ring-2 focus-visible:ring-[#25a863] focus-visible:bg-white transition-all"
                   />
                 </div>
-
 
                 {/* Password Input */}
                 <div className="relative">
@@ -158,7 +155,6 @@ export default function Login() {
                   </button>
                 </div>
 
-
                 {/* Submit Button */}
                 <Button
                   type="submit"
@@ -166,7 +162,6 @@ export default function Login() {
                 >
                   Đăng nhập với tư cách nhân viên <ArrowRight size={18} />
                 </Button>
-
 
                 {/* Divider */}
                 <div className="flex items-center gap-3 py-2">
@@ -176,7 +171,6 @@ export default function Login() {
                   </span>
                   <div className="flex-1 h-px bg-gray-200" />
                 </div>
-
 
                 {/* Quick links */}
                 <div className="grid grid-cols-2 gap-4">
@@ -204,12 +198,10 @@ export default function Login() {
           </Card>
         </div>
 
-
         <p className="text-center text-xs text-gray-400 py-6">
           © 2026 Cứu Hộ – Hệ thống điều phối khẩn cấp
         </p>
       </div>
-
 
       {/* ══ RIGHT SIDE ══ */}
       <div className="hidden lg:flex flex-col bg-[#25a863] h-full overflow-hidden relative">
@@ -222,14 +214,11 @@ export default function Login() {
           }}
         />
 
-
         {/* Decorative blobs */}
         <div className="absolute -top-24 -right-20 w-72 h-72 rounded-full bg-white/[0.07] pointer-events-none" />
         <div className="absolute -bottom-10 -left-16 w-48 h-48 rounded-full bg-white/[0.07] pointer-events-none" />
 
-
         <div className="h-20 w-full shrink-0" />
-
 
         <div className="flex-1 flex justify-center w-full pt-16 px-12 relative z-10">
           <div className="max-w-xl w-full text-white">
@@ -237,7 +226,6 @@ export default function Login() {
               <span className="w-2 h-2 rounded-full bg-[#7fffb8] shadow-[0_0_8px_#7fffb8] animate-pulse" />
               HỆ THỐNG ĐANG HOẠT ĐỘNG
             </div>
-
 
             <h1 className="text-5xl font-extrabold tracking-tight mb-3 leading-tight">
               Chào mừng trở lại! 👋
@@ -247,7 +235,6 @@ export default function Login() {
               <br />
               Cảm ơn bạn đã tiếp tục cống hiến vì cộng đồng.
             </p>
-
 
             <div className="space-y-4">
               <div className="flex items-start gap-4 bg-white/[0.08] backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.15] hover:translate-x-1 transition-all cursor-default group">
@@ -264,7 +251,6 @@ export default function Login() {
                   </p>
                 </div>
               </div>
-
 
               <div className="flex items-start gap-4 bg-white/[0.08] backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.15] hover:translate-x-1 transition-all cursor-default group">
                 <span className="mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -286,7 +272,6 @@ export default function Login() {
                   </p>
                 </div>
               </div>
-
 
               <div className="flex items-start gap-4 bg-white/[0.08] backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.15] hover:translate-x-1 transition-all cursor-default group">
                 <span className="mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform">
