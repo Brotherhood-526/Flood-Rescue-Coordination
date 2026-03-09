@@ -9,17 +9,18 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   const { staff } = useAuth();
   const location = useLocation();
+  const normalizeRole = (value?: string | null) => (value ?? "").trim().toLowerCase();
 
   if (!staff) {
     return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
   }
 
   // 3. LẤY ROLE TỪ staff
-  const userRole = staff.role?.toLowerCase();
+  const userRole = normalizeRole(staff.role);
 
   let isAllowed = false;
   for (const role of allowedRoles) {
-    if (role.toLowerCase() === userRole) {
+    if (normalizeRole(role) === userRole) {
       isAllowed = true;
       break;
     }

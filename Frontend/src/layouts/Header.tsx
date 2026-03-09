@@ -287,4 +287,23 @@ export function UserHeader({
 
 // /*  MANAGER HEADER */
 
-// export function ManagerHeader({ noty }: { noty: boolean }) {}
+export function ManagerHeader({ noty }: { noty: boolean }) {
+  return (
+    <header className="bg-slate-950 shadow-md text-gray-200">
+      <div className="hidden md:flex flex-row items-center justify-between px-[2vw] py-[2vh] w-full fixed top-0 left-0 bg-slate-950 shadow z-50">
+        <div>
+          <p className="text-[3vh] font-bold">Bảng quản lý</p>
+          <p>Quản trị viên theo dõi và vận hành hệ thống</p>
+        </div>
+
+        <Button className="!bg-gray-200 !text-black relative">
+          <Bell className="!h-6 !w-6" fill="currentColor" strokeWidth={2.5} />
+          Thông báo
+          {noty && (
+            <div className="absolute top-0 right-0 w-3 h-3 bg-rose-500 rounded-full"></div>
+          )}
+        </Button>
+      </div>
+    </header>
+  );
+}
