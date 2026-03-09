@@ -19,10 +19,6 @@ export function useAuth() {
       });
 
       const staffData = res as unknown as Staff;
-
-      // BẮT BUỘC PHẢI LƯU VÀO LOCAL STORAGE ĐỂ PROTECTED ROUTE NHẬN DIỆN ĐƯỢC
-      // Tùy vào việc BE trả về có token hay không. Nếu có token thì lưu token.
-      // Nếu BE TẠM THỜI chưa có token,lưu tạm thông tin user:
       localStorage.setItem("userRole", staffData.role);
 
       console.log("Dữ liệu login trả về:", staffData);
@@ -37,10 +33,18 @@ export function useAuth() {
     }
   };
 
-  const logout = () => {
-    clearStaff();
-    // localStorage.removeItem("accessToken"); // Xóa token khi đăng xuất
-    navigate("/login");
+  const logout = async () => {
+    try {
+      setLoading(true);
+      await apiClient.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout API failed:", error);
+    } finally {
+      clearStaff();
+      localStorage.removeItem("userRole");
+      setLoading(false);
+      navigate("/login");
+    }
   };
 
   return {

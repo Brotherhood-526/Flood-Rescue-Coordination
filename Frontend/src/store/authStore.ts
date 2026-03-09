@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+
 export interface Staff {
   accountId: string;
   name: string;
@@ -21,9 +22,7 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       staff: null,
-
       setStaff: (staff) => set({ staff }),
-
       clearStaff: () => set({ staff: null }),
     }),
     {
