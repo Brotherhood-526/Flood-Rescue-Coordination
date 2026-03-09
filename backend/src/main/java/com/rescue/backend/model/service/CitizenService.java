@@ -91,40 +91,41 @@ public class CitizenService {
     public CitizenRescueResponse mapToRequestResponse(Request request) {
         List<LookupImageResponse> imageList = (request.getImages() != null)
                 ? request.getImages().stream()
-                        .map(img -> new LookupImageResponse(img.getId(), img.getImageUrl()))
-                                .toList()
+                .map(img -> new LookupImageResponse(img.getId(), img.getImageUrl()))
+                .toList()
                 : List.of();
 
-        String coordinator = null;
-        String leader = null;
-        String vehicle = null;
+        String coordinator = (request.getCoordinator() != null)
+                ? request.getCoordinator().getName()
+                : null;
 
-        if (request.getRescueTeamAssignment() != null && !request.getRescueTeamAssignment().isEmpty()) {
-            var assignment = request.getRescueTeamAssignment().getFirst();
-            coordinator = assignment.getCoordinator().getName();
-            leader = assignment.getRescueTeam().getName();
-            vehicle = vehicleDAO.findById(assignment.getVehicleId())
-                                .map(Vehicle::getType)
-                                .orElse(null);
-        }
+        String leader = (request.getRescueTeam() != null)
+                ? request.getRescueTeam().getName()
+                : null;
+
+        String vehicleType = (request.getVehicle() != null)
+                ? request.getVehicle().getType()
+                : null;
+
+
         return new CitizenRescueResponse(
-            request.getId(),
-            request.getAddress(),
-            request.getDescription(),
-            request.getAdditionalLink(),
-            request.getCreatedAt(),
-            request.getLatitude(),
-            request.getLongitude(),
-            request.getStatus(),
-            request.getType(),
-            request.getUrgency(),
-            request.getCitizen().getId(),
-            request.getCitizen().getName(),
-            request.getCitizen().getPhone(),
-            imageList,
-            coordinator,
-            leader,
-            vehicle
+                request.getId(),
+                request.getAddress(),
+                request.getDescription(),
+                request.getAdditionalLink(),
+                request.getCreatedAt(),
+                request.getLatitude(),
+                request.getLongitude(),
+                request.getStatus(),
+                request.getType(),
+                request.getUrgency(),
+                request.getCitizen().getId(),
+                request.getCitizen().getName(),
+                request.getCitizen().getPhone(),
+                imageList,
+                coordinator,
+                leader,
+                vehicleType
         );
     }
 
@@ -183,8 +184,6 @@ public class CitizenService {
                 }
                 request.getImages().addAll(newImages);
             }
-        } else {
-            request.setImages(new ArrayList<>());
         }
 
         return mapToRequestResponse(savedRequest);

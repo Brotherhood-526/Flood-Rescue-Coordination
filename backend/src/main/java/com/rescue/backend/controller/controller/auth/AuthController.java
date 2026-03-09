@@ -6,6 +6,7 @@ import com.rescue.backend.view.dto.auth.response.LoginResponse;
 import com.rescue.backend.view.dto.common.ResponseObject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
+@Slf4j
 public class AuthController {
 
     @Autowired
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseObject> login(@RequestBody LoginRequest loginRequest, HttpServletRequest session) {
+    public ResponseEntity<ResponseObject> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
 
         //HttpServletRequest: Đại diện cho toàn bộ một yêu cầu HTTP. Nó chứa mọi thứ: Header, Cookies, IP người gửi, Body, Parameters... và cả Session bên trong nó.
         //HttpSession: Chỉ đại diện cho phiên làm việc của một người dùng cụ thể. Nó là một "ngăn chứa đồ" riêng biệt trên server dành cho user đó.
@@ -31,8 +33,8 @@ public class AuthController {
         try {
             LoginResponse account = authService.authenticateUser(loginRequest);
 
-            session.setAttribute("TEAM_ID", account.accountId());
-            session.setAttribute("ACCOUNT_ROLE", account.role());
+            session.setAttribute("STAFF_ID", account.accountId());
+            session.setAttribute("STAFF_ROLE", account.role());
 
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject(200, "Đăng nhập thành công", account)
@@ -42,8 +44,10 @@ public class AuthController {
                     new ResponseObject(401, "Số điện thoại hoặc mật khẩu không đúng", null)
             );
         } catch (Exception e) {
+            log.error("Lỗi hệ thống khi đăng nhập cho số {}: ", loginRequest.phone(), e);
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ResponseObject(500, "Lỗi hệ thống", e.getMessage())
+                    new ResponseObject(500, "Lỗi hệ thống", null)
             );
         }
     }

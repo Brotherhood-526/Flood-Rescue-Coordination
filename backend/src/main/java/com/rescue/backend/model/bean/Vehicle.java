@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -15,6 +18,7 @@ import java.util.UUID;
 public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @Column(nullable = false, length = 30)
@@ -25,5 +29,8 @@ public class Vehicle {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rescue_team_id", nullable = false)
-    private Account account;
+    private Staff staff;
+
+    @OneToMany(mappedBy = "vehicle")
+    private List<Request> requests;
 }

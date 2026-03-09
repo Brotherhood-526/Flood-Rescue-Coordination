@@ -24,9 +24,15 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // Cho phép mọi nguồn (hoặc http://localhost:8080)
+        configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                "https://be-floodrescuecoordination-production.up.railway.app",
+                "https://fe-floodrescuecoordination-production.up.railway.app"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -40,7 +46,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(roleInterceptor)
-                .addPathPatterns("/api/vs/**")
-                .excludePathPatterns("/api/v1/auth/**", "/api/v1/citizen/**");
+                .addPathPatterns("/manager/**", "/coordinator/**", "/rescueteam/**")
+                .excludePathPatterns("/**/auth/**", "/**/citizen/**");
     }
 }

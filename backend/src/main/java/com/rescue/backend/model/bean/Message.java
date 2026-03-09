@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,20 +18,23 @@ import java.util.UUID;
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id", nullable = false)
     private Request request;
 
-    @Column(name = "sender_id", nullable = false)
-    private UUID senderId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_user_id")
+    private Citizen senderUser;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_staff_id")
+    private Staff senderStaff;
 
     @Column(name = "sender_role", nullable = false, length = 20)
-    private String senderRole;
-
-    @Column(name = "sender_name", nullable = false)
-    private String senderName;
+    private String senderRole; // user, coordinator, rescue team
 
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String content;

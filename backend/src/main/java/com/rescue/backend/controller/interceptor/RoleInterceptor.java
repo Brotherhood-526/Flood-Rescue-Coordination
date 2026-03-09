@@ -25,7 +25,9 @@ public class RoleInterceptor implements HandlerInterceptor {
 
         HttpSession session = request.getSession();
         String userRole = (String) session.getAttribute("ACCOUNT_ROLE");
-        String path = request.getRequestURI().toLowerCase();
+
+        // Dùng getServletPath() để lấy đường dẫn sau context-path
+        String path = request.getServletPath().toLowerCase();
 
         // --- CƠ CHẾ 1: KIỂM TRA THEO ANNOTATION (ƯU TIÊN) ---
         RequiresRole annotation = handlerMethod.getMethodAnnotation(RequiresRole.class);
@@ -42,12 +44,13 @@ public class RoleInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // 1. KIỂM TRA ROLE (Tương tự code cũ)
+        // 1. CƠ CHẾ 2: KIỂM TRA THEO PREFIX
         boolean isForbidden = false;
 
-        if (path.contains("/manager/") && !"manager".equals(userRole)) isForbidden = true;
-        else if (path.contains("/coordinator/") && !"rescue coordinator".equals(userRole)) isForbidden = true;
-        else if (path.contains("/rescueteam/") && !"rescue team".equals(userRole)) isForbidden = true;
+        // Kiểm tra startsWith để tránh hacker lách luật bằng URL như /public/manager-info
+        if (path.startsWith("/manager/") && !"manager".equals(userRole)) isForbidden = true;
+        else if (path.startsWith("/coordinator/") && !"rescue coordinator".equals(userRole)) isForbidden = true;
+        else if (path.startsWith("/rescueteam/") && !"rescue team".equals(userRole)) isForbidden = true;
 
         if  (isForbidden) {
             return handleRedirect(request, response, userRole);

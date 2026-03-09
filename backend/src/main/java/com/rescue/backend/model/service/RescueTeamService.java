@@ -1,9 +1,8 @@
 package com.rescue.backend.model.service;
 
 import com.rescue.backend.model.bean.Request;
-import com.rescue.backend.model.bean.RescueTeamAssignment;
 import com.rescue.backend.model.bean.Vehicle;
-import com.rescue.backend.model.dao.RescueTeamAssignmentDAO;
+import com.rescue.backend.model.dao.RequestDAO;
 import com.rescue.backend.model.dao.VehicleDAO;
 import com.rescue.backend.view.dto.image.response.LookupImageResponse;
 import com.rescue.backend.view.dto.rescueTeam.request.UpdateTaskRequest;
@@ -26,91 +25,91 @@ import java.util.UUID;
 public class RescueTeamService {
 
     @Autowired
-    private final RescueTeamAssignmentDAO rescueTeamAssignmentDAO;
+    private  final RequestDAO requestDAO;
 
     @Autowired
     private final VehicleDAO vehicleDAO;
 
     public Page<TeamAssignmentResponse> getTaskByFilter(UUID teamId, String filter, int page) {
-        String dbStatus = (filter == null) ? null : switch (filter.toLowerCase()) {
-            case "đang xử lý" -> "on the way";
-            case "tạm hoãn" -> "delayed";
-            case "hoàn thành" -> "completed";
-            default -> null;
+        // 1. Kiểm tra null/ empty
+        if (filter == null || filter.isBlank()) {
+            return fetchTaskByFilter(teamId, null, page);
+        }
+
+        String cleanFilter = filter.trim().toLowerCase();
+
+        String dbStatus = switch (cleanFilter) {
+            case "đang xử lý", "on the way" -> "on the way";
+            case "tạm hoãn", "delayed" -> "delayed";
+            case "hoàn thành", "completed" -> "completed";
+            default -> throw new IllegalArgumentException("Trạng thái lọc không hợp lệ: " + filter);
         };
 
-        // Tạo pageable cho trang hiện tại, mỗi trang 20 bản ghi
+        return fetchTaskByFilter(teamId, dbStatus, page);
+    }
+
+    private Page<TeamAssignmentResponse> fetchTaskByFilter(UUID teamId, String dbStatus, int page) {
         Pageable pageable = PageRequest.of(page, 20, Sort.by("request.createdAt").descending());
 
-        Page<RescueTeamAssignment> assignments = rescueTeamAssignmentDAO.findByTeamAndStatus(teamId, dbStatus, pageable);
+        Page<Request> assignments = (dbStatus == null)
+                ? requestDAO.findByRescueTeamId(teamId, pageable)
+                : requestDAO.findByRescueTeamIdAndStatus(teamId, dbStatus, pageable);
 
         return assignments.map(assignment -> new TeamAssignmentResponse(
                 assignment.getId(),
-                assignment.getRequest().getCitizen().getPhone(),
+                assignment.getCitizen().getPhone(),
                 assignment.getStatus(),
-                assignment.getRequest().getCreatedAt()
+                assignment.getCreatedAt()
         ));
     }
 
     public TaskDetailResponse getAssignmentDetail(UUID assignmentId) {
-        RescueTeamAssignment assignment = rescueTeamAssignmentDAO.findById(assignmentId)
+        Request assignment = requestDAO.findById(assignmentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nhiệm vụ"));
 
-        Request request = assignment.getRequest();
 
-        List<LookupImageResponse> imageResponses = request.getImages().stream()
+        List<LookupImageResponse> imageResponses = assignment.getImages().stream()
                 .map(img -> new LookupImageResponse(img.getId(), img.getImageUrl()))
                 .toList();
 
-        String vType = "N/A";
-        if (assignment.getVehicleId() != null) {
-            vType = vehicleDAO.findById(assignment.getVehicleId())
-                    .map(Vehicle::getType)
-                    .orElse("Unknown");
-        }
-
         return new TaskDetailResponse(
-                assignment.getId(),                             // assignmentId
-                request.getId(),                                // requestId
-                request.getCitizen().getId(),
-                request.getCitizen().getName(),                    // citizenName (Lưu ý: dùng .getUser() hoặc .getCitizen() tùy Entity)
-                request.getCitizen().getPhone(),                   // citizenPhone
-                request.getUrgency(),                           // urgency
-                request.getAddress(),                           // address
-                request.getLatitude().doubleValue(),            // latitude
-                request.getLongitude().doubleValue(),           // longitude
-                vType, // vehicleType
-                request.getDescription(),                       // description
-                assignment.getCoordinator().getName(),          // coordinatorName (ĐẢM BẢO DÒNG NÀY CÓ TRƯỚC IMAGES)
-                request.getCreatedAt().toString(),              // createdAt
-                imageResponses                                  // images (List phải nằm cuối cùng)
+                assignment.getId(),
+                assignment.getId(),
+                assignment.getCitizen().getId(),
+                assignment.getCitizen().getName(),
+                assignment.getCitizen().getPhone(),
+                assignment.getUrgency(),
+                assignment.getAddress(),
+                assignment.getLatitude().doubleValue(),
+                assignment.getLongitude().doubleValue(),
+                assignment.getVehicle().getType(), // vehicleType
+                assignment.getDescription(),
+                assignment.getCoordinator().getName(),
+                assignment.getCreatedAt().toString(),
+                imageResponses
         );
     }
 
     @Transactional
     public String updateAssignment(UUID assignmentId, UpdateTaskRequest updateTaskRequest) {
-        RescueTeamAssignment assignment = rescueTeamAssignmentDAO.findById(assignmentId)
+        Request assignment = requestDAO.findById(assignmentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bản ghi phân công"));
 
-        Request request = assignment.getRequest();
-
-        assignment.setStatus(updateTaskRequest.status());
+        assignment.setStatus(updateTaskRequest.status().toLowerCase());
         assignment.setReport(updateTaskRequest.report());
 
         String status = updateTaskRequest.status().toLowerCase();
         switch (status) {
-            case "hoàn thành":
+            case "hoàn thành", "completed":
                 assignment.setStatus("completed");
-                request.setStatus("completed");
                 break;
-            case "tạm hoãn":
+            case "tạm hoãn", "delayed":
                 assignment.setStatus("delayed");
-                request.setStatus("delayed");
                 break;
             default:
         }
 
-        rescueTeamAssignmentDAO.save(assignment);
+        requestDAO.save(assignment);
 
         return (status.equalsIgnoreCase("hoàn thành")) ? "Nhiệm vụ hoàn thành" : "Nhiệm vụ đã được tạm hoãn";
     }

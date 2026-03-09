@@ -4,8 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import org.locationtech.jts.geom.Point;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -25,7 +27,7 @@ public class Request {
     @Column(nullable = false, length = 20)
     private String type;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Lob
     private String description;
 
     @Column(length = 200)
@@ -36,9 +38,6 @@ public class Request {
 
     @Column(precision = 18, scale = 10, nullable = false)
     private BigDecimal longitude;
-
-    @Column(name = "geo_location", columnDefinition = "geography", insertable = false, updatable = false)
-    private Point geoLocation;
 
     @Column(name = "additional_link", length = 200)
     private String additionalLink;
@@ -52,12 +51,24 @@ public class Request {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coordinator_id")
+    private Staff coordinator;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rescue_team_id")
+    private Staff rescueTeam;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
+
     @OneToMany(mappedBy = "request")
     private List<RequestImage> images;
 
     @OneToMany(mappedBy = "request")
     private List<Message> messages;
 
-    @OneToMany(mappedBy = "request")
-    private List<RescueTeamAssignment> rescueTeamAssignment;
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String report;
 }

@@ -1,27 +1,27 @@
-import zaloIcon from '../assets/icon/zalo.png';
-import googleIcon from '../assets/icon/google.png';
-import facebookIcon from '../assets/icon/facebook.png';
-import vector1 from '../assets/footerbg/Vector1.svg';
-import vector2 from '../assets/footerbg/Vector2.svg';
-import vector3 from '../assets/footerbg/Vector3.svg';
+import zaloIcon from "../assets/icon/zalo.png";
+import googleIcon from "../assets/icon/google.png";
+import facebookIcon from "../assets/icon/facebook.png";
+import vector1 from "../assets/footerbg/Vector1.svg";
+import vector2 from "../assets/footerbg/Vector2.svg";
+import vector3 from "../assets/footerbg/Vector3.svg";
 
 export default function Footer() {
   return (
     <footer className="relative w-full text-white overflow-hidden">
-      <div className="absolute z-0"/>
-      
-      <div className="absolute top-0 left-0 w-full z-10 inset-0 z-0 w-full h-full" >
-        <img 
+      <div className="absolute z-0" />
+
+      <div className="absolute top-0 left-0 inset-0 z-0 w-full h-full">
+        <img
           src={vector1}
           alt=""
           className="absolute top-0 left-0 w-full h-full"
         />
-        <img 
+        <img
           src={vector2}
           alt=""
           className="absolute top-0 left-0 w-full h-full"
         />
-        <img 
+        <img
           src={vector3}
           alt=""
           className="absolute top-0 left-0 w-full h-full"
@@ -37,9 +37,9 @@ export default function Footer() {
             className="w-14 h-14 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 shadow-lg border-2 border-blue-500"
             aria-label="Zalo"
           >
-            <img 
+            <img
               src={zaloIcon}
-              alt="Zalo" 
+              alt="Zalo"
               className="w-8 h-8 object-contain"
               loading="lazy"
             />
@@ -51,12 +51,12 @@ export default function Footer() {
             className="w-14 h-14 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 shadow-lg border-2 border-blue-500"
             aria-label="Google Plus"
           >
-            <img 
+            <img
               src={googleIcon}
-              alt="Google Plus" 
+              alt="Google Plus"
               className="w-8 h-8 object-contain"
               loading="lazy"
-              style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.1))' }}
+              style={{ filter: "drop-shadow(0 0 2px rgba(0,0,0,0.1))" }}
             />
           </a>
           <a
@@ -66,9 +66,9 @@ export default function Footer() {
             className="w-14 h-14 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 shadow-lg border-blue-500"
             aria-label="Facebook"
           >
-            <img 
+            <img
               src={facebookIcon}
-              alt="Facebook" 
+              alt="Facebook"
               className="w-8 h-8 object-contain"
               loading="lazy"
             />
@@ -78,31 +78,31 @@ export default function Footer() {
         <nav className="flex justify-center items-center gap-6 md:gap-10 mb-6 flex-wrap">
           <a
             href="#home"
-            className="!text-white hover:!text-gray-400 transition-colors duration-300 text-base md:text-lg !font-semibold"
+            className="text-white! hover:text-gray-400! transition-colors duration-300 text-base md:text-lg font-semibold!"
           >
             Home
           </a>
           <a
             href="#about"
-            className="!text-white hover:!text-gray-400 transition-colors duration-300 text-base md:text-lg !font-semibold"
+            className="text-white! hover:text-gray-400! transition-colors duration-300 text-base md:text-lg font-semibold!"
           >
             About
           </a>
           <a
             href="#services"
-            className="!text-white hover:!text-gray-400 transition-colors duration-300 text-base md:text-lg !font-semibold"
+            className="text-white! hover:text-gray-400! transition-colors duration-300 text-base md:text-lg font-semibold!"
           >
             Services
           </a>
           <a
             href="#team"
-            className="!text-white hover:!text-gray-400 transition-colors duration-300 text-base md:text-lg !font-semibold"
+            className="text-white! hover:text-gray-400! transition-colors duration-300 text-base md:text-lg font-semibold!"
           >
             Team
           </a>
           <a
             href="#contact"
-            className="!text-white hover:!text-gray-400 transition-colors duration-300 text-base md:text-lg !font-semibold"
+            className="text-white! hover:text-gray-400! transition-colors duration-300 text-base md:text-lg font-semibold!"
           >
             Contact
           </a>

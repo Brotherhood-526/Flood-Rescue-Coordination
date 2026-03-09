@@ -1,47 +1,54 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/services/axiosClient";
-import { useAuthStore, type User } from "@/store/authStore";
+import { useAuthStore, type Staff } from "@/store/authStore";
 
 export function useAuth() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const setUser = useAuthStore((state) => state.setUser);
-  const clearUser = useAuthStore((state) => state.clearUser);
-  const user = useAuthStore((state) => state.user);
+  const setStaff = useAuthStore((state) => state.setStaff);
+  const clearStaff = useAuthStore((state) => state.clearStaff);
+  const staff = useAuthStore((state) => state.staff);
 
   const login = async (phone: string, password: string) => {
     try {
       setLoading(true);
-
-      const user = await apiClient.post("/auth/login", {
+      const res = await apiClient.post("/auth/login", {
         phone,
         password,
-      }) as User;
+      });
 
-      console.log(user);
-      // const user = res.data;
+      const staffData = res as unknown as Staff;
+      localStorage.setItem("userRole", staffData.role);
 
-      setUser(user);
+      console.log("Dữ liệu login trả về:", staffData);
+      setStaff(staffData);
 
-      return user;
-
+      return staffData;
     } catch (error) {
       console.error("Login failed:", error);
+      return null;
     } finally {
       setLoading(false);
     }
-
   };
 
-  const logout = () => {
-    clearUser();
-    navigate("/login");
+  const logout = async () => {
+    try {
+      setLoading(true);
+      await apiClient.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout API failed:", error);
+    } finally {
+      clearStaff();
+      localStorage.removeItem("userRole");
+      setLoading(false);
+      navigate("/login");
+    }
   };
 
   return {
-    user,
+    staff,
     login,
     logout,
     loading,

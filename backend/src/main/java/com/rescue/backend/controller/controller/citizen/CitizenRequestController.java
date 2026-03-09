@@ -60,9 +60,9 @@ public class CitizenRequestController {
 
     @PutMapping(value = "/edit")
     public ResponseEntity<ResponseObject> edit(@ModelAttribute UpdateRequest updateRequest) {
-        CitizenRescueResponse response = citizenService.updateRescueRequest(updateRequest);
-
         try {
+            CitizenRescueResponse response = citizenService.updateRescueRequest(updateRequest);
+
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject(200,
                             "Thông tin đã được chỉnh sửa thành công",

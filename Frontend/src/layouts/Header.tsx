@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, CircleUserRound, Bell } from "lucide-react";
+import { Menu, X, User, CircleUserRound, Bell } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,6 +7,9 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+
+import { useAuth } from "@/hooks/useAuth";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 export default function Header({ role }: { role: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -25,21 +28,78 @@ export default function Header({ role }: { role: number }) {
         />
       );
     case 2:
-      return <MngHeader />;
+      return <RescueHeader noty={false} />;
     case 3:
-      return <CoordHeader noty={false} />;
+      return <ManagerHeader noty={false} />;
+    case 4:
+      return <CoordinatorHeader noty={false} />;
     default:
       return null;
   }
 }
 
 /* RESCUE HEADER  */
+export function RescueHeader({ noty }: { noty: boolean }) {
+  const { staff, logout } = useAuth();
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+  const displayTeamName = staff?.teamName ?? "Chưa có tên đội";
+  const displayMemberCount = staff?.teamSize ?? "null";
+  const displayUserName = staff?.name ?? "null";
 
-export function RescueHeader({ noty }: { noty: boolean }) {}
+  return (
+    <>
+      <header className="flex items-center justify-between w-full px-6 py-6 bg-[#141e2e] font-sans">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-xl font-bold text-white tracking-wide">
+            Bảng quản lý cứu hộ
+          </h1>
+          <div className="flex items-center text-[#9ca3af] text-sm">
+            <span>Đội cứu hộ #{displayTeamName}</span>
+            <span className="mx-3 text-[#6b7280]">|</span>
+            <span>{displayMemberCount} thành viên</span>
+          </div>
+        </div>
 
-/* ================= COORD HEADER ================= */
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => setIsLogoutOpen(true)}
+            className="relative flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-black transition-colors bg-[#e5e7eb] rounded hover:bg-[#d1d5db] cursor-pointer"
+          >
+            <span>Đăng xuất</span>
+          </button>
+          <button className="relative flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-black transition-colors bg-[#e5e7eb] rounded hover:bg-[#d1d5db] cursor-pointer">
+            <Bell size={18} className="fill-black" />
+            <span>Thông báo</span>
 
-export function CoordHeader({ noty }: { noty: boolean }) {
+            {noty && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5">
+                <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-red-500"></span>
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-600 border border-[#141e2e]"></span>
+              </span>
+            )}
+          </button>
+
+          <div className="flex items-center gap-3 cursor-pointer">
+            <div className="flex items-center justify-center w-8 h-8 bg-gray-300 rounded-full">
+              <User size={18} className="text-black fill-black" />
+            </div>
+            <span className="text-sm font-medium text-white">
+              {displayUserName}
+            </span>
+          </div>
+        </div>
+      </header>
+      <ConfirmDialog
+        isOpen={isLogoutOpen}
+        onClose={() => setIsLogoutOpen(false)}
+        onConfirm={logout}
+      />
+    </>
+  );
+}
+/* COORD HEADER */
+
+export function CoordinatorHeader({ noty }: { noty: boolean }) {
   const logout =
     "!text-gray-200 !hover:text-gray-200 font-bold ml-[0.5vw] cursor-pointer";
 
@@ -70,7 +130,7 @@ export function CoordHeader({ noty }: { noty: boolean }) {
   );
 }
 
-/* ================= USER HEADER ================= */
+/*  USER HEADER  */
 
 export function UserHeader({
   mobileOpen,
@@ -152,7 +212,7 @@ export function UserHeader({
 
           <div className="hidden md:block">
             <Link to="/login">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
                 Đăng nhập
               </Button>
             </Link>
@@ -225,8 +285,6 @@ export function UserHeader({
   );
 }
 
-/* ================= MANAGER HEADER ================= */
+/*  MANAGER HEADER */
 
-export function MngHeader() {
-  return <></>;
-}
+export function ManagerHeader({ noty }: { noty: boolean }) {}
