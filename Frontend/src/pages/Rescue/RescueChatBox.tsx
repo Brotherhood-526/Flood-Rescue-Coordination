@@ -16,7 +16,7 @@ export default function RescueChatBox() {
         Quay lại
       </button>
 
-      <div className="flex flex-col md:flex-row w-full border border-gray-200 rounded-lg overflow-hidden shadow-sm h-[600px]">
+      <div className="flex flex-col md:flex-row w-full border border-gray-200 rounded-lg overflow-hidden shadow-sm h-150">
         <div className="w-full md:w-[60%] flex flex-col border-r border-gray-200 bg-white">
           <div className="bg-[#0f172a] text-white text-center py-3 font-bold text-[17px]">
             Hộp thoại

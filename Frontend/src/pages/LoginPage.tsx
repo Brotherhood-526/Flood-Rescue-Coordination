@@ -22,13 +22,17 @@ export default function Login() {
   const navigate = useNavigate();
   const normalizeRole = (value?: string | null) => (value ?? "").trim().toLowerCase();
 
+  const [errorMsg, setErrorMsg] = useState("");
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setErrorMsg("");
     try {
       // Đổi từ user sang staff
       const staff = await login(phoneNumber, password);
-      if (!staff) return;
+      if (!staff) {
+        setErrorMsg("Tài khoản không tồn tại hoặc sai mật khẩu.");
+        return;
+      }
 
       const role = normalizeRole(staff.role);
 
@@ -43,9 +47,9 @@ export default function Login() {
       }
     } catch (error) {
       console.error("Login failed:", error);
+      setErrorMsg("Tài khoản không tồn tại hoặc sai mật khẩu.");
     }
   };
-
   return (
     <div className="w-full min-h-screen grid lg:grid-cols-2">
       {/* --- LEFT SIDE --- */}
@@ -61,7 +65,7 @@ export default function Login() {
         </div>
 
         <div className="flex-1 flex flex-col justify-center items-center px-6 pb-12">
-          <Card className="w-full max-w-[480px] border-0 shadow-none bg-transparent">
+          <Card className="w-full max-w-120 border-0 shadow-none bg-transparent">
             <CardHeader className="text-center p-0 mb-8">
               <CardTitle className="text-5xl font-extrabold text-slate-900 tracking-tight">
                 Đăng nhập
@@ -85,7 +89,10 @@ export default function Login() {
                     type="tel"
                     placeholder="Số điện thoại"
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={(e) => {
+                      setPhoneNumber(e.target.value);
+                      setErrorMsg("");
+                    }}
                     required
                     className="h-14 bg-gray-50 border-black rounded-xl pl-12 pr-5 text-base text-black font-semibold placeholder:text-gray-400 placeholder:font-normal focus-visible:ring-2 focus-visible:ring-[#25a863] focus-visible:bg-white transition-all"
                   />
@@ -103,7 +110,10 @@ export default function Login() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Mật khẩu"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setErrorMsg("");
+                    }}
                     required
                     className="h-14 bg-gray-50 border-black rounded-xl pl-12 pr-12 text-base text-black font-semibold placeholder:text-gray-400 placeholder:font-normal focus-visible:ring-2 focus-visible:ring-[#25a863] focus-visible:bg-white transition-all"
                   />
@@ -151,6 +161,11 @@ export default function Login() {
                     )}
                   </button>
                 </div>
+                {errorMsg && (
+                  <p className="text-sm font-semibold text-red-500 text-center animate-in fade-in slide-in-from-top-1">
+                    {errorMsg}
+                  </p>
+                )}
 
                 {/* Submit Button */}
                 <Button
@@ -175,7 +190,7 @@ export default function Login() {
                     to="/map"
                     className="flex items-center gap-3 px-4 py-4 border-[1.5px] border-gray-100 rounded-xl text-sm font-bold text-gray-600 bg-gray-50/50 hover:border-[#25a863] hover:text-[#1a7a4a] hover:bg-green-50 transition-all group"
                   >
-                    <span className="w-8 h-8 bg-white shadow-sm rounded-lg flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <span className="w-8 h-8 bg-white shadow-sm rounded-lg flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
                       🗺️
                     </span>
                     Bản đồ cứu hộ
@@ -184,7 +199,7 @@ export default function Login() {
                     to="/search"
                     className="flex items-center gap-3 px-4 py-4 border-[1.5px] border-gray-100 rounded-xl text-sm font-bold text-gray-600 bg-gray-50/50 hover:border-[#25a863] hover:text-[#1a7a4a] hover:bg-green-50 transition-all group"
                   >
-                    <span className="w-8 h-8 bg-white shadow-sm rounded-lg flex items-center justify-center text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <span className="w-8 h-8 bg-white shadow-sm rounded-lg flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform">
                       🔍
                     </span>
                     Tra cứu
@@ -234,8 +249,8 @@ export default function Login() {
             </p>
 
             <div className="space-y-4">
-              <div className="flex items-start gap-4 bg-white/[0.08] backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.15] hover:translate-x-1 transition-all cursor-default group">
-                <span className="mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform">
+              <div className="flex items-start gap-4 bg-white/8 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/15 hover:translate-x-1 transition-all cursor-default group">
+                <span className="mt-0.5 shrink-0 group-hover:scale-110 transition-transform">
                   <User className="text-white" size={24} />
                 </span>
                 <div>
@@ -249,8 +264,8 @@ export default function Login() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 bg-white/[0.08] backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.15] hover:translate-x-1 transition-all cursor-default group">
-                <span className="mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform">
+              <div className="flex items-start gap-4 bg-white/8 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/15 hover:translate-x-1 transition-all cursor-default group">
+                <span className="mt-0.5 shrink-0 group-hover:scale-110 transition-transform">
                   <LifeBuoy className="text-white" size={24} />
                 </span>
                 <div>
@@ -270,8 +285,8 @@ export default function Login() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 bg-white/[0.08] backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.15] hover:translate-x-1 transition-all cursor-default group">
-                <span className="mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform">
+              <div className="flex items-start gap-4 bg-white/8 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/15 hover:translate-x-1 transition-all cursor-default group">
+                <span className="mt-0.5 shrink-0 group-hover:scale-110 transition-transform">
                   <ClipboardCheck className="text-white" size={24} />
                 </span>
                 <div>
