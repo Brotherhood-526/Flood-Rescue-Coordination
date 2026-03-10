@@ -1,29 +1,29 @@
 package com.rescue.backend.controller.config;
 
-import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 public class CorsConfig {
+
+    @Autowired
+    private CorsConfigurationSource corsConfigurationSource;
+
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            public void addCorsMappings(@NonNull CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOriginPatterns(
-                                "http://localhost:*",
-                                "http://127.0.0.1:*",
-                                "https://floodrescuecoordination-production.up.railway.app",
-                                "https://be-floodrescuecoordination-production.up.railway.app",
-                                "https://fe-floodrescuecoordination-production.up.railway.app"
-                        )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
-    };
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .anyRequest().permitAll()
+                );
+        return http.build();
+    }
 }
