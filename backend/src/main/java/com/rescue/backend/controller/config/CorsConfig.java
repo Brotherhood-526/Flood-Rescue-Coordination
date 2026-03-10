@@ -27,5 +27,5 @@ public class CorsConfig {
                         .allowCredentials(true);
             }
         };
-    };
+    }
 }

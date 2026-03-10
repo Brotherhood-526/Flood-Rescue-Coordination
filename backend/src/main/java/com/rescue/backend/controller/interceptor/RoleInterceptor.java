@@ -60,7 +60,7 @@ public class RoleInterceptor implements HandlerInterceptor {
     }
 
     private boolean handleRedirect(HttpServletRequest request, HttpServletResponse response, String role) throws IOException {
-        //String contextPath = request.getContextPath();
+        String contextPath = request.getContextPath();
         String redirectUrl;
 
         // Xác định URL đích
