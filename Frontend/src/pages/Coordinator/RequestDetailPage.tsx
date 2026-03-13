@@ -12,17 +12,7 @@ import { Textarea } from "@/components/ui/textarea.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import {useRequestDetail} from "@/hooks/useRequestDetail.ts";
 import type {RescueRequest} from "@/pages/Coordinator/ListRequestPage.tsx";
-
-const rescueTeams: string[] = [
-    "Đội cứu hộ A",
-    "Đội cứu hộ B",
-    "Đội cứu hộ C",
-    "Đội cứu hộ D",
-    "Đội cứu hộ E",
-    "Đội cứu hộ F",
-    "Đội cứu hộ G",
-    "Đội cứu hộ H",
-];
+import {useVehicleList} from "@/hooks/useVehicle.ts";
 
 const DEFAULT_CENTER: [number, number] = [10.7769, 106.7009];
 
@@ -53,6 +43,11 @@ export type RequestDetail = {
     additionalLink: string;
     status: string;
     createdAt: string;
+    urgency: string | null;
+    rescueTeamId: string | null;
+    rescueTeamName: string | null;
+    vehicleId: string | null;
+    vehicleType: string | null;
 };
 
 export default function RequestDetailPage() {
@@ -65,13 +60,18 @@ export default function RequestDetailPage() {
         navigate(ROUTES.FULLMAP);
     };
 
+    const handleBack = () => {
+        navigate(-1);
+    }
+
     return (
         <div className="flex flex-col w-full h-full">
             <div className="flex flex-col flex-1 w-full bg-white pt-[6vh]">
                 <div className="flex flex-row flex-[0.5] justify-between items-center
             px-[2vw] mb-[2vh]">
                     <div className="flex flex-row gap-[1vw]">
-                        <Button className={topButoons}>
+                        <Button className={topButoons}
+                        onClick={handleBack}>
                             <Undo2 className="!w-5 !h-5" strokeWidth={2.5} />
                             Quay Lại
                         </Button>
@@ -101,7 +101,11 @@ export function Solving(){
 }
 
 export function Information(){
-    const [vehicle, setVehicle] = useState<string | null>(null);
+    const [vehicle, setVehicle] = useState<string | null >(null);
+    const [urgency, setUrgency] = useState<string | null>(null);
+    const [rescueTeam, setRescueTeam] = useState<string | null>(null);
+
+    const rescueTeams = useVehicleList({ type: vehicle });
 
     const activeStyle = "!bg-gray-100";
 
@@ -112,11 +116,28 @@ export function Information(){
     const location = useLocation();
     const request = location.state as RescueRequest;
 
+    useEffect(() => {
+        if (requestDetail?.vehicleType) {
+            setVehicle(requestDetail.vehicleType);
+        }
+    }, [requestDetail]);
+
+    useEffect(() => {
+        if (requestDetail?.urgency) {
+            setUrgency(requestDetail.urgency);
+        }
+    }, [requestDetail]);
+
+    useEffect(() => {
+        if (requestDetail?.rescueTeamName) {
+            setRescueTeam(requestDetail.rescueTeamName);
+        }
+    }, [requestDetail]);
+
     console.log(requestDetail);
 
     const normalStyle = "!bg-transparent";
 
-    const fakeDescription = "";
     const fakeImgLink = "";
 
     const vehiclesButton =
@@ -142,18 +163,26 @@ export function Information(){
         return `${days} ngày trước`;
     }
 
+    function requestType(type?:string) {
+        switch (type) {
+            case "goods": return "cung cấp như yếu phẩm";
+            case "rescue": return "cứu hộ";
+            default: return "khác";
+        }
+    }
+
     return (
        <Card className="bg-white w-[54vw] h-[75vh] !py-[2vh]
         overflow-y-auto hide-scrollbar">
             <CardHeader>
-                <CardTitle className="text-lg font-bold mb-[-1vh]">Yêu cầu loại {requestDetail?.type}</CardTitle>
+                <CardTitle className="text-lg font-bold mb-[-1vh]">Yêu cầu loại {requestType(requestDetail?.type)}</CardTitle>
                 <CardDescription className="flex flex-row justify-between items-start text-black">
                     <div>
-                        <span className="text-base font-semibold">Yêu cầu mới</span>
+                        <span className="text-base font-semibold">{requestDetail?.status === "processing" ? "yêu cầu mới" : ""}</span>
                         <br/>
                         <span>{timeAgo(request.createdAt)}</span>
                     </div>
-                    <Select>
+                    <Select value={urgency ?? undefined} onValueChange={setUrgency}>
                         <SelectTrigger className="!h-[3vh] w-full max-w-[17vw] !rounded-full !text-[2vh]
                         !bg-transparent ">
                             <SelectValue placeholder="Hãy chọn mức độ khẩn cấp"/>
@@ -186,7 +215,7 @@ export function Information(){
                 <div className={miniDiv}>
                     Mô tả tình trạng
                     <Textarea readOnly
-                              value={fakeDescription  === "" ? "There is no description" : requestDetail?.description}/>
+                              value={requestDetail?.description  === "" ? "There is no description" : requestDetail?.description}/>
                 </div>
 
                 <div className={miniDiv}>
@@ -202,9 +231,9 @@ export function Information(){
                     <div className="flex flex-row gap-[2vw]">
                         <Button
                             className={`${vehiclesButton} ${
-                                vehicle === "van" ? activeStyle : normalStyle
+                                vehicle === "Rescue Vehicle" ? activeStyle : normalStyle
                             }`}
-                            onClick={() => setVehicle("van")}
+                            onClick={() => setVehicle("Rescue Vehicle")}
                         >
                             <Van className="!h-7 !w-7" />
                             Xe cứu hộ
@@ -224,7 +253,7 @@ export function Information(){
                             className={`${vehiclesButton} ${
                                 vehicle === "heli" ? activeStyle : normalStyle
                             }`}
-                            onClick={() => setVehicle("heli")}
+                            onClick={() => setVehicle("helicopter")}
                         >
                             <Helicopter className="!h-7 !w-7" />
                             Trực thăng
@@ -234,7 +263,7 @@ export function Information(){
 
                 <div className={miniDiv}>
                     Phân công đội cứu hộ phù hợp
-                    <Select>
+                    <Select value={rescueTeam ?? undefined} onValueChange={setRescueTeam}>
                         <SelectTrigger className="!h-[5vh] w-[80%] !text-[2vh]
                         !bg-transparent ">
                             <SelectValue placeholder="Chọn đội cứu hộ"/>
@@ -242,8 +271,8 @@ export function Information(){
 
                         <SelectContent>
                             {rescueTeams.map((team) => (
-                                <SelectItem key={team} value={team}>
-                                    {team}
+                                <SelectItem key={team.rescueTeamId} value={team.rescueTeamName}>
+                                    {team.rescueTeamName}
                                 </SelectItem>
                             ))}
                         </SelectContent>
@@ -251,16 +280,18 @@ export function Information(){
                 </div>
             </CardContent>
 
-            <CardFooter className="flex flex-row items-center justify-center px-[2vw] gap-[3vw]">
-                <Button className="!h-[5vh] !w-[8vw]
+           {requestDetail?.status !== "completed" && (
+               <CardFooter className="flex flex-row items-center justify-center px-[2vw] gap-[3vw]">
+                   <Button className="!h-[5vh] !w-[8vw]
                 !text-white !font-bold !bg-red-600">
-                    Từ chối
-                </Button>
-                <Button className="!h-[5vh] !w-[8vw]
+                       Từ chối
+                   </Button>
+                   <Button className="!h-[5vh] !w-[8vw]
                 !text-white !font-bold !bg-indigo-600">
-                    Chấp nhận
-                </Button>
-            </CardFooter>
+                       {requestDetail?.status === "processing" ? "Chấp nhận"  : "Cập Nhật"}
+                   </Button>
+               </CardFooter>
+           )}
         </Card>
     );
 }

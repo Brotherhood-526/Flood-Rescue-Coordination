@@ -16,6 +16,11 @@ public record SpecificResponse(
         String additionalLink,
         String status,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String urgency,
+        UUID rescueTeamId,
+        String rescueTeamName,
+        UUID vehicleId,
+        String vehicleType
 ) {
 }

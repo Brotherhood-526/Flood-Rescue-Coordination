@@ -127,7 +127,7 @@ export function Filters({filter, setFilter}: {
                 onClick={() => handleFilterClick("accept")}
             >
                 <ClipboardPlus className="!w-10 !h-10"/>
-                <span className="!text-xl font-semibold">Yêu cầu mới</span>
+                <span className="!text-xl font-semibold">Chấp nhận</span>
             </Button>
 
             <Button
@@ -159,7 +159,7 @@ export function Filters({filter, setFilter}: {
                 onClick={() => handleFilterClick("reject")}
             >
                 <CircleX className="!w-10 !h-10"/>
-                <span className="!text-xl font-semibold">Đã hủy</span>
+                <span className="!text-xl font-semibold">Từ chối</span>
             </Button>
 
         </div>
@@ -260,7 +260,7 @@ export function Status({status}:{status:string}){
 
         case "completed":
             return <span className="px-4 py-1 rounded-full bg-indigo-200 text-indigo-700">
-                        Tạm Hoãn
+                        Hoàn thành
                     </span>
     }
 }

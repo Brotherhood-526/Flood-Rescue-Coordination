@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { ArrowBigLeft } from "lucide-react";
 import { useVietMap } from "@/lib/MapProvider.tsx";
 import vietmapgl from "@vietmap/vietmap-gl-js";
+import {useNavigate} from "react-router-dom";
 
 const DEFAULT_CENTER: [number, number] = [106.7009, 10.7769];
 
@@ -60,6 +61,12 @@ export default function FullMapCoordinatorPage() {
     });
   }, [map]);
 
+    const navigate = useNavigate();
+
+    const handleBack = () => {
+        navigate(-1);
+    }
+
   return (
     <>
       <div className="w-screen h-screen">
@@ -71,6 +78,7 @@ export default function FullMapCoordinatorPage() {
         bg-white border border-black/20 transition-all duration-200
         hover:bg-gray-100 hover:border-2 hover:border-gray-400 cursor-pointer"
         strokeWidth={1.5}
+        onClick={handleBack}
       />
     </>
   );
