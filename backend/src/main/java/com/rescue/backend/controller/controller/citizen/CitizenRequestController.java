@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/citizen")
 public class CitizenRequestController {
-
     private final CitizenService citizenService;
 
     public CitizenRequestController(CitizenService citizenService) {

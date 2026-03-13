@@ -28,7 +28,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 "http://localhost:*",
                 "http://127.0.0.1:*",
                 "https://be-floodrescuecoordination-production.up.railway.app",
-                "https://fe-floodrescuecoordination-production.up.railway.app"
+                "https://fe-flood-rescue-coordination-production.up.railway.app"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

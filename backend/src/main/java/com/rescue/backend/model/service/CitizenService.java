@@ -38,17 +38,17 @@ public class CitizenService {
 
     @Transactional
     public CitizenRescueResponse createRescueRequest(RescueRequest rescueRequest) {
-        // 1. Danh sách các trạng thái "chặn" không cho gửi thêm
-        List<String> activeStatuses = List.of("processing", "accept", "delayed");
-        Optional<Request> existingRequest = requestDAO.findTopByStatusInAndCitizen_PhoneOrderByCreatedAtDesc(
-                activeStatuses,
-                rescueRequest.phone()
-        );
 
-        // 3. Nếu tìm thấy request đang hoạt động -> Thông báo lỗi
+        List<String> activeStatuses = List.of("processing", "accept", "delayed");
+
+        Optional<Request> existingRequest =
+                requestDAO.findTopByStatusInAndCitizen_PhoneOrderByCreatedAtDesc(
+                        activeStatuses,
+                        rescueRequest.phone()
+                );
+
         if (existingRequest.isPresent()) {
             throw new RuntimeException("EXISTING_ACTIVE_REQUEST");
-            // Bạn có thể tạo Custom Exception riêng để Controller bắt được dễ hơn
         }
 
         Citizen citizen = citizenDAO.findByPhone(rescueRequest.phone())
@@ -71,7 +71,6 @@ public class CitizenService {
 
         Request savedRequest = requestDAO.save(request);
 
-        // 5. Xử lý Upload ảnh lên Cloudinary
         if (rescueRequest.images() != null && !rescueRequest.images().isEmpty()) {
             List<RequestImage> requestImageList = uploadNewImages(rescueRequest.images(), savedRequest);
 
@@ -79,6 +78,7 @@ public class CitizenService {
                 requestImageDAO.saveAll(requestImageList);
                 savedRequest.setImages(requestImageList);
             }
+
         } else {
             savedRequest.setImages(new ArrayList<>());
         }
@@ -87,24 +87,28 @@ public class CitizenService {
     }
 
     public CitizenRescueResponse mapToRequestResponse(Request request) {
-        List<LookupImageResponse> imageList = (request.getImages() != null)
-                ? request.getImages().stream()
-                .map(img -> new LookupImageResponse(img.getId(), img.getImageUrl()))
-                .toList()
-                : List.of();
 
-        String coordinator = (request.getCoordinator() != null)
-                ? request.getCoordinator().getName()
-                : null;
+        List<LookupImageResponse> imageList =
+                (request.getImages() != null)
+                        ? request.getImages().stream()
+                        .map(img -> new LookupImageResponse(img.getId(), img.getImageUrl()))
+                        .toList()
+                        : List.of();
 
-        String leader = (request.getRescueTeam() != null)
-                ? request.getRescueTeam().getName()
-                : null;
+        String coordinator =
+                (request.getCoordinator() != null)
+                        ? request.getCoordinator().getName()
+                        : null;
 
-        String vehicleType = (request.getVehicle() != null)
-                ? request.getVehicle().getType()
-                : null;
+        String leader =
+                (request.getRescueTeam() != null)
+                        ? request.getRescueTeam().getName()
+                        : null;
 
+        String vehicleType =
+                (request.getVehicle() != null)
+                        ? request.getVehicle().getType()
+                        : null;
 
         return new CitizenRescueResponse(
                 request.getId(),
@@ -128,17 +132,25 @@ public class CitizenService {
     }
 
     public CitizenRescueResponse lookUpRequest(LookupRequest lookupRequest) {
-        List<String> targetStatues = List.of("processing", "delayed", "reject", "accept");
 
-        return requestDAO.findTopByStatusInAndCitizen_PhoneOrderByCreatedAtDesc(targetStatues, lookupRequest.citizenPhone())
+        List<String> targetStatuses =
+                List.of("processing", "delayed", "reject", "accept");
+
+        return requestDAO
+                .findTopByStatusInAndCitizen_PhoneOrderByCreatedAtDesc(
+                        targetStatuses,
+                        lookupRequest.citizenPhone()
+                )
                 .map(this::mapToRequestResponse)
                 .orElse(null);
     }
 
     @Transactional
     public CitizenRescueResponse updateRescueRequest(UpdateRequest updateRequest) {
-        Request request = requestDAO.findById(updateRequest.requestId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu này"));
+
+        Request request =
+                requestDAO.findById(updateRequest.requestId())
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu này"));
 
         request.setType(updateRequest.Type());
         request.setDescription(updateRequest.description());
@@ -149,37 +161,38 @@ public class CitizenService {
 
         Citizen citizen = request.getCitizen();
         citizen.setName(updateRequest.citizenName());
-        // Kiểm tra nếu số điện thoại thay đổi (tránh lỗi duplicate nếu không cần thiết)
+
         if (!citizen.getPhone().equals(updateRequest.citizenPhone())) {
-            // Có thể thêm logic kiểm tra trùng số điện thoại ở đây nếu cần
             citizen.setPhone(updateRequest.citizenPhone());
         }
 
         if (updateRequest.deleteImageIds() != null && !updateRequest.deleteImageIds().isEmpty()) {
-            List<RequestImage> imagesToDelete = requestImageDAO.findAllById(updateRequest.deleteImageIds());
 
-            // Xóa trên Cloudinary
+            List<RequestImage> imagesToDelete =
+                    requestImageDAO.findAllById(updateRequest.deleteImageIds());
+
             imagesToDelete.forEach(this::deleteImageOnCloudinary);
 
-            // Xóa trong DB
             requestImageDAO.deleteAll(imagesToDelete);
 
-            // QUAN TRỌNG: Xóa khỏi danh sách trong bộ nhớ (để response trả về đúng ngay lập tức)
             request.getImages().removeAll(imagesToDelete);
         }
 
         Request savedRequest = requestDAO.save(request);
 
         if (updateRequest.images() != null && !updateRequest.images().isEmpty()) {
-            List<RequestImage> newImages = uploadNewImages(updateRequest.images(), request);
+
+            List<RequestImage> newImages =
+                    uploadNewImages(updateRequest.images(), request);
 
             if (!newImages.isEmpty()) {
+
                 requestImageDAO.saveAll(newImages);
 
-                // QUAN TRỌNG: Thêm vào danh sách hiện tại thay vì ghi đè (setImages)
                 if (request.getImages() == null) {
                     request.setImages(new ArrayList<>());
                 }
+
                 request.getImages().addAll(newImages);
             }
         }
@@ -188,6 +201,7 @@ public class CitizenService {
     }
 
     private void deleteImageOnCloudinary(RequestImage image) {
+
         try {
             String publicId = extractPublicId(image.getImageUrl());
             cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
@@ -197,27 +211,40 @@ public class CitizenService {
     }
 
     private List<RequestImage> uploadNewImages(List<MultipartFile> files, Request request) {
+
         return files.stream()
                 .filter(file -> file != null && !file.isEmpty())
                 .map(file -> {
+
                     try {
-                        Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(),
-                                ObjectUtils.asMap(
-                                        "folder", "rescue_requests",
-                                        "transformation", new Transformation<>()
-                                                .width(1000).crop("limit")
-                                                .quality("auto")
-                                                .fetchFormat("auto")
-                                ));
+
+                        Map<?, ?> uploadResult =
+                                cloudinary.uploader().upload(
+                                        file.getBytes(),
+                                        ObjectUtils.asMap(
+                                                "folder", "rescue_requests",
+                                                "transformation",
+                                                new Transformation<>()
+                                                        .width(1000)
+                                                        .crop("limit")
+                                                        .quality("auto")
+                                                        .fetchFormat("auto")
+                                        )
+                                );
 
                         RequestImage image = new RequestImage();
                         image.setImageUrl(uploadResult.get("secure_url").toString());
                         image.setRequest(request);
+
                         return image;
+
                     } catch (IOException e) {
+
                         log.error("Lỗi upload ảnh: {}", file.getOriginalFilename());
                         throw new RuntimeException("Lỗi khi upload ảnh lên Cloudinary", e);
+
                     }
-                }).toList();
+                })
+                .toList();
     }
 }

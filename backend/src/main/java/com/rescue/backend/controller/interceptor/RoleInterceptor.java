@@ -6,8 +6,8 @@ import com.rescue.backend.view.dto.common.ResponseObject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.jspecify.annotations.NonNull;
-import org.springframework.messaging.handler.HandlerMethod;
+import org.springframework.lang.NonNull;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
