@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.locationtech.jts.geom.Point;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class Staff {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @JdbcTypeCode(SqlTypes.VARCHAR)
@@ -34,7 +36,7 @@ public class Staff {
     @Column(nullable = false, length = 20)
     private String role;
 
-    @Column(length = 255, name = "team_name")
+    @Column(name = "team_name", length = 50)
     private String teamName;
 
     @Column(name = "team_size")
@@ -46,17 +48,23 @@ public class Staff {
     @Column(precision = 18, scale = 10)
     private BigDecimal longitude;
 
+    @Column(name = "geo_location",
+            columnDefinition = "geography",
+            insertable = false,
+            updatable = false)
+    private Point geoLocation;
+
     @Column(name = "staff_state")
     private String staffState = "offline";
 
     @OneToMany(mappedBy = "staff")
     private List<Vehicle> vehicles;
 
-    //Danh sách những yêu cầu mà Staff này đã duyệt (với vai trò Coordinator).
+    // Staff đóng vai trò Coordinator
     @OneToMany(mappedBy = "coordinator")
     private List<Request> coordinatedRequests;
 
-    //Danh sách những nhiệm vụ mà Staff này phải đi làm (với vai trò Rescue Team).
+    // Staff đóng vai trò Rescue Team
     @OneToMany(mappedBy = "rescueTeam")
     private List<Request> assignedTasks;
 

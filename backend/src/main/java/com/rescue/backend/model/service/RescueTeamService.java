@@ -1,7 +1,6 @@
 package com.rescue.backend.model.service;
 
 import com.rescue.backend.model.bean.Request;
-import com.rescue.backend.model.bean.Vehicle;
 import com.rescue.backend.model.dao.RequestDAO;
 import com.rescue.backend.model.dao.VehicleDAO;
 import com.rescue.backend.view.dto.image.response.LookupImageResponse;
