@@ -1,21 +1,22 @@
-import { Locate, User } from "lucide-react"
-import { useRequestController } from "@/hooks/useRequestController"
-import { useRef } from "react"
+import { Locate, User } from "lucide-react";
+import { useRequestController } from "@/hooks/useRequestController";
+import { useRef } from "react";
 import BeforeRequestPage from "./BeforeRequestPage";
 import AfterRequestPage from "./AfterRequestPage";
 import EditRequestDialog from "./EditRequestDialog";
 import ChatBoxDialog from "./ChatBoxDialog";
 
 export default function RequestPage() {
-  const mapContainer = useRef<HTMLDivElement | null>(null)
-  const c = useRequestController(mapContainer)
-  
- return (
-    <div className="flex h-full w-full overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
-      
+  const mapContainer = useRef<HTMLDivElement | null>(null);
+  const c = useRequestController(mapContainer);
+
+  return (
+    <div
+      className="flex h-full w-full overflow-hidden"
+      style={{ height: "calc(100vh - 80px)" }}
+    >
       {/* LEFT PANEL */}
-      <div className="w-[420px] bg-white p-6 shadow-md overflow-y-auto h-full pb-10 z-10 shrink-0 flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        
+      <div className="w-105 bg-white p-6 shadow-md overflow-y-auto h-full pb-10 z-10 shrink-0 flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {c.isSubmitted && (
           <>
             <div className="flex items-center gap-3 pb-5">
@@ -23,9 +24,14 @@ export default function RequestPage() {
                 <User className="w-6 h-6 text-gray-500" />
               </div>
               <div className="flex flex-col justify-center">
-                <span className="text-lg font-bold text-gray-800">{c.submittedData?.name || "Người dùng"}</span>
+                <span className="text-lg font-bold text-gray-800">
+                  {c.submittedData?.name || "Người dùng"}
+                </span>
                 <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md w-fit mt-0.5">
-                  ID: {c.submittedData?.phone ? `#${c.submittedData.phone}` : "#---"}
+                  ID:{" "}
+                  {c.submittedData?.phone
+                    ? `#${c.submittedData.phone}`
+                    : "#---"}
                 </span>
               </div>
             </div>
@@ -66,7 +72,11 @@ export default function RequestPage() {
 
       {/* RIGHT MAP */}
       <div className="flex-1 relative h-full">
-        <div ref={mapContainer} className="absolute inset-0" style={{ width: "100%", height: "100%" }} />
+        <div
+          ref={mapContainer}
+          className="absolute inset-0"
+          style={{ width: "100%", height: "100%" }}
+        />
         {!c.isSubmitted && (
           <button
             type="button"
@@ -110,5 +120,5 @@ export default function RequestPage() {
         handleSendMessage={c.handleSendMessage}
       />
     </div>
-  )
+  );
 }
