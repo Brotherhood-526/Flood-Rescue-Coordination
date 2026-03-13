@@ -3,13 +3,15 @@ import {Button} from "@/components/ui/button.tsx";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 
 import {useState, useEffect, useRef} from "react";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {ROUTES} from "@/router/routes.tsx";
 import { useVietMap } from "@/lib/MapProvider.tsx";
 import vietmapgl from "@vietmap/vietmap-gl-js";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import {useRequestDetail} from "@/hooks/useRequestDetail.ts";
+import type {RescueRequest} from "@/pages/Coordinator/ListRequestPage.tsx";
 
 const rescueTeams: string[] = [
     "Đội cứu hộ A",
@@ -40,6 +42,18 @@ const TEAM_LOCATIONS: [number, number][] = [
     [10.7432, 106.6298],
     [10.8700, 106.8030],
 ];
+
+export type RequestDetail = {
+    id: string;
+    type: string;
+    description: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    additionalLink: string;
+    status: string;
+    createdAt: string;
+};
 
 export default function RequestDetailPage() {
     const topButoons =
@@ -90,6 +104,16 @@ export function Information(){
     const [vehicle, setVehicle] = useState<string | null>(null);
 
     const activeStyle = "!bg-gray-100";
+
+    const {id} = useParams();
+    console.log("ID from usePara", id);
+    const requestDetail = useRequestDetail({id: id!});
+
+    const location = useLocation();
+    const request = location.state as RescueRequest;
+
+    console.log(requestDetail);
+
     const normalStyle = "!bg-transparent";
 
     const fakeDescription = "";
@@ -100,16 +124,34 @@ export function Information(){
     const miniDiv =
     "flex flex-col gap-1";
 
+    function timeAgo(createdAt:string) {
+        const createdTime = new Date(createdAt.replace(" ", "T"));
+        const now = new Date();
+
+        // @ts-ignore
+        const diffMs = now - createdTime;
+
+        const seconds = Math.floor(diffMs / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+
+        if (seconds < 60) return `${seconds} giây trước`;
+        if (minutes < 60) return `${minutes} phút trước`;
+        if (hours < 24) return `${hours} giờ trước`;
+        return `${days} ngày trước`;
+    }
+
     return (
        <Card className="bg-white w-[54vw] h-[75vh] !py-[2vh]
         overflow-y-auto hide-scrollbar">
             <CardHeader>
-                <CardTitle className="text-lg font-bold mb-[-1vh]">Yêu cầu #XXX</CardTitle>
+                <CardTitle className="text-lg font-bold mb-[-1vh]">Yêu cầu loại {requestDetail?.type}</CardTitle>
                 <CardDescription className="flex flex-row justify-between items-start text-black">
                     <div>
                         <span className="text-base font-semibold">Yêu cầu mới</span>
                         <br/>
-                        <span>x phút trước</span>
+                        <span>{timeAgo(request.createdAt)}</span>
                     </div>
                     <Select>
                         <SelectTrigger className="!h-[3vh] w-full max-w-[17vw] !rounded-full !text-[2vh]
@@ -131,20 +173,20 @@ export function Information(){
                     <div className="flex flex-row gap-[1vh]">
                         <Phone className="!h-5 !w-5"/> Người yêu cầu
                     </div>
-                    <span className="pl-[1.8vw] text-lg font-semibold">phone number</span>
+                    <span className="pl-[1.8vw] text-lg font-semibold">{request.name}</span>
                 </div>
 
                 <div className={miniDiv}>
                     <div className="flex flex-row gap-[1vh]">
                         <MapPin className="!h-5 !w-5"/> Vị trí
                     </div>
-                    <span className="pl-[1.8vw] text-lg font-semibold">Address</span>
+                    <span className="pl-[1.8vw] text-lg font-semibold">{requestDetail?.address}</span>
                 </div>
 
                 <div className={miniDiv}>
                     Mô tả tình trạng
                     <Textarea readOnly
-                              value={fakeDescription  === "" ? "There is no description" : fakeDescription}/>
+                              value={fakeDescription  === "" ? "There is no description" : requestDetail?.description}/>
                 </div>
 
                 <div className={miniDiv}>
@@ -152,7 +194,7 @@ export function Information(){
                         <Image className="!h-5 !w-5"/> Link ảnh đính kèm
                     </div>
                     <Input readOnly
-                              value={fakeImgLink  === "" ? "There is no link" : fakeImgLink}/>
+                              value={fakeImgLink  === "" ? "There is no link" : requestDetail?.additionalLink}/>
                 </div>
 
                 <div className={miniDiv}>

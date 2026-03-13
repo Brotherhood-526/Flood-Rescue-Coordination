@@ -16,6 +16,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class Vehicle {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @JdbcTypeCode(SqlTypes.VARCHAR)
