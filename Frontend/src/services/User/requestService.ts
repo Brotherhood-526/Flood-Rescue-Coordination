@@ -1,5 +1,5 @@
+import apiClient from "../axiosClient";
 const SEARCH_KEY = import.meta.env.VITE_VIETMAP_SEARCH_KEY;
-
 // 1. Tọa độ → Địa chỉ
 export const reverseGeocode = async (lat: number, lng: number) => {
   const res = await fetch(
@@ -30,10 +30,24 @@ export const geocodeAddress = async (address: string) => {
   return { lat: parseFloat(placeData.lat), lng: parseFloat(placeData.lng) };
 };
 
-// 3. Submit form
-// export const submitRescueRequest = async (data: FormData) => {
-//   // sau này gọi BE ở đây
-//   // const res = await fetch("/api/rescue-requests", { method: "POST", body: data });
-//   // return res.json();
-//   return { success: true }; // mock tạm
-// };
+interface RescueResponse {
+  requestId: string;
+}
+export const submitRescueRequest = async (
+  data: FormData,
+): Promise<RescueResponse> => {
+  const res = await apiClient.post("/citizen/sendRequest", data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res as unknown as RescueResponse;
+};
+
+export const updateRescueRequest = async (
+  id: string | number,
+  data: FormData,
+) => {
+  const res = await apiClient.put(`/api/requests/${id}`, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res;
+};

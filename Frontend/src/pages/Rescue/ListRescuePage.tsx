@@ -6,262 +6,194 @@ import {
   Loader2,
   ArrowDownNarrowWide,
   ArrowUpNarrowWide,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
-
-import { useRescueTeam } from "@/hooks/useRescueTeam";
+import { Button } from "@/components/ui/button";
+import { useRescueTeam } from "@/hooks/Rescue/useRescueTeam";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/router/routes";
+import { CommonTable } from "@/layouts/DataTable";
+import { TableCell, TableRow } from "@/components/ui/table";
+import type { RescueRequest } from "@/services/Rescue/rescueTeamService";
 
 export default function ListRescuePage() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const { data: requests, isLoading, error } = useRescueTeam();
-
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
-  const parseDate = (dateStr: string) => {
-    try {
-      const [datePart, timePart] = dateStr.split(" ");
-      const [day, month, year] = datePart.split("/");
-      return new Date(`${year}-${month}-${day}T${timePart}:00`).getTime();
-    } catch {
-      return 0;
-    }
-  };
+  const navigate = useNavigate();
 
-  const processedData = requests
-    .filter((item) => {
-      if (!activeFilter) return true;
-      if (activeFilter === "Tạm hoãn") return item.status === "Tạm hoãn cứu hộ";
-      if (activeFilter === "Hoàn thành") return item.status === "Đã hoàn thành";
-      return item.status === activeFilter;
-    })
-    .sort((a, b) => {
-      const timeA = parseDate(a.time);
-      const timeB = parseDate(b.time);
-      return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
-    });
-
-  const renderSortContent = () => {
-    if (sortOrder === "desc") {
-      return (
-        <>
-          <ArrowDownNarrowWide size={18} strokeWidth={2} />
-          <span className="font-bold">Mới nhất trước</span>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <ArrowUpNarrowWide size={18} strokeWidth={2} />
-          <span className="font-bold">Cũ nhất trước</span>
-        </>
-      );
-    }
-  };
+  const {
+    pagedData,
+    isLoading,
+    error,
+    pageNumber,
+    totalPage,
+    handlePageChange,
+  } = useRescueTeam(activeFilter, sortOrder);
 
   const renderStatusBadge = (status: string) => {
-    const baseClass =
+    const base =
       "px-4 py-1.5 text-[13px] font-semibold rounded-full inline-block min-w-[140px]";
     switch (status) {
       case "Đang xử lý":
         return (
-          <span className={`${baseClass} bg-[#fff4cc] text-[#d97706]`}>
+          <span className={`${base} bg-[#fff4cc] text-[#d97706]`}>
             {status}
           </span>
         );
       case "Tạm hoãn cứu hộ":
         return (
-          <span className={`${baseClass} bg-[#f3e8ff] text-[#9333ea]`}>
+          <span className={`${base} bg-[#f3e8ff] text-[#9333ea]`}>
             {status}
           </span>
         );
       case "Đã hoàn thành":
         return (
-          <span className={`${baseClass} bg-[#dcfce7] text-[#16a34a]`}>
+          <span className={`${base} bg-[#dcfce7] text-[#16a34a]`}>
             {status}
           </span>
         );
       default:
         return (
-          <span className={`${baseClass} bg-gray-100 text-gray-700`}>
-            {status}
-          </span>
+          <span className={`${base} bg-gray-100 text-gray-700`}>{status}</span>
         );
     }
   };
 
-  const handleRowClick = (requestId: string) => {
-    navigate(`${ROUTES.RESCUE_DETAIL}?id=${requestId}`);
-  };
+  const columns = ["ID", "Số điện thoại", "Trạng thái", "Thời gian tạo"];
+
   return (
     <div className="w-full min-h-[calc(100vh-80px)] p-8 bg-[#fdfdfd] font-sans">
+      {/* Filter buttons */}
       <div className="flex flex-col items-center justify-center w-full -mt-5 mb-10">
         <div className="flex gap-8">
-          <button
-            onClick={() =>
-              setActiveFilter(
-                activeFilter === "Đang xử lý" ? null : "Đang xử lý",
-              )
-            }
-            className={`flex flex-col items-center justify-center w-40 h-35 gap-4 transition-all bg-white border-2  rounded-lg ${
-              activeFilter === "Đang xử lý"
-                ? "border-orange-400 ring-2 ring-orange-400 "
-                : "border-black hover:border-black hover:shadow-lg"
-            }`}
-          >
-            <RotateCw
-              size={44}
-              strokeWidth={1.5}
-              className={
-                activeFilter === "Đang xử lý"
-                  ? "text-orange-500"
-                  : "text-gray-700"
-              }
-            />
-            <span
-              className={`text-base tracking-wide ${activeFilter === "Đang xử lý" ? "text-orange-600 font-bold" : "text-gray-700 font-medium"}`}
+          {[
+            {
+              key: "Đang xử lý",
+              icon: <RotateCw size={44} strokeWidth={1.5} />,
+              activeColor: "border-orange-400 ring-2 ring-orange-400",
+              textColor: "text-orange-600",
+            },
+            {
+              key: "Tạm hoãn",
+              icon: <MessageSquareWarning size={44} strokeWidth={1.5} />,
+              activeColor: "border-purple-400 ring-2 ring-purple-400",
+              textColor: "text-purple-600",
+            },
+            {
+              key: "Hoàn thành",
+              icon: <CheckSquare size={44} strokeWidth={1.5} />,
+              activeColor: "border-green-500 ring-2 ring-green-500",
+              textColor: "text-green-600",
+            },
+          ].map(({ key, icon, activeColor, textColor }) => (
+            <button
+              key={key}
+              onClick={() => setActiveFilter(activeFilter === key ? null : key)}
+              className={`flex flex-col items-center justify-center w-40 h-35 gap-4 transition-all bg-white border-2 rounded-lg ${activeFilter === key ? activeColor : "border-black hover:shadow-lg"}`}
             >
-              Đang xử lý
-            </span>
-          </button>
-
-          <button
-            onClick={() =>
-              setActiveFilter(activeFilter === "Tạm hoãn" ? null : "Tạm hoãn")
-            }
-            className={`flex flex-col items-center justify-center w-40 h-35 gap-4 transition-all bg-white border-2 rounded-lg ${
-              activeFilter === "Tạm hoãn"
-                ? "border-purple-400 ring-2 ring-purple-400"
-                : "border-black hover:border-black hover:shadow-lg"
-            }`}
-          >
-            <MessageSquareWarning
-              size={44}
-              strokeWidth={1.5}
-              className={
-                activeFilter === "Tạm hoãn"
-                  ? "text-purple-500"
-                  : "text-gray-700"
-              }
-            />
-            <span
-              className={`text-base tracking-wide ${activeFilter === "Tạm hoãn" ? "text-purple-600 font-bold" : "text-gray-700 font-medium"}`}
-            >
-              Tạm hoãn
-            </span>
-          </button>
-
-          <button
-            onClick={() =>
-              setActiveFilter(
-                activeFilter === "Hoàn thành" ? null : "Hoàn thành",
-              )
-            }
-            className={`flex flex-col items-center justify-center w-40 h-35 gap-4 transition-all bg-white border-2 rounded-lg ${
-              activeFilter === "Hoàn thành"
-                ? "border-green-500 ring-2 ring-green-500"
-                : "border-black hover:border-black hover:shadow-lg"
-            }`}
-          >
-            <CheckSquare
-              size={44}
-              strokeWidth={1.5}
-              className={
-                activeFilter === "Hoàn thành"
-                  ? "text-green-500"
-                  : "text-gray-700"
-              }
-            />
-            <span
-              className={`text-base tracking-wide ${activeFilter === "Hoàn thành" ? "text-green-600 font-bold" : "text-gray-700 font-medium"}`}
-            >
-              Hoàn thành
-            </span>
-          </button>
+              <span
+                className={activeFilter === key ? textColor : "text-gray-700"}
+              >
+                {icon}
+              </span>
+              <span
+                className={`text-base tracking-wide ${activeFilter === key ? `${textColor} font-bold` : "text-gray-700 font-medium"}`}
+              >
+                {key}
+              </span>
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* Sort + Table */}
       <div className="w-full flex flex-col gap-3">
-        <div className="flex justify-end w-full">
+        <div className="flex justify-end">
           <button
-            onClick={
-              () => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc")) // toán tử 3 ngôi
+            onClick={() =>
+              setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))
             }
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black transition-all bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 hover:text-black"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
           >
-            {renderSortContent()}
+            {sortOrder === "desc" ? (
+              <>
+                <ArrowDownNarrowWide size={18} />
+                <span className="font-bold">Mới nhất trước</span>
+              </>
+            ) : (
+              <>
+                <ArrowUpNarrowWide size={18} />
+                <span className="font-bold">Cũ nhất trước</span>
+              </>
+            )}
           </button>
         </div>
 
-        {/* Bảng Table */}
-        <div className="w-full bg-white rounded-md">
-          <table className="w-full text-center border-collapse">
-            <thead>
-              <tr className="bg-[#e2e8f0]">
-                <th className="py-4 font-extrabold text-black w-24 rounded-tl-md">
-                  ID
-                </th>
-                <th className="py-4 font-extrabold text-black">
-                  Số điện thoại
-                </th>
-                <th className="py-4 font-extrabold text-black w-64">
-                  Trạng thái
-                </th>
-                <th className="py-4 font-extrabold text-black rounded-tr-md">
-                  Thời gian tạo
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="py-20 text-center border-b border-gray-100"
-                  >
-                    <div className="flex flex-col items-center justify-center text-blue-500 gap-3">
-                      <Loader2 className="animate-spin" size={36} />
-                      <p className="text-gray-500 font-medium">
-                        Đang tải danh sách yêu cầu...
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="py-16 text-red-500 font-medium text-lg border-b border-gray-100"
-                  >
-                    {error}
-                  </td>
-                </tr>
-              ) : processedData.length > 0 ? (
-                processedData.map((row, index) => (
-                  <tr
-                    key={index}
-                    onClick={() => handleRowClick(row.id)}
-                    className="transition-colors border-b border-2 hover:bg-gray-200 cursor-pointer"
-                  >
-                    <td className="py-5 text-black">{row.id}</td>
-                    <td className="py-5 text-black">{row.phone}</td>
-                    <td className="py-5">{renderStatusBadge(row.status)}</td>
-                    <td className="py-5 text-black">{row.time}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="py-16 text-gray-400 font-medium text-lg border-b border-gray-100"
-                  >
-                    Không có yêu cầu nào khớp với bộ lọc.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-blue-500 gap-3">
+            <Loader2 className="animate-spin" size={36} />
+            <p className="text-gray-500 font-medium">
+              Đang tải danh sách yêu cầu...
+            </p>
+          </div>
+        ) : error ? (
+          <p className="text-center text-red-500 py-16 text-lg">{error}</p>
+        ) : (
+          <CommonTable<RescueRequest>
+            columns={columns}
+            data={pagedData}
+            renderRow={(row, idx) => {
+              // Cắt ngắn UUID lấy 8 ký tự đầu hiển thị
+              const shortId = row.id
+                ? row.id.substring(0, 8).toUpperCase()
+                : "N/A";
+
+              // Format ngày giờ hiển thị
+              const formattedDate = row.createdAt
+                ? new Date(row.createdAt).toLocaleString("vi-VN")
+                : "N/A";
+
+              return (
+                <TableRow
+                  key={idx}
+                  onClick={() =>
+                    navigate(`${ROUTES.RESCUE_DETAIL}?id=${row.id}`)
+                  }
+                  className="hover:bg-gray-200 cursor-pointer border-b-2"
+                >
+                  <TableCell className="font-mono text-gray-500">
+                    #{shortId}
+                  </TableCell>
+                  <TableCell className="font-semibold">
+                    {row.citizenPhone}
+                  </TableCell>
+                  <TableCell>{renderStatusBadge(row.status)}</TableCell>
+                  <TableCell>{formattedDate}</TableCell>
+                </TableRow>
+              );
+            }}
+          />
+        )}
+      </div>
+
+      {/* Paging */}
+      <div className="mt-4 flex items-center justify-center gap-3">
+        <Button
+          variant="ghost"
+          className="rounded-full bg-gray-100 hover:bg-gray-300 p-2"
+          onClick={() => handlePageChange(true)}
+        >
+          <ChevronsLeft className="w-4 h-4" />
+        </Button>
+        {pageNumber + 1}/{totalPage}
+        <Button
+          variant="ghost"
+          className="rounded-full bg-gray-100 hover:bg-gray-300 p-2"
+          onClick={() => handlePageChange(false)}
+        >
+          <ChevronsRight className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );

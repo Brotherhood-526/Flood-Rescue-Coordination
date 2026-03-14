@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { isAxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
-import { findRequestService } from "@/services/findRequestService";
+import { findRequestService } from "@/services/User/findRequestService";
 import type { CitizenLookupData } from "@/types/citizen";
 
 type FindRequestViewData = {
@@ -45,7 +45,10 @@ const toViewData = (payload: CitizenLookupData): FindRequestViewData => ({
 const getErrorMessage = (error: unknown) => {
   if (isAxiosError(error)) {
     const backendMessage = error.response?.data?.message;
-    if (typeof backendMessage === "string" && backendMessage.trim().length > 0) {
+    if (
+      typeof backendMessage === "string" &&
+      backendMessage.trim().length > 0
+    ) {
       return backendMessage;
     }
   }
@@ -54,7 +57,9 @@ const getErrorMessage = (error: unknown) => {
 
 export const useFindRequest = () => {
   const [phoneInput, setPhoneInput] = useState("");
-  const [apiResponse, setApiResponse] = useState<FindRequestApiResponse | null>(null);
+  const [apiResponse, setApiResponse] = useState<FindRequestApiResponse | null>(
+    null,
+  );
 
   const mutation = useMutation({
     mutationFn: findRequestService.lookupCitizen,
