@@ -33,7 +33,6 @@ import static com.rescue.backend.utils.CloudinaryUtils.extractPublicId;
 public class CitizenService {
 
     private final CitizenDAO citizenDAO;
-    private final VehicleDAO vehicleDAO;
     private final RequestDAO requestDAO;
     private final RequestImageDAO requestImageDAO;
     private final Cloudinary cloudinary;
