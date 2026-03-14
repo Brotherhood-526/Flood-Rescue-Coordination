@@ -3,6 +3,25 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "@/services/axiosClient";
 import { useAuthStore, type Staff } from "@/store/authStore";
 
+const getStaffFromLoginResponse = (payload: unknown): Staff | null => {
+  if (!payload || typeof payload !== "object") return null;
+
+  const candidate = payload as Record<string, unknown>;
+
+  const directRole = candidate.role;
+  if (typeof directRole === "string") return candidate as unknown as Staff;
+
+  const nested = candidate.data;
+  if (nested && typeof nested === "object") {
+    const nestedObj = nested as Record<string, unknown>;
+    if (typeof nestedObj.role === "string") {
+      return nestedObj as unknown as Staff;
+    }
+  }
+
+  return null;
+};
+
 export function useAuth() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -18,7 +37,12 @@ export function useAuth() {
         password,
       });
 
-      const staffData = res as unknown as Staff;
+      const staffData = getStaffFromLoginResponse(res);
+      if (!staffData) {
+        console.error("Unexpected login response shape:", res);
+        return null;
+      }
+
       localStorage.setItem("userRole", staffData.role);
 
       console.log("Dữ liệu login trả về:", staffData);

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/router/routes.tsx";
 import { useAuth } from "@/hooks/useAuth";
+import { hasAllowedRole } from "@/lib/authRole";
 import {
   Phone,
   Lock,
@@ -20,7 +21,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const normalizeRole = (value?: string | null) => (value ?? "").trim().toLowerCase();
 
   const [errorMsg, setErrorMsg] = useState("");
   const handleLogin = async (e: React.FormEvent) => {
@@ -34,15 +34,14 @@ export default function Login() {
         return;
       }
 
-      const role = normalizeRole(staff.role);
-
-      if (role === "rescue manager" || role === "manager") {
+      if (hasAllowedRole(staff.role, ["manager", "rescue manager", "quản lý"])) {
         navigate(ROUTES.MANAGER);
-      } else if (role === "rescue team") {
+      } else if (hasAllowedRole(staff.role, ["rescue", "rescue team", "cứu hộ"])) {
         navigate(ROUTES.RESCUE);
-      } else if (role === "rescue coordinator") {
+      } else if (hasAllowedRole(staff.role, ["coordinate", "coordinator", "rescue coordinator", "điều phối viên"])) {
         navigate(ROUTES.COORDINATE);
       } else {
+        console.error("Unknown role after login:", staff.role);
         navigate("/");
       }
     } catch (error) {
