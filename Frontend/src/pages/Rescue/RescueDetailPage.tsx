@@ -79,7 +79,7 @@ export default function RescueDetailPage() {
         map.doubleClickZoom.enable();
       };
     }
-  }, [mapLoaded, map, requestDetail.coords]);
+  }, [mapLoaded, map, requestDetail.coords, navigate, requestDetail.id]);
 
   return (
     <div className="w-full min-h-[calc(100vh-80px)] bg-[#fdfdfd] font-sans pl-10 pr-10 pb-5 -mt-15 ">
@@ -179,7 +179,7 @@ export default function RescueDetailPage() {
 
         {/* CỘT PHẢI: Khung bản đồ (Chiếm 7 phần) */}
         <div className="lg:col-span-7 flex flex-col">
-          <div className="w-full h-[600px] border border-gray-300 rounded-xl bg-white shadow-sm flex items-center justify-center relative overflow-hidden">
+          <div className="w-full h-150 border border-gray-300 rounded-xl bg-white shadow-sm flex items-center justify-center relative overflow-hidden">
             <div
               ref={mapContainerRef}
               className="absolute inset-0 w-full h-full"
@@ -228,7 +228,7 @@ function InfoSection({
         {icon}
         <h3 className="font-extrabold text-[16px]">{title}</h3>
       </div>
-      <div className="pl-[34px] text-[15px] text-gray-700">{children}</div>
+      <div className="pl-8.5 text-[15px] text-gray-700">{children}</div>
     </div>
   );
 }

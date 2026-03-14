@@ -71,7 +71,7 @@ export default function FullMapPage() {
       bounds.extend(requestCoords);
       map.fitBounds(bounds, { padding: 120, maxZoom: 16, duration: 1500 });
     }
-  }, [mapLoaded, map]);
+  }, [mapLoaded, map, requestCoords, teamCoords]);
 
   return (
     <div className="w-full h-[calc(100vh-80px)] relative bg-gray-100">

@@ -21,7 +21,7 @@ public class Staff {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @JdbcTypeCode(SqlTypes.VARCHAR) // Đảm bảo dùng VARCHAR thay vì BINARY
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "id", length = 36)
     private UUID id;
 
@@ -34,9 +34,8 @@ public class Staff {
     @Column(nullable = false)
     private String password;
 
-    // SỬA: Đảm bảo trùng khớp với ENUM tiếng Việt trong DB
     @Column(nullable = false, length = 20)
-    private String role; // "quản lý", "điều phối viên", "cứu hộ"
+    private String role;
 
     @Column(name = "team_name", length = 50)
     private String teamName;
@@ -50,9 +49,8 @@ public class Staff {
     @Column(precision = 18, scale = 10)
     private BigDecimal longitude;
 
-    // SỬA QUAN TRỌNG: Đổi geography thành POINT (phù hợp với MySQL)
     @Column(name = "geo_location",
-            columnDefinition = "POINT",
+            columnDefinition = "geography",
             insertable = false,
             updatable = false)
     private Point geoLocation;

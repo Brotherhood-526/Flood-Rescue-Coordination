@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,33 +18,42 @@ export default function Login() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
+  const { login, staff } = useAuth();
   const navigate = useNavigate();
-  const normalizeRole = (value?: string | null) =>
-    (value ?? "").trim().toLowerCase();
-
+  useEffect(() => {
+    if (staff) {
+      const role = staff.role?.trim().toLowerCase();
+      if (role === "quản lý") {
+        navigate(ROUTES.MANAGER, { replace: true });
+      } else if (role === "cứu hộ") {
+        navigate(ROUTES.RESCUE, { replace: true });
+      } else if (role === "điều phối viên") {
+        navigate(ROUTES.COORDINATE, { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [staff, navigate]);
   const [errorMsg, setErrorMsg] = useState("");
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
     try {
-      // Đổi từ user sang staff
       const staff = await login(phoneNumber, password);
       if (!staff) {
         setErrorMsg("Tài khoản không tồn tại hoặc sai mật khẩu.");
         return;
       }
 
-      const role = normalizeRole(staff.role);
-
+      const role = staff.role?.trim().toLowerCase();
       if (role === "quản lý") {
-        navigate(ROUTES.MANAGER);
-      } else if (role === "điều phối viên") {
-        navigate(ROUTES.RESCUE);
+        navigate(ROUTES.MANAGER, { replace: true });
       } else if (role === "cứu hộ") {
-        navigate(ROUTES.COORDINATE);
+        navigate(ROUTES.RESCUE, { replace: true });
+      } else if (role === "điều phối viên") {
+        navigate(ROUTES.COORDINATE, { replace: true });
       } else {
-        navigate("/");
+        navigate("/", { replace: true });
       }
     } catch (error) {
       console.error("Login failed:", error);

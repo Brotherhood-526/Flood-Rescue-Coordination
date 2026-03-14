@@ -18,7 +18,7 @@ export default function ConfirmDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
       <div className="bg-white rounded-xl shadow-2xl w-[90%] max-w-md p-6 relative animate-in fade-in zoom-in duration-200">
         <button
           onClick={onClose}

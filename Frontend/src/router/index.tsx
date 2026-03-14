@@ -19,9 +19,9 @@ import RescueChatBox from "@/pages/Rescue/RescueChatBox";
 
 // Manager Pages
 import { OverviewPage } from "@/pages/Manager/OverviewPage";
-// import ManageEmployeePage from "@/pages/Manager/ManageEmployeePage";
-// import ManageTeamPage from "@/pages/Manager/ManageTeamPage";
-// import ManageVehiclePage from "@/pages/Manager/ManageVehiclePage";
+import { ManageEmployeePage } from "@/pages/Manager/ManageEmployeePage";
+import { ManageTeamPage } from "@/pages/Manager/ManageTeamPage";
+import { ManageVehiclePage } from "@/pages/Manager/ManageVehiclePage";
 
 // Coordinator Pages
 import ListRequestPage from "@/pages/Coordinator/ListRequestPage";
@@ -47,9 +47,7 @@ export const router = createBrowserRouter([
 
   // NHÓM ĐIỀU PHỐI VIÊN
   {
-    element: (
-      <ProtectedRoute allowedRoles={["coordinate", "rescue coordinator"]} />
-    ),
+    element: <ProtectedRoute allowedRoles={["điều phối viên"]} />,
     children: [
       {
         path: ROUTES.COORDINATE,
@@ -68,7 +66,7 @@ export const router = createBrowserRouter([
 
   // NHÓM ĐỘI CỨU HỘ
   {
-    element: <ProtectedRoute allowedRoles={["rescue team", "rescue"]} />,
+    element: <ProtectedRoute allowedRoles={["cứu hộ"]} />,
     children: [
       {
         path: ROUTES.RESCUE,
@@ -80,15 +78,6 @@ export const router = createBrowserRouter([
         element: <MainLayout role={2} />,
         children: [{ index: true, element: <RescueDetailPage /> }],
       },
-      { path: ROUTES.COORDINATE_MAP, element: <FullMapCoordinatorPage /> },
-      { path: ROUTES.COORDINATE_CHAT, element: <TestChatBox /> },
-    ],
-  },
-
-  // NHÓM ĐỘI CỨU HỘ
-  {
-    element: <ProtectedRoute allowedRoles={["rescue team", "rescue"]} />,
-    children: [
       {
         path: ROUTES.RESCUE_CHAT,
         element: <MainLayout role={2} />,
@@ -100,28 +89,28 @@ export const router = createBrowserRouter([
 
   // NHÓM QUẢN LÝ
   {
-    element: <ProtectedRoute allowedRoles={["manager", "rescue manager"]} />,
+    element: <ProtectedRoute allowedRoles={["quản lý"]} />,
     children: [
       {
         path: ROUTES.MANAGER,
         element: <MainLayout role={3} />,
         children: [{ index: true, element: <OverviewPage /> }],
       },
-      // {
-      //   path: ROUTES.MANAGER_EMPLOYEE,
-      //   element: <MainLayout role={3} />,
-      //   children: [{ index: true, element: <ManageEmployeePage /> }],
-      // },
-      // {
-      //   path: ROUTES.MANAGER_TEAM,
-      //   element: <MainLayout role={3} />,
-      //   children: [{ index: true, element: <ManageTeamPage /> }],
-      // },
-      // {
-      //   path: ROUTES.MANAGER_VEHICLE,
-      //   element: <MainLayout role={3} />,
-      //   children: [{ index: true, element: <ManageVehiclePage /> }],
-      // },
+      {
+        path: ROUTES.MANAGER_EMPLOYEE,
+        element: <MainLayout role={3} />,
+        children: [{ index: true, element: <ManageEmployeePage /> }],
+      },
+      {
+        path: ROUTES.MANAGER_TEAM,
+        element: <MainLayout role={3} />,
+        children: [{ index: true, element: <ManageTeamPage /> }],
+      },
+      {
+        path: ROUTES.MANAGER_VEHICLE,
+        element: <MainLayout role={3} />,
+        children: [{ index: true, element: <ManageVehiclePage /> }],
+      },
     ],
   },
 ]);

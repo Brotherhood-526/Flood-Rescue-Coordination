@@ -1,9 +1,13 @@
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { MapPinned, Navigation, Locate, X, Upload } from "lucide-react"
-import type { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form"
-import type { RefObject } from "react"
-import { type RequestSchemaType } from "@/validations/user.request.schema"
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { MapPinned, Navigation, Locate, X, Upload } from "lucide-react";
+import type {
+  UseFormRegister,
+  FieldErrors,
+  UseFormSetValue,
+} from "react-hook-form";
+import type { RefObject } from "react";
+import { type RequestSchemaType } from "@/validations/user.request.schema";
 
 interface BeforeRequestPageProps {
   isSubmitting: boolean;
@@ -25,10 +29,21 @@ interface BeforeRequestPageProps {
 
 export default function BeforeRequestPage(props: BeforeRequestPageProps) {
   const {
-    isSubmitting, onSubmitForm, handleKeyDown, register, errors,
-    selectedType, setValue, activeTab, setActiveTab,
-    handleConfirmAddress, handleGetLocation, previews,
-    handleRemoveImage, inputRef, handleFileChange
+    isSubmitting,
+    onSubmitForm,
+    handleKeyDown,
+    register,
+    errors,
+    selectedType,
+    setValue,
+    activeTab,
+    setActiveTab,
+    handleConfirmAddress,
+    handleGetLocation,
+    previews,
+    handleRemoveImage,
+    inputRef,
+    handleFileChange,
   } = props;
 
   return (
@@ -37,23 +52,37 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
         Gửi thông tin cứu hộ
       </h1>
       <hr className="border-black mb-3" />
-      <form onSubmit={onSubmitForm} onKeyDown={handleKeyDown} className="space-y-4">
+      <form
+        onSubmit={onSubmitForm}
+        onKeyDown={handleKeyDown}
+        className="space-y-4"
+      >
         <div>
-          <Label className="text-sm font-semibold text-gray-700">Phân loại <span className="text-red-500">*</span></Label>
+          <Label className="text-sm font-semibold text-gray-700">
+            Phân loại <span className="text-red-500">*</span>
+          </Label>
           <div className="mt-3 flex flex-wrap gap-4">
-            {["Nhu yếu phẩm", "Cứu hộ", "Khác"].map((item) => (
+            {[
+              { label: "Tiếp tế", value: "tiếp tế" },
+              { label: "Cứu hộ", value: "cứu hộ" },
+              { label: "Khác", value: "khác" },
+            ].map((item) => (
               <button
-                key={item}
+                key={item.value}
                 type="button"
                 className={`rounded-full border px-5 py-2 text-base font-medium transition-all duration-200 
-                ${selectedType === item ? "bg-red-600 text-white border-red-600" : "bg-white border-gray-300 text-gray-600 hover:bg-gray-100"}`}
-                onClick={() => setValue("type", item, { shouldValidate: true })}
+      ${selectedType === item.value ? "bg-red-600 text-white border-red-600" : "bg-white border-gray-300 text-gray-600 hover:bg-gray-100"}`}
+                onClick={() =>
+                  setValue("type", item.value, { shouldValidate: true })
+                }
               >
-                {item}
+                {item.label}
               </button>
             ))}
           </div>
-          {errors.type && <p className="text-red-500 text-xs mt-1">{errors.type.message}</p>}
+          {errors.type && (
+            <p className="text-red-500 text-xs mt-1">{errors.type.message}</p>
+          )}
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -61,11 +90,17 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
             <Label className="text-sm font-semibold text-gray-700">
               Vị trí <span className="text-red-500">*</span>
             </Label>
-            <TabsList className="grid grid-cols-2 w-[200px] h-10">
-              <TabsTrigger value="address" className="text-xs flex items-center justify-center gap-2">
+            <TabsList className="grid grid-cols-2 w-50 h-10">
+              <TabsTrigger
+                value="address"
+                className="text-xs flex items-center justify-center gap-2"
+              >
                 <MapPinned className="w-4 h-4" /> Địa chỉ
               </TabsTrigger>
-              <TabsTrigger value="coordinate" className="text-xs flex items-center justify-center gap-2">
+              <TabsTrigger
+                value="coordinate"
+                className="text-xs flex items-center justify-center gap-2"
+              >
                 <Navigation className="w-4 h-4" /> Tọa độ
               </TabsTrigger>
             </TabsList>
@@ -75,10 +110,12 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
             <input
               type="text"
               placeholder="Vui lòng nhập đầy đủ địa chỉ của bạn"
-              className={`w-full rounded-md border px-3 py-2 ${errors.address ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full rounded-md border px-3 py-2 ${errors.address ? "border-red-500" : "border-gray-300"}`}
               {...register("address")}
             />
-            {errors.address && <p className="text-red-500 text-xs">{errors.address.message}</p>}
+            {errors.address && (
+              <p className="text-red-500 text-xs">{errors.address.message}</p>
+            )}
 
             <button
               type="button"
@@ -93,11 +130,13 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
             <input
               type="text"
               placeholder="Bấm nút bên dưới để lấy GPS hiện tại..."
-              className={`w-full rounded-md border px-3 py-2 outline-none ${errors.locate ? 'border-red-500' : 'border-gray-300 bg-gray-50'}`}
+              className={`w-full rounded-md border px-3 py-2 outline-none ${errors.locate ? "border-red-500" : "border-gray-300 bg-gray-50"}`}
               readOnly
               {...register("locate")}
             />
-            {errors.locate && <p className="text-red-500 text-xs">{errors.locate.message}</p>}
+            {errors.locate && (
+              <p className="text-red-500 text-xs">{errors.locate.message}</p>
+            )}
 
             <button
               type="button"
@@ -111,36 +150,50 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
 
         {/* Mô tả */}
         <div>
-          <Label>Tình trạng <span className="text-red-500">*</span></Label>
+          <Label>
+            Tình trạng <span className="text-red-500">*</span>
+          </Label>
           <textarea
             rows={3}
             placeholder="Nhập tình trạng của bạn (địa hình, thời tiết, khu vực) xung quanh..."
-            className={`mt-2 w-full rounded-md border px-3 py-2 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
+            className={`mt-2 w-full rounded-md border px-3 py-2 ${errors.description ? "border-red-500" : "border-gray-300"}`}
             {...register("description")}
           />
-          {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
-        </div>
-
-        {/* Phone */}
-        <div>
-          <Label>Số điện thoại <span className="text-red-500">*</span></Label>
-          <input
-            type="text"
-            className={`mt-2 w-full rounded-md border px-3 py-2 ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
-            {...register("phone")}
-          />
-          {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
+          {errors.description && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.description.message}
+            </p>
+          )}
         </div>
 
         {/* Name */}
         <div>
-          <Label>Họ và tên <span className="text-red-500">*</span></Label>
+          <Label>
+            Họ và tên <span className="text-red-500">*</span>
+          </Label>
           <input
             type="text"
-            className={`mt-2 w-full rounded-md border px-3 py-2 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+            className={`mt-2 w-full rounded-md border px-3 py-2 ${errors.name ? "border-red-500" : "border-gray-300"}`}
             {...register("name")}
           />
-          {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+          {errors.name && (
+            <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+          )}
+        </div>
+
+        {/* Phone */}
+        <div>
+          <Label>
+            Số điện thoại <span className="text-red-500">*</span>
+          </Label>
+          <input
+            type="text"
+            className={`mt-2 w-full rounded-md border px-3 py-2 ${errors.phone ? "border-red-500" : "border-gray-300"}`}
+            {...register("phone")}
+          />
+          {errors.phone && (
+            <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
+          )}
         </div>
 
         {/* Link nguồn */}
@@ -149,22 +202,32 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
           <input
             type="text"
             placeholder="Link nguồn google map"
-            className={`mt-2 w-full rounded-md border px-3 py-2 ${errors.url ? 'border-red-500' : 'border-gray-300'}`}
+            className={`mt-2 w-full rounded-md border px-3 py-2 ${errors.url ? "border-red-500" : "border-gray-300"}`}
             {...register("url")}
           />
-          {errors.url && <p className="text-red-500 text-xs mt-1">{errors.url.message}</p>}
+          {errors.url && (
+            <p className="text-red-500 text-xs mt-1">{errors.url.message}</p>
+          )}
         </div>
 
         {/* Upload ảnh */}
         <div>
           <Label className="font-semibold">
-            Hình ảnh hiện trường <span className="text-sm font-normal text-gray-500">(Tối đa 3 ảnh)</span> <span className="text-red-500">*</span>
+            Hình ảnh hiện trường{" "}
+            <span className="text-sm font-normal text-gray-500">
+              (Tối đa 3 ảnh)
+            </span>{" "}
+            <span className="text-red-500">*</span>
           </Label>
 
           <div className="mt-2 grid grid-cols-3 gap-3">
             {previews.map((src, index) => (
-              <div key={index} className="relative h-[110px] w-full group">
-                <img src={src} alt={`preview-${index}`} className="h-full w-full rounded-xl object-cover border border-gray-200" />
+              <div key={index} className="relative h-27.5 w-full group">
+                <img
+                  src={src}
+                  alt={`preview-${index}`}
+                  className="h-full w-full rounded-xl object-cover border border-gray-200"
+                />
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(index)}
@@ -173,24 +236,35 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
                 >
                   <X className="w-3.5 h-3.5" strokeWidth={3} />
                 </button>
-
               </div>
             ))}
 
             {previews.length < 3 && (
               <div
                 onClick={() => inputRef.current?.click()}
-                className="h-[110px] flex flex-col cursor-pointer items-center justify-center rounded-xl bg-[#d9d9d9]/60 hover:bg-[#d9d9d9] transition-colors border-2 border-gray-400"
+                className="h-27.5 flex flex-col cursor-pointer items-center justify-center rounded-xl bg-[#d9d9d9]/60 hover:bg-[#d9d9d9] transition-colors border-2 border-gray-400"
               >
-                <Upload className="h-6 w-6 text-gray-600 mb-1" strokeWidth={2} />
-                <span className="text-xs font-semibold text-gray-600 text-center px-1">Tải ảnh lên<br />({previews.length}/3)</span>
+                <Upload
+                  className="h-6 w-6 text-gray-600 mb-1"
+                  strokeWidth={2}
+                />
+                <span className="text-xs font-semibold text-gray-600 text-center px-1">
+                  Tải ảnh lên
+                  <br />({previews.length}/3)
+                </span>
               </div>
             )}
           </div>
 
-          <input ref={inputRef} type="file" multiple hidden accept="image/*" onChange={handleFileChange} />
+          <input
+            ref={inputRef}
+            type="file"
+            multiple
+            hidden
+            accept="image/*"
+            onChange={handleFileChange}
+          />
         </div>
-
 
         <button
           type="submit"
@@ -201,5 +275,5 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
         </button>
       </form>
     </>
-  )
+  );
 }
