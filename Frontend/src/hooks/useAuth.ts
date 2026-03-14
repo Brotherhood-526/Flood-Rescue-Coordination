@@ -111,7 +111,6 @@ export function useAuth() {
       localStorage.setItem("userRole", staffData.role);
       localStorage.setItem("staff", JSON.stringify(staffData));
 
-      console.log("Dữ liệu login trả về:", staffData);
       setStaff(staffData);
 
       return staffData;
