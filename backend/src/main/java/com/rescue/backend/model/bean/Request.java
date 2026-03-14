@@ -60,7 +60,7 @@ public class Request {
     private String urgency;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     // Coordinator
     @ManyToOne(fetch = FetchType.LAZY)

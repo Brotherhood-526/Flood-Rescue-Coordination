@@ -7,6 +7,7 @@ import com.rescue.backend.model.bean.*;
 import com.rescue.backend.model.dao.CitizenDAO;
 import com.rescue.backend.model.dao.RequestDAO;
 import com.rescue.backend.model.dao.RequestImageDAO;
+import com.rescue.backend.model.dao.VehicleDAO;
 import com.rescue.backend.view.dto.citizen.request.LookupRequest;
 import com.rescue.backend.view.dto.citizen.request.RescueRequest;
 import com.rescue.backend.view.dto.citizen.request.UpdateRequest;
@@ -32,6 +33,7 @@ import static com.rescue.backend.utils.CloudinaryUtils.extractPublicId;
 public class CitizenService {
 
     private final CitizenDAO citizenDAO;
+    private final VehicleDAO vehicleDAO;
     private final RequestDAO requestDAO;
     private final RequestImageDAO requestImageDAO;
     private final Cloudinary cloudinary;
@@ -47,8 +49,10 @@ public class CitizenService {
                         rescueRequest.phone()
                 );
 
+        // 3. Nếu tìm thấy request đang hoạt động -> Thông báo lỗi
         if (existingRequest.isPresent()) {
             throw new RuntimeException("EXISTING_ACTIVE_REQUEST");
+            // Bạn có thể tạo Custom Exception riêng để Controller bắt được dễ hơn
         }
 
         Citizen citizen = citizenDAO.findByPhone(rescueRequest.phone())
@@ -71,6 +75,7 @@ public class CitizenService {
 
         Request savedRequest = requestDAO.save(request);
 
+        // 5. Xử lý Upload ảnh lên Cloudinary
         if (rescueRequest.images() != null && !rescueRequest.images().isEmpty()) {
 
             List<RequestImage> requestImageList =
@@ -111,6 +116,7 @@ public class CitizenService {
                 (request.getVehicle() != null)
                         ? request.getVehicle().getType()
                         : null;
+
 
         return new CitizenRescueResponse(
                 request.getId(),

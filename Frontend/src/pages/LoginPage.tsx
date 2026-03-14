@@ -38,7 +38,7 @@ export default function Login() {
         navigate(ROUTES.MANAGER);
       } else if (role === "cứu hộ") {
         navigate(ROUTES.RESCUE);
-      } else if (role === "điều phối") {
+      } else if (role === "điều phối viên") {
         navigate(ROUTES.COORDINATE);
       } else {
         navigate("/");

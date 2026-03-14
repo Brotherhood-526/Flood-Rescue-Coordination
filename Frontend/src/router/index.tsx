@@ -47,7 +47,7 @@ export const router = createBrowserRouter([
 
   // NHÓM ĐIỀU PHỐI VIÊN
   {
-    element: <ProtectedRoute allowedRoles={["điều phối"]} />,
+    element: <ProtectedRoute allowedRoles={["điều phối viên"]} />,
     children: [
       {
         path: ROUTES.COORDINATE,
