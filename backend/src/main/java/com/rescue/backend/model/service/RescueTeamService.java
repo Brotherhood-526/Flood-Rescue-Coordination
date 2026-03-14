@@ -60,7 +60,7 @@ public class RescueTeamService {
     }
 
     public TaskDetailResponse getAssignmentDetail(UUID assignmentId, UUID teamId) {
-        Request assignment = requestDAO.findByRescueTeamIdAndId(assignmentId, teamId)
+        Request assignment = requestDAO.findByRescueTeamIdAndId(teamId, assignmentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu cứu hộ cho đội của bạn!"));
 
         List<LookupImageResponse> imageResponses = (assignment.getImages() != null)
