@@ -4,7 +4,9 @@ import apiClient from "@/services/axiosClient";
 import { useAuthStore, type Staff } from "@/store/authStore";
 
 const asRecord = (value: unknown): Record<string, unknown> | null =>
-  value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+  value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
 
 const parseNullableString = (value: unknown): string | null => {
   if (value === null || value === undefined) return null;
