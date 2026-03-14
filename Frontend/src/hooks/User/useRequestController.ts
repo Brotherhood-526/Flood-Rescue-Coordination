@@ -7,7 +7,12 @@ import {
 } from "@/validations/user.request.schema";
 import { useVietMap } from "@/lib/MapProvider";
 import vietmapgl from "@vietmap/vietmap-gl-js";
-import { reverseGeocode, geocodeAddress } from "@/services/requestService"; //submitRescueRequest
+import {
+  reverseGeocode,
+  geocodeAddress,
+  submitRescueRequest,
+  updateRescueRequest,
+} from "@/services/User/requestService";
 import type { ChatMessage } from "@/pages/User/ChatBoxDialog";
 
 export const useRequestController = (
@@ -16,7 +21,7 @@ export const useRequestController = (
   const inputRef = useRef<HTMLInputElement>(null);
   const markerRef = useRef<vietmapgl.Marker | null>(null);
   const { map, mount, unmount } = useVietMap();
-
+  const [requestId, setRequestId] = useState<string | number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedData, setSubmittedData] = useState<RequestSchemaType | null>(
     null,
@@ -80,7 +85,7 @@ export const useRequestController = (
     if (!mapContainer.current) return;
     mount(mapContainer.current);
     return () => unmount();
-  }, [mount, unmount]);
+  }, [mount, unmount, mapContainer]);
 
   //IMAGE PREVIEW
   const previews = useMemo(() => {
@@ -207,19 +212,52 @@ export const useRequestController = (
   };
 
   const onSubmit = async (data: RequestSchemaType) => {
-    const formData = new FormData();
-    formData.append("type", data.type);
-    formData.append("address", data.address);
-    if (data.locate) formData.append("locate", data.locate);
-    formData.append("description", data.description);
-    formData.append("phone", data.phone);
-    formData.append("name", data.name);
-    if (data.url) formData.append("url", data.url);
-    data.image?.forEach?.((file, i) => formData.append(`image${i}`, file));
-    // await submitRescueRequest(formData)
-    alert("Gửi yêu cầu thành công!");
-    setSubmittedData(data);
-    setIsSubmitted(true);
+    try {
+      const formData = new FormData();
+      formData.append("type", data.type);
+
+      formData.append("address", data.address);
+      formData.append("description", data.description);
+      formData.append("name", data.name);
+      formData.append("phone", data.phone);
+
+      if (data.url) {
+        formData.append("additionalLink", data.url);
+      }
+
+      if (data.locate) {
+        const [lat, lng] = data.locate.split(",").map((item) => item.trim());
+        formData.append("latitude", lat);
+        formData.append("longitude", lng);
+      }
+
+      if (data.image && data.image.length > 0) {
+        data.image.forEach((file) => {
+          formData.append("images", file);
+        });
+      }
+
+      if (isSubmitted && requestId) {
+        await updateRescueRequest(requestId, formData);
+        alert("Cập nhật thông tin thành công!");
+        setIsDialogOpen(false);
+      } else {
+        const response = await submitRescueRequest(formData);
+        if (response && response.requestId) {
+          setRequestId(response.requestId);
+        } else {
+          console.log("Không tìm thấy requestId từ BE trả về!");
+        }
+
+        alert("Gửi yêu cầu thành công!");
+        setIsSubmitted(true);
+      }
+
+      setSubmittedData(data);
+    } catch (error) {
+      console.log(error);
+      alert("Có lỗi xảy ra, vui lòng thử lại!");
+    }
   };
 
   const handleCancelRequest = () => {
@@ -230,6 +268,7 @@ export const useRequestController = (
     reset();
     setSubmittedData(null);
     setIsSubmitted(false);
+    setRequestId(null);
     setRescueStatus("pending");
     setValue("image", undefined);
     markerRef.current?.remove();

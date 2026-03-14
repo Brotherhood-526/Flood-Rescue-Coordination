@@ -174,7 +174,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                   <Label className="font-semibold text-gray-700 flex items-center gap-1">
                     Vị trí <span className="text-red-500">*</span>
                   </Label>
-                  <TabsList className="grid grid-cols-2 w-[180px] h-9 bg-gray-100/80 rounded-lg">
+                  <TabsList className="grid grid-cols-2 w-45 h-9 bg-gray-100/80 rounded-lg">
                     <TabsTrigger
                       value="address"
                       className="text-xs font-medium"
@@ -292,7 +292,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-[200px] rounded-full bg-[#da291c] py-3.5 font-bold text-[15px] text-white hover:bg-[#b02115] disabled:bg-red-300 transition-all shadow-md"
+              className="w-50 rounded-full bg-[#da291c] py-3.5 font-bold text-[15px] text-white hover:bg-[#b02115] disabled:bg-red-300 transition-all shadow-md"
             >
               {isSubmitting
                 ? "Đang xử lý..."
