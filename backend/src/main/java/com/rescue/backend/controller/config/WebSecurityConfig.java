@@ -1,6 +1,5 @@
 package com.rescue.backend.controller.config;
 
-import com.rescue.backend.controller.interceptor.RoleInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,11 +14,6 @@ import java.util.List;
 @Configuration
 public class WebSecurityConfig implements WebMvcConfigurer {
 
-    private final RoleInterceptor roleInterceptor;
-
-    public WebSecurityConfig(RoleInterceptor roleInterceptor) {
-        this.roleInterceptor = roleInterceptor;
-    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -43,10 +37,4 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         return new BCryptPasswordEncoder();
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(roleInterceptor)
-                .addPathPatterns("/manager/**", "/coordinator/**", "/rescueteam/**")
-                .excludePathPatterns("/**/auth/**", "/**/citizen/**");
-    }
 }

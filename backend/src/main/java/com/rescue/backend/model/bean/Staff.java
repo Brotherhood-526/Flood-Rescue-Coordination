@@ -21,7 +21,8 @@ public class Staff {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @JdbcTypeCode(SqlTypes.VARCHAR) // Đảm bảo dùng VARCHAR thay vì BINARY
+    @Column(name = "id", length = 36)
     private UUID id;
 
     @Column(nullable = false)
@@ -57,7 +58,7 @@ public class Staff {
     private Point geoLocation;
 
     @Column(name = "staff_state")
-    private String staffState = "ngoại tuyến"; // Cập nhật mặc định tiếng Việt
+    private String staffState = "hoạt động";
 
     @OneToMany(mappedBy = "staff")
     private List<Vehicle> vehicles;

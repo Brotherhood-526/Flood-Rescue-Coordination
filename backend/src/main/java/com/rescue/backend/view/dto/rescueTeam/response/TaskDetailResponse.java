@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 public record TaskDetailResponse (
-        UUID assignmentId,
         UUID requestId,
         UUID citizenId,
         String citizenName,

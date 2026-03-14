@@ -54,9 +54,12 @@ public class MissionController {
     }
 
     @GetMapping("/tasks/{id}")
-    public ResponseEntity<ResponseObject> getTaskById(@PathVariable UUID id){
+    public ResponseEntity<ResponseObject> getTaskById(
+            @RequestParam(required = false) UUID testAccountId,
+            @PathVariable UUID id
+    ){
         try {
-            TaskDetailResponse detailResponse = rescueTeamService.getAssignmentDetail(id);
+            TaskDetailResponse detailResponse = rescueTeamService.getAssignmentDetail(testAccountId, id);
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject(200,"Danh sách yêu cầu tải thành công",detailResponse)
             );

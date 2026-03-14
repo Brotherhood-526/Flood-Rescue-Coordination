@@ -33,7 +33,6 @@ import static com.rescue.backend.utils.CloudinaryUtils.extractPublicId;
 public class CitizenService {
 
     private final CitizenDAO citizenDAO;
-    private final VehicleDAO vehicleDAO;
     private final RequestDAO requestDAO;
     private final RequestImageDAO requestImageDAO;
     private final Cloudinary cloudinary;
@@ -41,7 +40,7 @@ public class CitizenService {
     @Transactional
     public CitizenRescueResponse createRescueRequest(RescueRequest rescueRequest) {
 
-        List<String> activeStatuses = List.of("processing", "accept", "delayed");
+        List<String> activeStatuses = List.of("yêu cầu mới", "đang xử lý", "tạm hoãn");
 
         Optional<Request> existingRequest =
                 requestDAO.findTopByStatusInAndCitizen_PhoneOrderByCreatedAtDesc(
@@ -142,7 +141,7 @@ public class CitizenService {
     public CitizenRescueResponse lookUpRequest(LookupRequest lookupRequest) {
 
         List<String> targetStatuses =
-                List.of("processing", "delayed", "reject", "accept");
+                List.of("yêu cầu mới", "đang xử lý", "tạm hoãn", "đã huỷ");
 
         return requestDAO
                 .findTopByStatusInAndCitizen_PhoneOrderByCreatedAtDesc(
@@ -155,7 +154,6 @@ public class CitizenService {
 
     @Transactional
     public CitizenRescueResponse updateRescueRequest(UpdateRequest updateRequest) {
-
         Request request =
                 requestDAO.findById(updateRequest.requestId())
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu này"));
@@ -175,32 +173,25 @@ public class CitizenService {
         }
 
         if (updateRequest.deleteImageIds() != null && !updateRequest.deleteImageIds().isEmpty()) {
-
             List<RequestImage> imagesToDelete =
                     requestImageDAO.findAllById(updateRequest.deleteImageIds());
 
             imagesToDelete.forEach(this::deleteImageOnCloudinary);
-
             requestImageDAO.deleteAll(imagesToDelete);
-
             request.getImages().removeAll(imagesToDelete);
         }
 
         Request savedRequest = requestDAO.save(request);
 
         if (updateRequest.images() != null && !updateRequest.images().isEmpty()) {
-
             List<RequestImage> newImages =
                     uploadNewImages(updateRequest.images(), request);
 
             if (!newImages.isEmpty()) {
-
                 requestImageDAO.saveAll(newImages);
-
                 if (request.getImages() == null) {
                     request.setImages(new ArrayList<>());
                 }
-
                 request.getImages().addAll(newImages);
             }
         }
