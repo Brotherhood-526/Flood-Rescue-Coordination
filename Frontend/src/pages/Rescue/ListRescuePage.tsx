@@ -17,6 +17,15 @@ import { CommonTable } from "@/layouts/DataTable";
 import { TableCell, TableRow } from "@/components/ui/table";
 import type { RescueRequest } from "@/services/Rescue/rescueTeamService";
 
+/**
+ * Render the rescue requests listing page with filter controls, sort toggle, data table, and pagination.
+ *
+ * The page displays filter buttons for common statuses, a sort control for creation time, a table of rescue requests
+ * with status badges and formatted timestamps, loading and error states, and paging controls. Clicking a row navigates
+ * to the rescue request detail view.
+ *
+ * @returns The JSX element for the list rescue page containing filters, sorting, table rows, and pagination controls.
+ */
 export default function ListRescuePage() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");

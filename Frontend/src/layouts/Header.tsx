@@ -12,6 +12,12 @@ import { useAuth } from "@/hooks/useAuth";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useAuthStore } from "@/store/authStore.ts";
 
+/**
+ * Selects and renders the header variant appropriate for the given user role.
+ *
+ * @param role - Numeric role identifier: 1 = public user header, 2 = rescue header, 4 = coordinator header (other values render nothing)
+ * @returns The React element for the matching header variant, or `null` if the role is unrecognized
+ */
 export default function Header({ role }: { role: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -98,7 +104,12 @@ export function RescueHeader({ noty }: { noty: boolean }) {
     </>
   );
 }
-/* COORD HEADER */
+/**
+ * Render the coordinator header for dispatch users, showing title, subtitle, action buttons, and user identity.
+ *
+ * @param noty - Whether to show notification indicators on action buttons
+ * @returns The header element for the coordinator interface
+ */
 
 export function CoordinatorHeader({ noty }: { noty: boolean }) {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);

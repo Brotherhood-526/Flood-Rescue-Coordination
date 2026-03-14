@@ -3,6 +3,14 @@ import { Button } from "@/components/ui/button";
 import Footer from "@/layouts/Footer";
 import { useFindRequest } from "@/hooks/User/useFindRequest";
 
+/**
+ * Render the FindRequestPage component that provides a phone-number-based rescue request lookup UI.
+ *
+ * The page includes an input for a phone number, a search button with loading state, and conditional
+ * result content showing either a not-found message or detailed rescue team and citizen information.
+ *
+ * @returns The page's React element displaying the lookup UI and results.
+ */
 export default function FindRequestPage() {
   const { phoneInput, setPhoneInput, isLoading, apiResponse, handleSearch } =
     useFindRequest();

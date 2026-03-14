@@ -14,6 +14,12 @@ import s3 from "@/assets/solution3.png";
 import s4 from "@/assets/solution4.png";
 import Footer from "@/layouts/Footer";
 
+/**
+ * Render the application's homepage containing a hero banner, a grid of real-world problem cards,
+ * a sequence of solution feature blocks, and the site footer.
+ *
+ * @returns A React element representing the homepage layout
+ */
 export default function HomePage() {
   return (
     <div className="w-full overflow-x-hidden">

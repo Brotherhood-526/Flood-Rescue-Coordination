@@ -14,6 +14,15 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 
+/**
+ * Render the staff login page with phone/password form and role-based navigation.
+ *
+ * Displays inputs for phone number and password (with a visibility toggle), shows
+ * authentication errors, provides quick links to map and search, and redirects
+ * authenticated staff to a role-specific route.
+ *
+ * @returns The rendered login page React element
+ */
 export default function Login() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");

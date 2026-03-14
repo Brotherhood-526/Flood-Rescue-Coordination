@@ -5,6 +5,11 @@ import { ArrowLeft } from "lucide-react";
 import vietmapgl from "@vietmap/vietmap-gl-js";
 import { useVietMap } from "@/lib/MapProvider";
 
+/**
+ * Renders a full-height map view that mounts a VietMap instance, displays markers and popups for team and request locations, and provides a back navigation button.
+ *
+ * @returns A React element containing the map container with markers/popups for the team and the request, and a top-left back button.
+ */
 export default function FullMapPage() {
   const navigate = useNavigate();
   //   const [searchParams] = useSearchParams();

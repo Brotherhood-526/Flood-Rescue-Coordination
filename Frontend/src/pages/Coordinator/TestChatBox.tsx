@@ -8,6 +8,14 @@ const mockMessages: MessageComponent[] = [
   { content: "Ok giữ liên lạc", time: "10:32 AM", name: "Điều phối viên" },
 ];
 
+/**
+ * Renders three synchronized ChatBox instances for testing multiple sender contexts.
+ *
+ * The component maintains a shared messages state initialized from `mockMessages` and
+ * passes it with its setter to all ChatBox instances so updates are reflected across them.
+ *
+ * @returns A JSX element containing two side-by-side ChatBox cards above a full-width ChatBox card.
+ */
 export default function TestChatBox() {
   const [messages, setMessages] = useState<MessageComponent[]>(mockMessages);
 

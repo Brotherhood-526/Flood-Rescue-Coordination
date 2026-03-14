@@ -73,6 +73,14 @@ export type RequestDetail = {
   vehicleType: string | null;
 };
 
+/**
+ * Page container that displays a rescue request's detail view and controls.
+ *
+ * Renders a top bar with navigation actions (back and open full map) and the
+ * Solving layout which contains the information panel and the mini map.
+ *
+ * @returns The page's JSX element representing the request detail view.
+ */
 export default function RequestDetailPage() {
   const topButoons = "!bg-gray-300 !text-black !font-bold";
 
@@ -113,6 +121,11 @@ export default function RequestDetailPage() {
   );
 }
 
+/**
+ * Layout container that renders the request information panel and a mini map side-by-side.
+ *
+ * @returns A JSX.Element rendering the information panel and the mini map arranged horizontally.
+ */
 export function Solving() {
   return (
     <div
@@ -125,6 +138,11 @@ export function Solving() {
   );
 }
 
+/**
+ * Renders the request information panel with controls to view and update urgency, select a vehicle type, assign a rescue team, and display requester details, location, description, and attachments.
+ *
+ * @returns The component's JSX element containing request details, urgency and vehicle selectors, rescue-team selector, and conditional action buttons when the request is not completed.
+ */
 export function Information() {
   const [vehicle, setVehicle] = useState<string | null>(null);
   const [urgency, setUrgency] = useState<string | null>(null);
@@ -342,6 +360,13 @@ export function Information() {
   );
 }
 
+/**
+ * Render a card-sized mini map centered on DEFAULT_CENTER and display markers for predefined team and user locations.
+ *
+ * Mounts the VietMap instance into an internal container and adds markers for TEAM_LOCATIONS (team markers) and USER_LOCATIONS (user markers).
+ *
+ * @returns A JSX element containing the map card and its container
+ */
 export function MiniMap() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const { map, mount } = useVietMap();

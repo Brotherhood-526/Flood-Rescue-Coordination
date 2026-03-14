@@ -12,6 +12,21 @@ interface AfterRequestPageProps {
   onOpenChat: () => void;
 }
 
+/**
+ * Render detailed information and actions for a submitted rescue request.
+ *
+ * Displays submitter details, classification, status, location, description,
+ * optional photo previews, and action controls (cancel, mark complete, edit, open chat).
+ *
+ * @param submittedData - The submitted request data to display; fields are shown when present.
+ * @param submittedPreviews - Array of image URLs to render as the scene preview gallery.
+ * @param rescueStatus - Current rescue state; controls status badge and whether the complete button is disabled. Expected values: `"pending"` or `"completed"`.
+ * @param onCancel - Invoked when the cancel button is clicked.
+ * @param onComplete - Invoked when the complete/confirm button is clicked.
+ * @param onOpenEdit - Invoked when the edit information button is clicked.
+ * @param onOpenChat - Invoked when the add/continue chat button is clicked.
+ * @returns The rendered component element for the after-request details view.
+ */
 export default function AfterRequestPage({
   submittedData,
   submittedPreviews,
