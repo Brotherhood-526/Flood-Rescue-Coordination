@@ -3,38 +3,84 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "@/services/axiosClient";
 import { useAuthStore, type Staff } from "@/store/authStore";
 
-const isNullableString = (value: unknown): value is string | null =>
-  value === null || typeof value === "string";
+const asRecord = (value: unknown): Record<string, unknown> | null =>
+  value && typeof value === "object" ? (value as Record<string, unknown>) : null;
 
-const isNullableNumber = (value: unknown): value is number | null =>
-  value === null || typeof value === "number";
+const parseNullableString = (value: unknown): string | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toLowerCase();
+  return normalized === "null" ? null : value;
+};
 
-const isStaffShape = (value: unknown): value is Staff => {
-  if (!value || typeof value !== "object") return false;
+const parseNullableNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized || normalized === "null") return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
 
-  const candidate = value as Record<string, unknown>;
+const pick = (source: Record<string, unknown>, keys: string[]): unknown => {
+  for (const key of keys) {
+    if (key in source) return source[key];
+  }
+  return undefined;
+};
 
-  return (
-    typeof candidate.accountId === "string" &&
-    typeof candidate.name === "string" &&
-    typeof candidate.phone === "string" &&
-    typeof candidate.role === "string" &&
-    isNullableString(candidate.teamName) &&
-    isNullableNumber(candidate.teamSize) &&
-    isNullableNumber(candidate.latitude) &&
-    isNullableNumber(candidate.longitude)
-  );
+const parseStaff = (value: unknown): Staff | null => {
+  const candidate = asRecord(value);
+  if (!candidate) return null;
+
+  const accountIdValue = pick(candidate, ["accountId", "account_id", "id"]);
+  const nameValue = pick(candidate, ["name"]);
+  const phoneValue = pick(candidate, ["phone"]);
+  const roleValue = pick(candidate, ["role"]);
+  const teamNameValue = pick(candidate, ["teamName", "team_name"]);
+  const teamSizeValue = pick(candidate, ["teamSize", "team_size"]);
+  const latitudeValue = pick(candidate, ["latitude", "lat"]);
+  const longitudeValue = pick(candidate, ["longitude", "lng"]);
+
+  if (
+    typeof accountIdValue !== "string" ||
+    typeof nameValue !== "string" ||
+    typeof phoneValue !== "string" ||
+    typeof roleValue !== "string"
+  ) {
+    return null;
+  }
+
+  return {
+    accountId: accountIdValue,
+    name: nameValue,
+    phone: phoneValue,
+    role: roleValue,
+    teamName: parseNullableString(teamNameValue),
+    teamSize: parseNullableNumber(teamSizeValue),
+    latitude: parseNullableNumber(latitudeValue),
+    longitude: parseNullableNumber(longitudeValue),
+  };
 };
 
 const getStaffFromLoginResponse = (payload: unknown): Staff | null => {
-  if (!payload || typeof payload !== "object") return null;
+  const candidate = asRecord(payload);
+  if (!candidate) return null;
 
-  const candidate = payload as Record<string, unknown>;
+  const topLevel = parseStaff(candidate);
+  if (topLevel) return topLevel;
 
-  if (isStaffShape(candidate)) return candidate;
+  const nestedData = asRecord(candidate.data);
+  if (nestedData) {
+    const nestedLevel = parseStaff(nestedData);
+    if (nestedLevel) return nestedLevel;
 
-  const nested = candidate.data;
-  if (isStaffShape(nested)) return nested;
+    const deepNestedLevel = parseStaff(nestedData.data);
+    if (deepNestedLevel) return deepNestedLevel;
+  }
 
   return null;
 };

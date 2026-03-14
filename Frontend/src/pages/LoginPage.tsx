@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/router/routes.tsx";
 import { useAuth } from "@/hooks/useAuth";
-import { hasAllowedRole } from "@/lib/authRole";
 import {
   Phone,
   Lock,
