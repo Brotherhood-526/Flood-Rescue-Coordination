@@ -33,8 +33,9 @@ public class Staff {
     @Column(nullable = false)
     private String password;
 
+    // SỬA: Đảm bảo trùng khớp với ENUM tiếng Việt trong DB
     @Column(nullable = false, length = 20)
-    private String role;
+    private String role; // "quản lý", "điều phối viên", "cứu hộ"
 
     @Column(name = "team_name", length = 50)
     private String teamName;
@@ -48,14 +49,15 @@ public class Staff {
     @Column(precision = 18, scale = 10)
     private BigDecimal longitude;
 
+    // SỬA QUAN TRỌNG: Đổi geography thành POINT (phù hợp với MySQL)
     @Column(name = "geo_location",
-            columnDefinition = "geography",
+            columnDefinition = "POINT",
             insertable = false,
             updatable = false)
     private Point geoLocation;
 
     @Column(name = "staff_state")
-    private String staffState = "offline";
+    private String staffState = "ngoại tuyến"; // Cập nhật mặc định tiếng Việt
 
     @OneToMany(mappedBy = "staff")
     private List<Vehicle> vehicles;
@@ -64,7 +66,6 @@ public class Staff {
     @OneToMany(mappedBy = "coordinator")
     private List<Request> coordinatedRequests;
 
-    // Staff đóng vai trò Rescue Team
     @OneToMany(mappedBy = "rescueTeam")
     private List<Request> assignedTasks;
 

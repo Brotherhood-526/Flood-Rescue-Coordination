@@ -7,6 +7,7 @@ import com.rescue.backend.model.bean.*;
 import com.rescue.backend.model.dao.CitizenDAO;
 import com.rescue.backend.model.dao.RequestDAO;
 import com.rescue.backend.model.dao.RequestImageDAO;
+import com.rescue.backend.model.dao.VehicleDAO;
 import com.rescue.backend.view.dto.citizen.request.LookupRequest;
 import com.rescue.backend.view.dto.citizen.request.RescueRequest;
 import com.rescue.backend.view.dto.citizen.request.UpdateRequest;
@@ -32,6 +33,7 @@ import static com.rescue.backend.utils.CloudinaryUtils.extractPublicId;
 public class CitizenService {
 
     private final CitizenDAO citizenDAO;
+    private final VehicleDAO vehicleDAO;
     private final RequestDAO requestDAO;
     private final RequestImageDAO requestImageDAO;
     private final Cloudinary cloudinary;

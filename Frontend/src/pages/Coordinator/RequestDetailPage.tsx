@@ -175,6 +175,7 @@ export function Information(){
        <Card className="bg-white w-[54vw] h-[75vh] !py-[2vh]
         overflow-y-auto hide-scrollbar">
             <CardHeader>
+
                 <CardTitle className="text-lg font-bold mb-[-1vh]">Yêu cầu loại {requestType(requestDetail?.type)}</CardTitle>
                 <CardDescription className="flex flex-row justify-between items-start text-black">
                     <div>
