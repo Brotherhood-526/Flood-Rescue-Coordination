@@ -63,6 +63,7 @@ export function useAuth() {
       }
 
       localStorage.setItem("userRole", staffData.role);
+      localStorage.setItem("staff", JSON.stringify(staffData));
 
       console.log("Dữ liệu login trả về:", staffData);
       setStaff(staffData);
@@ -85,6 +86,7 @@ export function useAuth() {
     } finally {
       clearStaff();
       localStorage.removeItem("userRole");
+      localStorage.removeItem("staff");
       setLoading(false);
       navigate("/login");
     }

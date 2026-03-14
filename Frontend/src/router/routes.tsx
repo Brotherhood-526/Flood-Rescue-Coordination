@@ -8,10 +8,9 @@ export const ROUTES = {
 
   // Nhóm Coordinator
   COORDINATE: "/coordinate",
-  COORDINATE_DETAIL: "/coordinate/detail",
+  COORDINATE_DETAIL: "/coordinate/detail/:id",
   COORDINATE_MAP: "/coordinate/map",
   COORDINATE_CHAT: "/testchatbox",
-  REQUESTDETAILS: "/coordinate/detail",
   FULLMAP: "/coordinate/map",
 
   // Nhóm Rescue

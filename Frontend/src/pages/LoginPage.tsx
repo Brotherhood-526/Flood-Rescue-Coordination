@@ -34,11 +34,12 @@ export default function Login() {
         return;
       }
 
-      if (hasAllowedRole(staff.role, ["manager", "rescue manager", "quản lý"])) {
+      const role = staff.role?.trim().toLowerCase();
+      if (role === "quản lý") {
         navigate(ROUTES.MANAGER);
-      } else if (hasAllowedRole(staff.role, ["rescue", "rescue team", "cứu hộ"])) {
+      } else if (role === "cứu hộ") {
         navigate(ROUTES.RESCUE);
-      } else if (hasAllowedRole(staff.role, ["coordinate", "coordinator", "rescue coordinator", "điều phối viên"])) {
+      } else if (role === "điều phối viên") {
         navigate(ROUTES.COORDINATE);
       } else {
         console.error("Unknown role after login:", staff.role);

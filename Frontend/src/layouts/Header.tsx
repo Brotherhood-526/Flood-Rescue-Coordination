@@ -20,6 +20,7 @@ import {
 
 import { useAuth } from "@/hooks/useAuth";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import {useAuthStore} from "@/store/authStore.ts";
 
 export default function Header({ role }: { role: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -110,7 +111,11 @@ export function RescueHeader({ noty }: { noty: boolean }) {
 /* COORD HEADER */
 
 export function CoordinatorHeader({ noty }: { noty: boolean }) {
-  const logout =
+    const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+    const { logout } = useAuth();
+    const staff = useAuthStore((state) => state.staff);
+
+  const logoutStyle =
     "!text-gray-200 !hover:text-gray-200 font-bold ml-[0.5vw] cursor-pointer";
 
   return (
@@ -118,10 +123,18 @@ export function CoordinatorHeader({ noty }: { noty: boolean }) {
       <div className="hidden md:flex flex-row items-center justify-between px-[2vw] py-[2vh] w-full fixed top-0 left-0 bg-slate-950 shadow z-50">
         <div>
           <p className="text-[3vh] font-bold">Bảng quản lý điều phối cứu hộ</p>
-          <p>Điều phối viên tiếp nhận và phân công nhiệm vụ cứu hộ</p>
+          <p className="text-gray-300">Điều phối viên tiếp nhận và phân công nhiệm vụ cứu hộ</p>
         </div>
 
         <div className="flex gap-4 items-center">
+            <Button onClick={() => setIsLogoutOpen(true)}
+                className="bg-gray-200! text-black! relative">
+                Đăng xuất
+                {noty && (
+                    <div className="absolute top-0 right-0 w-3 h-3 bg-rose-500 rounded-full"></div>
+                )}
+            </Button>
+
           <Button className="bg-gray-200! text-black! relative">
             <Bell className="h-6! w-6!" fill="currentColor" strokeWidth={2.5} />
             Thông báo
@@ -132,10 +145,15 @@ export function CoordinatorHeader({ noty }: { noty: boolean }) {
 
           <div className="flex gap-1 items-center">
             <CircleUserRound size={30} />
-            <span className={logout}>Đăng Xuất</span>
+            <span className={logoutStyle}>{staff?.name}</span>
           </div>
         </div>
       </div>
+        <ConfirmDialog
+            isOpen={isLogoutOpen}
+            onClose={() => setIsLogoutOpen(false)}
+            onConfirm={logout}
+        />
     </header>
   );
 }

@@ -1,9 +1,7 @@
 package com.rescue.backend.model.service;
 
 import com.rescue.backend.model.bean.Request;
-import com.rescue.backend.model.bean.Vehicle;
 import com.rescue.backend.model.dao.RequestDAO;
-import com.rescue.backend.model.dao.VehicleDAO;
 import com.rescue.backend.view.dto.image.response.LookupImageResponse;
 import com.rescue.backend.view.dto.rescueTeam.request.UpdateTaskRequest;
 import com.rescue.backend.view.dto.rescueTeam.response.TaskDetailResponse;
@@ -26,9 +24,6 @@ public class RescueTeamService {
 
     @Autowired
     private  final RequestDAO requestDAO;
-
-    @Autowired
-    private final VehicleDAO vehicleDAO;
 
     public Page<TeamAssignmentResponse> getTaskByFilter(UUID teamId, String filter, int page) {
         // 1. Kiểm tra null/ empty

@@ -21,9 +21,9 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @GetMapping("/{requestId}")
-    public ResponseEntity<ResponseObject> getHistory(@PathVariable UUID requestId) {
-        ChatHistoryResponse history = chatService.getChatHistory(requestId);
-        return ResponseEntity.ok(new ResponseObject(200, "Tải lịch sử chat thành công", history));
-    }
+//    @GetMapping("/{requestId}")
+//    public ResponseEntity<ResponseObject> getHistory(@PathVariable UUID requestId) {
+//        ChatHistoryResponse history = chatService.getChatHistory(requestId);
+//        return ResponseEntity.ok(new ResponseObject(200, "Tải lịch sử chat thành công", history));
+//    }
 }

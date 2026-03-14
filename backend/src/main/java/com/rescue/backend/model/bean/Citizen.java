@@ -1,6 +1,5 @@
 package com.rescue.backend.model.bean;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -103,7 +103,7 @@ export default function ListRescuePage() {
                 activeFilter === "Đang xử lý" ? null : "Đang xử lý",
               )
             }
-            className={`flex flex-col items-center justify-center w-[160px] h-[140px] gap-4 transition-all bg-white border-2  rounded-lg ${
+            className={`flex flex-col items-center justify-center w-40 h-35 gap-4 transition-all bg-white border-2  rounded-lg ${
               activeFilter === "Đang xử lý"
                 ? "border-orange-400 ring-2 ring-orange-400 "
                 : "border-black hover:border-black hover:shadow-lg"
@@ -129,7 +129,7 @@ export default function ListRescuePage() {
             onClick={() =>
               setActiveFilter(activeFilter === "Tạm hoãn" ? null : "Tạm hoãn")
             }
-            className={`flex flex-col items-center justify-center w-[160px] h-[140px] gap-4 transition-all bg-white border-2 rounded-lg ${
+            className={`flex flex-col items-center justify-center w-40 h-35 gap-4 transition-all bg-white border-2 rounded-lg ${
               activeFilter === "Tạm hoãn"
                 ? "border-purple-400 ring-2 ring-purple-400"
                 : "border-black hover:border-black hover:shadow-lg"
@@ -157,7 +157,7 @@ export default function ListRescuePage() {
                 activeFilter === "Hoàn thành" ? null : "Hoàn thành",
               )
             }
-            className={`flex flex-col items-center justify-center w-[160px] h-[140px] gap-4 transition-all bg-white border-2 rounded-lg ${
+            className={`flex flex-col items-center justify-center w-40 h-35 gap-4 transition-all bg-white border-2 rounded-lg ${
               activeFilter === "Hoàn thành"
                 ? "border-green-500 ring-2 ring-green-500"
                 : "border-black hover:border-black hover:shadow-lg"

@@ -4,7 +4,6 @@ import com.rescue.backend.model.service.AuthService;
 import com.rescue.backend.view.dto.auth.request.LoginRequest;
 import com.rescue.backend.view.dto.auth.response.LoginResponse;
 import com.rescue.backend.view.dto.common.ResponseObject;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,13 +2,11 @@ package com.rescue.backend.model.service;
 
 import com.rescue.backend.model.bean.Message;
 import com.rescue.backend.model.dao.MessageDAO;
-import com.rescue.backend.view.dto.chat.request.ChatHistoryRequest;
 import com.rescue.backend.view.dto.chat.response.ChatHistoryResponse;
 import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

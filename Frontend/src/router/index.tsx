@@ -47,9 +47,7 @@ export const router = createBrowserRouter([
 
   // NHÓM ĐIỀU PHỐI VIÊN
   {
-    element: (
-      <ProtectedRoute allowedRoles={["coordinate", "rescue coordinator"]} />
-    ),
+    element: <ProtectedRoute allowedRoles={["điều phối viên"]} />,
     children: [
       {
         path: ROUTES.COORDINATE,
@@ -68,7 +66,7 @@ export const router = createBrowserRouter([
 
   // NHÓM ĐỘI CỨU HỘ
   {
-    element: <ProtectedRoute allowedRoles={["rescue team", "rescue"]} />,
+    element: <ProtectedRoute allowedRoles={["cứu hộ"]} />,
     children: [
       {
         path: ROUTES.RESCUE,
@@ -80,15 +78,6 @@ export const router = createBrowserRouter([
         element: <MainLayout role={2} />,
         children: [{ index: true, element: <RescueDetailPage /> }],
       },
-      { path: ROUTES.COORDINATE_MAP, element: <FullMapCoordinatorPage /> },
-      { path: ROUTES.COORDINATE_CHAT, element: <TestChatBox /> },
-    ],
-  },
-
-  // NHÓM ĐỘI CỨU HỘ
-  {
-    element: <ProtectedRoute allowedRoles={["rescue team", "rescue"]} />,
-    children: [
       {
         path: ROUTES.RESCUE_CHAT,
         element: <MainLayout role={2} />,
@@ -100,7 +89,7 @@ export const router = createBrowserRouter([
 
   // NHÓM QUẢN LÝ
   {
-    element: <ProtectedRoute allowedRoles={["manager", "rescue manager"]} />,
+    element: <ProtectedRoute allowedRoles={["quản lý"]} />,
     children: [
       {
         path: ROUTES.MANAGER,
