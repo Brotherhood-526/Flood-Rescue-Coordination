@@ -1,4 +1,3 @@
-// Frontend/src/types/citizen.ts
 export interface LookupCitizenRequestBody {
   citizenPhone: string;
 }
