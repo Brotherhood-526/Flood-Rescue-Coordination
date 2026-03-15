@@ -5,6 +5,7 @@ import com.rescue.backend.model.bean.Request;
 import com.rescue.backend.view.dto.coordinator.response.SpecificResponse;
 import com.rescue.backend.view.dto.coordinator.response.TakeListResponse;
 
+import jakarta.annotation.Nonnull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,6 +23,8 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
     Optional<Request> findTopByStatusInAndCitizen_PhoneOrderByCreatedAtDesc(
             List<String> status, String citizenPhone
     );
+
+    Optional<Request> findById(@Nonnull UUID requestId);
 
     @Query("""
     SELECT new com.rescue.backend.view.dto.coordinator.response.TakeListResponse(
@@ -84,4 +87,8 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
     Page<Request> findByRescueTeamId(UUID teamId, Pageable pageable);
 
     Page<Request> findByRescueTeamIdAndStatus(UUID teamId, String status, Pageable pageable);
+
+    Optional<Request> findByRescueTeamIdAndId(UUID rescueTeamId, UUID id);
+
+    Optional<Request> findByRescueTeamId(UUID rescueTeamId);
 }

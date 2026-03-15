@@ -57,7 +57,7 @@ public class CitizenRequestController {
 
     }
 
-    @PutMapping(value = "/edit")
+    @PutMapping(value = "/edit", consumes = {"multipart/form-data"})
     public ResponseEntity<ResponseObject> edit(@ModelAttribute UpdateRequest updateRequest) {
         try {
             CitizenRescueResponse response = citizenService.updateRescueRequest(updateRequest);

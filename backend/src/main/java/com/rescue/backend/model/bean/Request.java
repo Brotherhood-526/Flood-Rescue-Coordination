@@ -22,7 +22,8 @@ public class Request {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @JdbcTypeCode(SqlTypes.VARCHAR) // Đảm bảo dùng VARCHAR thay vì BINARY
+    @Column(name = "id", length = 36)
     private UUID id;
 
     // Citizen gửi request
@@ -46,7 +47,7 @@ public class Request {
     private BigDecimal longitude;
 
     // DB trigger sẽ tự cập nhật
-    @Column(name = "geo_location", columnDefinition = "geography",
+    @Column(name = "geo_location", columnDefinition = "POINT",
             insertable = false, updatable = false)
     private Point geoLocation;
 
@@ -54,7 +55,7 @@ public class Request {
     private String additionalLink;
 
     @Column(length = 20)
-    private String status = "processing";
+    private String status = "yêu cầu mới";
 
     @Column(length = 20)
     private String urgency;
@@ -77,7 +78,7 @@ public class Request {
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String report;
 
     @OneToMany(mappedBy = "request")
