@@ -92,13 +92,12 @@ public class MissionController {
         try {
             String result = rescueTeamService.updateAssignment(id, updateRequest);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject(201,"Tự động chuyển về trang task",result)
+                    new ResponseObject(200, "Cập nhật trạng thái thành công", result)
             );
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ResponseObject(500, e.getMessage(), null)
             );
         }
-
     }
 }

@@ -22,7 +22,7 @@ public class CorsConfig {
                                 "https://fe-flood-rescue-coordination-production.up.railway.app"
 
                         )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }

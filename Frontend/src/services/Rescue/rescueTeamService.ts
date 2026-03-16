@@ -18,8 +18,8 @@ export interface RescueRequest {
   description?: string;
   additional_link?: string;
   images?: string[];
-  vehicle_id?: string | null;
-  coordinator_id?: string | null;
+  vehicleType?: string;
+  coordinatorName?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,8 +41,8 @@ function mapTaskDetail(raw: any): RescueRequest {
     additional_link: raw.images?.[0]?.imageUrl ?? raw.additional_link ?? null,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     images: raw.images?.map((img: any) => img.imageUrl) ?? [],
-    vehicle_id: raw.vehicleType ?? null,
-    coordinator_id: raw.coordinatorName ?? null,
+    vehicleType: raw.vehicleType ?? null,
+    coordinatorName: raw.coordinatorName ?? null,
   };
 }
 

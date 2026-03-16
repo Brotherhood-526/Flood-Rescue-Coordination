@@ -1,5 +1,5 @@
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { type RequestSchemaType } from "@/validations/user.request.schema";
 
 interface AfterRequestPageProps {
@@ -12,27 +12,11 @@ interface AfterRequestPageProps {
   onOpenChat: () => void;
 }
 
-/**
- * Render detailed information and actions for a submitted rescue request.
- *
- * Displays submitter details, classification, status, location, description,
- * optional photo previews, and action controls (cancel, mark complete, edit, open chat).
- *
- * @param submittedData - The submitted request data to display; fields are shown when present.
- * @param submittedPreviews - Array of image URLs to render as the scene preview gallery.
- * @param rescueStatus - Current rescue state; controls status badge and whether the complete button is disabled. Expected values: `"pending"` or `"completed"`.
- * @param onCancel - Invoked when the cancel button is clicked.
- * @param onComplete - Invoked when the complete/confirm button is clicked.
- * @param onOpenEdit - Invoked when the edit information button is clicked.
- * @param onOpenChat - Invoked when the add/continue chat button is clicked.
- * @returns The rendered component element for the after-request details view.
- */
 export default function AfterRequestPage({
   submittedData,
   submittedPreviews,
   rescueStatus,
   onCancel,
-  onComplete,
   onOpenEdit,
   onOpenChat,
 }: AfterRequestPageProps) {
@@ -49,21 +33,6 @@ export default function AfterRequestPage({
         <h1 className="text-2xl font-bold flex items-center gap-2">
           Thông tin cứu hộ
         </h1>
-        <button
-          onClick={onComplete}
-          disabled={rescueStatus === "completed"}
-          className="ml-auto rounded-full p-1 transition-all hover:bg-gray-100 disabled:hover:bg-transparent disabled:cursor-default"
-          title={
-            rescueStatus === "completed"
-              ? "Đã cứu hộ thành công"
-              : "Xác nhận đã được cứu hộ"
-          }
-        >
-          <CheckCircle2
-            className={`w-7 h-7 transition-colors ${rescueStatus === "completed" ? "text-green-500" : "text-black hover:scale-110"}`}
-            fill="white"
-          />
-        </button>
       </div>
 
       <hr className="border-black mb-3" />

@@ -4,6 +4,8 @@ import {
   ArrowLeft,
   MessageCircle,
   User,
+  Users,
+  Car,
   ShieldAlert,
   MapPin,
   AlignLeft,
@@ -169,7 +171,7 @@ export default function RescueDetailPage() {
             <ArrowLeft size={18} /> Quay lại
           </button>
           <button
-            onClick={() => navigate(ROUTES.RESCUE_CHAT)}
+            onClick={() => navigate(`${ROUTES.RESCUE_CHAT}?id=${detail.id}`)}
             className="flex items-center gap-2 px-5 py-2.5 bg-[#e5e7eb] hover:bg-[#d1d5db] text-gray-800 rounded-full font-bold text-sm transition-colors"
           >
             <MessageCircle size={18} /> Hội thoại
@@ -189,9 +191,8 @@ export default function RescueDetailPage() {
         </div>
       </div>
 
-      {/* BODY */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
-        {/* CỘT TRÁI: THÔNG TIN */}
+        {/* cột trái render thông tin */}
         <div className="lg:col-span-5 space-y-7">
           <div>
             <h2 className="text-xl font-extrabold text-gray-900 mb-1">
@@ -207,7 +208,7 @@ export default function RescueDetailPage() {
             title="Thông tin người yêu cầu"
           >
             <p className="font-semibold text-gray-800">
-              Mã định danh: {detail.userId || "Khách vãng lai"}
+              Số điện thoại: {detail.citizenPhone || "Không có"}
             </p>
           </InfoSection>
 
@@ -220,8 +221,10 @@ export default function RescueDetailPage() {
               }`}
             >
               <span
-                className={`w-2 h-2 mr-2 rounded-full ${detail.urgency === "cao" ? "bg-red-600" : "bg-[#f59e0b]"}`}
-              ></span>
+                className={`w-2 h-2 mr-2 rounded-full ${
+                  detail.urgency === "cao" ? "bg-red-600" : "bg-[#f59e0b]"
+                }`}
+              />
               {detail.urgency ? detail.urgency.toUpperCase() : "BÌNH THƯỜNG"}
             </span>
           </InfoSection>
@@ -238,6 +241,24 @@ export default function RescueDetailPage() {
             </p>
             <p className="font-bold text-gray-800 font-mono">
               {detail.geo_location || "Không có tọa độ"}
+            </p>
+          </InfoSection>
+
+          <InfoSection icon={<Car size={22} />} title="Loại phương tiện">
+            <p className="font-semibold text-gray-800">
+              {detail.vehicleType || "Chưa điều phương tiện"}
+            </p>
+          </InfoSection>
+
+          <InfoSection
+            icon={<Users size={22} />}
+            title="Thông tin người phụ trách"
+          >
+            <p className="font-semibold text-gray-800 mb-1">
+              Điều phối viên:{" "}
+              <span className="font-normal">
+                {detail.coordinatorName || "Hệ thống tự động"}
+              </span>
             </p>
           </InfoSection>
 
@@ -264,7 +285,7 @@ export default function RescueDetailPage() {
                     <img
                       src={url}
                       alt={`Ảnh hiện trường ${index + 1}`}
-                      className="w-full h-50 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+                      className="w-full h-36 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}
@@ -280,7 +301,7 @@ export default function RescueDetailPage() {
           </InfoSection>
         </div>
 
-        {/* CỘT PHẢI: BẢN ĐỒ VIETMAP */}
+        {/* cột phải render bản đồ*/}
         <div className="lg:col-span-7 flex flex-col">
           <div className="w-full h-137.5 border border-gray-300 rounded-xl bg-gray-100 shadow-sm flex items-center justify-center relative overflow-hidden">
             {detail.geo_location ? (
@@ -311,12 +332,13 @@ export default function RescueDetailPage() {
         </div>
       </div>
 
-      {/* FOOTER: NÚT CẬP NHẬT TRẠNG THÁI */}
       <div className="flex flex-wrap justify-center gap-6 w-full mt-14 mb-8">
         <button
           onClick={() => handleUpdateStatus("tạm hoãn")}
           disabled={
-            isUpdating || detail.status.toLowerCase().includes("hoàn thành")
+            isUpdating ||
+            detail.status.toLowerCase().includes("hoàn thành") ||
+            detail.status.toLowerCase().includes("tạm hoãn")
           }
           className="flex items-center justify-center gap-3 w-64 py-3.5 bg-[#f59e0b] hover:bg-[#d97706] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-bold text-[17px] transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
         >

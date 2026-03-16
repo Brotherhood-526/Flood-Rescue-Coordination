@@ -82,6 +82,7 @@ public class RescueTeamService {
                 assignment.getDescription(),
                 assignment.getCoordinator() != null ? assignment.getCoordinator().getName() : "Hệ thống tự động",
                 assignment.getCreatedAt() != null ? assignment.getCreatedAt().toString() : "",
+                assignment.getStatus(),
                 imageResponses
         );
     }
@@ -95,17 +96,17 @@ public class RescueTeamService {
 
         String status = updateTaskRequest.status().toLowerCase();
         switch (status) {
-            case "hoàn thành", "completed":
-                assignment.setStatus("hoàn thành");
-                break;
-            case "tạm hoãn", "delayed":
-                assignment.setStatus("tạm hoãn");
-                break;
-            default:
+            case "hoàn thành", "completed" -> assignment.setStatus("hoàn thành");
+            case "tạm hoãn", "delayed" -> assignment.setStatus("tạm hoãn");
+            default -> {}
         }
 
         requestDAO.save(assignment);
 
-        return (status.equalsIgnoreCase("đã hoàn thành")) ? "Nhiệm vụ hoàn thành" : "Nhiệm vụ đã được tạm hoãn";
+        return switch (status) {
+            case "hoàn thành", "completed" -> "Nhiệm vụ hoàn thành";
+            case "tạm hoãn", "delayed" -> "Nhiệm vụ đã được tạm hoãn";
+            default -> "Đã cập nhật trạng thái";
+        };
     }
 }
