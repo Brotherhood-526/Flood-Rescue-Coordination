@@ -122,16 +122,20 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                   Phân loại <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex flex-wrap gap-2.5">
-                  {["Nhu yếu phẩm", "Cứu hộ", "Khác"].map((item) => (
+                  {[
+                    { label: "Tiếp tế", value: "tiếp tế" },
+                    { label: "Cứu hộ", value: "cứu hộ" },
+                    { label: "Khác", value: "khác" },
+                  ].map((item) => (
                     <button
-                      key={item}
+                      key={item.value}
                       type="button"
-                      className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${selectedType === item ? "border-gray-800 bg-red-600 text-white shadow-sm" : "border-gray-300 bg-white text-gray-600 hover:border-gray-400 hover:bg-gray-50"}`}
+                      className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${selectedType === item.value ? "border-gray-800 bg-red-600 text-white shadow-sm" : "border-gray-300 bg-white text-gray-600 hover:border-gray-400 hover:bg-gray-50"}`}
                       onClick={() =>
-                        setValue("type", item, { shouldValidate: true })
+                        setValue("type", item.value, { shouldValidate: true })
                       }
                     >
-                      {item}
+                      {item.label}
                     </button>
                   ))}
                 </div>

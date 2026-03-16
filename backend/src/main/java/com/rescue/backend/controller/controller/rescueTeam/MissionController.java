@@ -56,10 +56,19 @@ public class MissionController {
     @GetMapping("/tasks/{id}")
     public ResponseEntity<ResponseObject> getTaskById(
             @RequestParam(required = false) UUID testAccountId,
-            @PathVariable UUID id
+            @PathVariable UUID id,
+            HttpSession session
     ){
+        UUID teamId = (testAccountId != null) ? testAccountId : (UUID) session.getAttribute("STAFF_ID");
+        System.out.println(">>> teamId từ session: " + teamId);
+        System.out.println(">>> requestId từ URL: " + id);
+        if (teamId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new ResponseObject(401, "Lỗi: Vui lòng truyền testAccountId trên Swagger hoặc đăng nhập", null)
+            );
+        }
         try {
-            TaskDetailResponse detailResponse = rescueTeamService.getAssignmentDetail(testAccountId, id);
+            TaskDetailResponse detailResponse = rescueTeamService.getAssignmentDetail(id, teamId);
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject(200,"Danh sách yêu cầu tải thành công",detailResponse)
             );

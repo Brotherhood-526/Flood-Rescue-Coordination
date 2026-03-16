@@ -58,6 +58,7 @@ export default function Header({ role }: { role: number }) {
 /* RESCUE HEADER  */
 export function RescueHeader({ noty }: { noty: boolean }) {
   const { staff, logout } = useAuth();
+  console.log("Check data staff trong Header:", staff);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const displayTeamName = staff?.teamName ?? "Chưa có tên đội";
   const displayMemberCount = staff?.teamSize ?? "null";
@@ -379,7 +380,9 @@ export function ManagerHeader({ noty }: { noty: boolean }) {
           <div className="hidden w-full flex-row items-center justify-between bg-slate-950 px-[2vw] py-[2vh] md:flex">
             <div>
               <p className="text-[3vh] font-bold">Bảng quản trị hệ thống</p>
-              <p className="text-slate-300">Quản lý toàn bộ hoạt động của nhóm</p>
+              <p className="text-slate-300">
+                Quản lý toàn bộ hoạt động của nhóm
+              </p>
             </div>
 
             <div className="flex items-center gap-4">

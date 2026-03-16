@@ -37,7 +37,7 @@ public class RescueTeamService {
         String dbStatus = switch (cleanFilter) {
             case "đang xử lý", "on the way" -> "đang xử lý";
             case "tạm hoãn", "delayed" -> "tạm hoãn";
-            case "đã hoàn thành", "completed" -> "đã hoàn thành";
+            case "hoàn thành", "completed" -> "hoàn thành";
             default -> throw new IllegalArgumentException("Trạng thái lọc không hợp lệ: " + filter);
         };
 
@@ -45,7 +45,7 @@ public class RescueTeamService {
     }
 
     private Page<TeamAssignmentResponse> fetchTaskByFilter(UUID teamId, String dbStatus, int page) {
-        Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 1000, Sort.by("createdAt").descending());
 
         Page<Request> assignments = (dbStatus == null)
                 ? requestDAO.findByRescueTeamId(teamId, pageable)
@@ -95,8 +95,8 @@ public class RescueTeamService {
 
         String status = updateTaskRequest.status().toLowerCase();
         switch (status) {
-            case "đã hoàn thành", "completed":
-                assignment.setStatus("đã hoàn thành");
+            case "hoàn thành", "completed":
+                assignment.setStatus("hoàn thành");
                 break;
             case "tạm hoãn", "delayed":
                 assignment.setStatus("tạm hoãn");

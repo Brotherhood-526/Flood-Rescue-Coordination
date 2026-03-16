@@ -19,10 +19,14 @@ export const useRescueTeam = (
     try {
       setIsLoading(true);
       setError(null);
-      const result = await rescueTeamService.getRequests(0, filter || "");
+      const result = await rescueTeamService.getRequests();
+      console.log("Tổng records:", result.length);
+      console.log("Các status có trong data:", [
+        ...new Set(result.map((r) => r.status)),
+      ]);
       setData(Array.isArray(result) ? result : []);
-    } catch (err) {
-      console.error("Lỗi khi tải danh sách cứu hộ:", err);
+    } catch (_err) {
+      console.error("Lỗi khi tải danh sách cứu hộ:", _err);
       setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
     } finally {
       setIsLoading(false);
@@ -39,13 +43,40 @@ export const useRescueTeam = (
 
   const parseDate = (dateStr: string) => {
     if (!dateStr) return 0;
-    const timestamp = Date.parse(dateStr);
+
+    const timestamp = Date.parse(dateStr.replace(" ", "T"));
     if (!isNaN(timestamp)) return timestamp;
 
     try {
-      const [datePart, timePart] = dateStr.split(" ");
-      const [day, month, year] = datePart.split("/");
-      return new Date(`${year}-${month}-${day}T${timePart}:00`).getTime();
+      const parts = dateStr.trim().split(" ");
+      let timePart = "00:00:00";
+      let datePart = "01/01/1970";
+
+      if (parts[0].includes(":")) {
+        timePart = parts[0];
+        datePart = parts[1];
+      } else if (parts[1] && parts[1].includes(":")) {
+        datePart = parts[0];
+        timePart = parts[1];
+      } else {
+        datePart = parts[0];
+      }
+
+      // Nhận diện dấu phân cách - hoặc /
+      const separator = datePart.includes("/") ? "/" : "-";
+      const dateElements = datePart.split(separator);
+
+      let day, month, year;
+      if (dateElements[0].length === 4) {
+        [year, month, day] = dateElements;
+      } else {
+        [day, month, year] = dateElements;
+      }
+
+      const formattedIso = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}T${timePart}`;
+      const finalTime = new Date(formattedIso).getTime();
+
+      return isNaN(finalTime) ? 0 : finalTime;
     } catch {
       return 0;
     }
@@ -53,10 +84,23 @@ export const useRescueTeam = (
 
   const processedData = data
     .filter((item) => {
-      if (!filter) return true;
-      if (filter === "Tạm hoãn") return item.status === "Tạm hoãn cứu hộ";
-      if (filter === "Hoàn thành") return item.status === "Đã hoàn thành";
-      return item.status === filter;
+      const s = (item.status || "").toLowerCase();
+
+      if (!filter) {
+        return (
+          s.includes("đang xử lý") ||
+          s.includes("tạm hoãn") ||
+          s.includes("hoàn thành")
+        );
+      }
+
+      // NẾU CÓ BẤM NÚT LỌC:
+      const f = filter.toLowerCase();
+      if (f.includes("tạm hoãn")) return s.includes("tạm hoãn");
+      if (f.includes("hoàn thành")) return s.includes("hoàn thành");
+      if (f.includes("đang xử lý")) return s.includes("đang xử lý");
+
+      return s === f;
     })
     .sort((a, b) => {
       const timeA = parseDate(a.createdAt);

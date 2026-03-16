@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private static final String RESCUE_TEAM = "rescue team";
+    private static final String RESCUE_TEAM = "cứu hộ";
 
     @Autowired
     private StaffDAO staffDAO;
@@ -31,7 +31,7 @@ public class AuthService {
             throw new BadCredentialsException(loginErrorMessage);
         }
 
-        boolean isRescueTeam = RESCUE_TEAM.equals(staff.getRole());
+        boolean isRescueTeam = RESCUE_TEAM.equalsIgnoreCase(staff.getRole());
 
         return new LoginResponse(
                 staff.getId(),
