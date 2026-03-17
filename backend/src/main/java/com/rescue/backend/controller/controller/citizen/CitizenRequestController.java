@@ -77,6 +77,16 @@ public class CitizenRequestController {
             );
         }
     }
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<ResponseObject> cancelRequest(@PathVariable Long id) {
+        try {
+            citizenService.cancelRequest(id);
+            return ResponseEntity.ok(new ResponseObject(200, "Đã hủy yêu cầu", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseObject(500, "Lỗi hệ thống", null));
+        }
+    }
 }
 
 //    @PostMapping("/sendRequest")
