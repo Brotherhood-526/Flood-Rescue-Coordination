@@ -22,6 +22,12 @@ import { useAuth } from "@/hooks/useAuth";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useAuthStore } from "@/store/authStore.ts";
 
+/**
+ * Selects and renders the header variant appropriate for the given user role.
+ *
+ * @param role - Numeric role identifier: 1 = public user header, 2 = rescue header, 4 = coordinator header (other values render nothing)
+ * @returns The React element for the matching header variant, or `null` if the role is unrecognized
+ */
 export default function Header({ role }: { role: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -52,6 +58,7 @@ export default function Header({ role }: { role: number }) {
 /* RESCUE HEADER  */
 export function RescueHeader({ noty }: { noty: boolean }) {
   const { staff, logout } = useAuth();
+  console.log("Check data staff trong Header:", staff);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const displayTeamName = staff?.teamName ?? "Chưa có tên đội";
   const displayMemberCount = staff?.teamSize ?? "null";
@@ -108,7 +115,12 @@ export function RescueHeader({ noty }: { noty: boolean }) {
     </>
   );
 }
-/* COORD HEADER */
+/**
+ * Render the coordinator header for dispatch users, showing title, subtitle, action buttons, and user identity.
+ *
+ * @param noty - Whether to show notification indicators on action buttons
+ * @returns The header element for the coordinator interface
+ */
 
 export function CoordinatorHeader({ noty }: { noty: boolean }) {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
@@ -368,7 +380,9 @@ export function ManagerHeader({ noty }: { noty: boolean }) {
           <div className="hidden w-full flex-row items-center justify-between bg-slate-950 px-[2vw] py-[2vh] md:flex">
             <div>
               <p className="text-[3vh] font-bold">Bảng quản trị hệ thống</p>
-              <p className="text-slate-300">Quản lý toàn bộ hoạt động của nhóm</p>
+              <p className="text-slate-300">
+                Quản lý toàn bộ hoạt động của nhóm
+              </p>
             </div>
 
             <div className="flex items-center gap-4">

@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Create instance
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL, // Nhớ config .env
   withCredentials: true,

@@ -28,10 +28,7 @@ export default function RequestPage() {
                   {c.submittedData?.name || "Người dùng"}
                 </span>
                 <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md w-fit mt-0.5">
-                  ID:{" "}
-                  {c.submittedData?.phone
-                    ? `#${c.submittedData.phone}`
-                    : "#---"}
+                  ID: {c.requestId ? `#${String(c.requestId)}` : "#---"}
                 </span>
               </div>
             </div>

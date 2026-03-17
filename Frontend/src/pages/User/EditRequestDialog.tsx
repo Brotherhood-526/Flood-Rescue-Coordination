@@ -36,6 +36,36 @@ interface EditRequestDialogProps {
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+/**
+ * Dialog form for creating or editing a rescue request.
+ *
+ * Renders a two-column form inside a dialog that collects requester info (name, phone),
+ * request details (type, description, optional source link), location (address or GPS),
+ * and up to three image uploads. The dialog title and submit button label change based
+ * on `isSubmitted`. Form interactions (submit, keydown, field registration, validation,
+ * image handling, address confirmation, and geolocation) are delegated to the provided props.
+ *
+ * @param props - Component properties
+ * @param props.isOpen - Whether the dialog is open
+ * @param props.onOpenChange - Callback when dialog open state changes
+ * @param props.isSubmitted - Whether the form is in submitted (edit) mode
+ * @param props.isSubmitting - Whether a submission is in progress (disables submit button)
+ * @param props.onSubmitForm - Form submit handler
+ * @param props.handleKeyDown - Keydown handler for form-level shortcuts
+ * @param props.register - React Hook Form register function for inputs
+ * @param props.errors - Validation errors object from the form
+ * @param props.selectedType - Currently selected request type label
+ * @param props.setValue - React Hook Form setValue for programmatic updates
+ * @param props.activeTab - Active location tab value ("address" | "coordinate")
+ * @param props.setActiveTab - Setter for active location tab
+ * @param props.handleConfirmAddress - Handler to confirm the entered address
+ * @param props.handleGetLocation - Handler to fetch current GPS coordinates
+ * @param props.previews - Array of image preview URLs to display
+ * @param props.handleRemoveImage - Handler to remove an image by index
+ * @param props.inputRef - Ref to the hidden file input used to pick images
+ * @param props.handleFileChange - Handler for file input change (image selection)
+ * @returns The rendered dialog React element
+ */
 export default function EditRequestDialog(props: EditRequestDialogProps) {
   const {
     isOpen,
@@ -92,16 +122,20 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                   Phân loại <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex flex-wrap gap-2.5">
-                  {["Nhu yếu phẩm", "Cứu hộ", "Khác"].map((item) => (
+                  {[
+                    { label: "Tiếp tế", value: "tiếp tế" },
+                    { label: "Cứu hộ", value: "cứu hộ" },
+                    { label: "Khác", value: "khác" },
+                  ].map((item) => (
                     <button
-                      key={item}
+                      key={item.value}
                       type="button"
-                      className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${selectedType === item ? "border-gray-800 bg-red-600 text-white shadow-sm" : "border-gray-300 bg-white text-gray-600 hover:border-gray-400 hover:bg-gray-50"}`}
+                      className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${selectedType === item.value ? "border-gray-800 bg-red-600 text-white shadow-sm" : "border-gray-300 bg-white text-gray-600 hover:border-gray-400 hover:bg-gray-50"}`}
                       onClick={() =>
-                        setValue("type", item, { shouldValidate: true })
+                        setValue("type", item.value, { shouldValidate: true })
                       }
                     >
-                      {item}
+                      {item.label}
                     </button>
                   ))}
                 </div>
