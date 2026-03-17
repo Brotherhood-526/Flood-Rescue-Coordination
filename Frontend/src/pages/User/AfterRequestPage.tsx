@@ -102,7 +102,9 @@ export default function AfterRequestPage({
         <div className="flex items-center">
           <span className="font-semibold w-32">Trạng thái:</span>
           <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
-            {status ?? "Yêu cầu mới"}
+            {status
+              ? status.charAt(0).toUpperCase() + status.slice(1)
+              : "Yêu cầu mới"}
           </span>
         </div>
 
