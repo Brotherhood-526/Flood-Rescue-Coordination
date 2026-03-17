@@ -203,6 +203,8 @@ export const useRequestController = (
     );
   };
 
+  const [imageUrls] = useState<string[]>(routeState?.imageUrls ?? []);
+
   const handleConfirmAddress = async () => {
     const address = getValues("address");
     if (!address?.trim())
@@ -327,6 +329,7 @@ export const useRequestController = (
     isDialogOpen,
     requestId,
     status,
+    imageUrls,
     setIsDialogOpen,
     activeTab,
     setActiveTab,

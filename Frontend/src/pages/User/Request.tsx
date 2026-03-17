@@ -59,7 +59,9 @@ export default function RequestPage() {
             submittedData={c.submittedData}
             requestId={c.requestId}
             status={c.status}
-            submittedPreviews={c.submittedPreviews}
+            submittedPreviews={
+              c.imageUrls.length > 0 ? c.imageUrls : c.submittedPreviews
+            }
             onCancel={c.handleCancelRequest}
             onOpenEdit={() => c.setIsDialogOpen(true)}
             onOpenChat={() => c.setIsChatOpen(true)}

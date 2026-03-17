@@ -1,8 +1,8 @@
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
-import axios from "axios";
 import { useState } from "react";
 import { type RequestSchemaType } from "@/validations/user.request.schema";
+import axiosClient from "@/services/axiosClient";
 interface AfterRequestPageProps {
   submittedData: RequestSchemaType | null;
   requestId: string | number | null;
@@ -28,7 +28,7 @@ export default function AfterRequestPage({
   const handleCancelRequest = async () => {
     try {
       setLoading(true);
-      await axios.put(`/api/v1/citizen/cancel/${requestId}`);
+      await axiosClient.put(`/citizen/cancel/${requestId}`);
       setShowConfirm(false);
       onCancel();
     } catch {
