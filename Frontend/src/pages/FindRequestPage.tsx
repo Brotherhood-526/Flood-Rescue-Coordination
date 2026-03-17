@@ -129,17 +129,23 @@ export default function FindRequestPage() {
         </div>
 
         <div className="flex justify-end mt-3 mb-20">
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              handleViewDetail();
-            }}
-            className="group flex items-center gap-1 text-black font-semibold hover:text-blue-500 transition-colors italic underline"
-          >
-            Xem chi tiết{" "}
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </a>
+          {victim_details.current_status?.toLowerCase() === "đã hủy" ? (
+            <span className="text-red-500 font-semibold italic text-sm">
+              Yêu cầu đã bị hủy — không thể xem chi tiết
+            </span>
+          ) : (
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleViewDetail();
+              }}
+              className="group flex items-center gap-1 text-black font-semibold hover:text-blue-500 transition-colors italic underline"
+            >
+              Xem chi tiết{" "}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </a>
+          )}
         </div>
       </div>
     );
