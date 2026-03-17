@@ -9,7 +9,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+import com.rescue.backend.controller.config.SessionAuthFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import java.util.List;
 
 @Configuration
@@ -17,13 +18,15 @@ import java.util.List;
 public class WebSecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   SessionAuthFilter sessionAuthFilter) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ← wire vào đây
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+                .addFilterBefore(sessionAuthFilter, UsernamePasswordAuthenticationFilter.class) // ← thêm
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/health").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();
