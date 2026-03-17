@@ -18,6 +18,7 @@ public record TaskDetailResponse (
         String description,
         String coordinatorName,
         String createdAt,
+        String status,
         List<LookupImageResponse> images
 ){
 

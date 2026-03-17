@@ -21,16 +21,9 @@ export const useRequestController = (
   const inputRef = useRef<HTMLInputElement>(null);
   const markerRef = useRef<vietmapgl.Marker | null>(null);
   const { map, mount, unmount } = useVietMap();
-  const [requestId, setRequestId] = useState<string | number | null>(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submittedData, setSubmittedData] = useState<RequestSchemaType | null>(
-    null,
-  );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("address");
-  const [rescueStatus, setRescueStatus] = useState<"pending" | "completed">(
-    "pending",
-  );
+
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -53,6 +46,29 @@ export const useRequestController = (
       bgClass: "bg-[#6366f1]",
     },
   ]);
+  const [isSubmitted, setIsSubmitted] = useState(() => {
+    return localStorage.getItem("rescue_isSubmitted") === "true";
+  });
+
+  const [requestId, setRequestId] = useState<string | number | null>(() => {
+    return localStorage.getItem("rescue_requestId") ?? null;
+  });
+
+  const [submittedData, setSubmittedData] = useState<RequestSchemaType | null>(
+    () => {
+      const saved = localStorage.getItem("rescue_submittedData");
+      return saved ? JSON.parse(saved) : null;
+    },
+  );
+
+  const [rescueStatus, setRescueStatus] = useState<"pending" | "completed">(
+    () => {
+      return (
+        (localStorage.getItem("rescue_status") as "pending" | "completed") ??
+        "pending"
+      );
+    },
+  );
 
   const {
     register,
@@ -87,6 +103,24 @@ export const useRequestController = (
     return () => unmount();
   }, [mount, unmount, mapContainer]);
 
+  // Cắm lại cờ trên bản đồ sau khi refresh
+  useEffect(() => {
+    if (!map || !isSubmitted || !submittedData?.locate) return;
+
+    const [lat, lng] = submittedData.locate
+      .split(",")
+      .map((item) => Number(item.trim()));
+
+    if (isNaN(lat) || isNaN(lng)) return;
+
+    markerRef.current?.remove();
+    markerRef.current = new vietmapgl.Marker({ color: "#EF4444" })
+      .setLngLat([lng, lat])
+      .addTo(map);
+
+    map.flyTo({ center: [lng, lat], zoom: 16 });
+  }, [map, isSubmitted, submittedData?.locate]);
+
   //IMAGE PREVIEW
   const previews = useMemo(() => {
     if (!currentImages?.length) return [];
@@ -108,7 +142,7 @@ export const useRequestController = (
     () => () => submittedPreviews.forEach((url) => URL.revokeObjectURL(url)),
     [submittedPreviews],
   );
-
+  // để kéo cái cờ trên map đi vòng vòng
   const attachDraggable = (marker: vietmapgl.Marker) => {
     marker.on("dragend", async () => {
       const { lng, lat } = marker.getLngLat();
@@ -126,6 +160,27 @@ export const useRequestController = (
       }
     });
   };
+  useEffect(() => {
+    localStorage.setItem("rescue_isSubmitted", String(isSubmitted));
+  }, [isSubmitted]);
+
+  useEffect(() => {
+    if (requestId) localStorage.setItem("rescue_requestId", String(requestId));
+  }, [requestId]);
+
+  useEffect(() => {
+    if (submittedData) {
+      // Không lưu image vì File object không serialize được
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { image, ...rest } = submittedData;
+      localStorage.setItem("rescue_submittedData", JSON.stringify(rest));
+    }
+  }, [submittedData]);
+
+  useEffect(() => {
+    localStorage.setItem("rescue_status", rescueStatus);
+  }, [rescueStatus]);
+
   //HANDLERS
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -214,41 +269,45 @@ export const useRequestController = (
   const onSubmit = async (data: RequestSchemaType) => {
     try {
       const formData = new FormData();
-      formData.append("type", data.type);
-
-      formData.append("address", data.address);
-      formData.append("description", data.description);
-      formData.append("name", data.name);
-      formData.append("phone", data.phone);
-
-      if (data.url) {
-        formData.append("additionalLink", data.url);
-      }
-
-      if (data.locate) {
-        const [lat, lng] = data.locate.split(",").map((item) => item.trim());
-        formData.append("latitude", lat);
-        formData.append("longitude", lng);
-      }
-
-      if (data.image && data.image.length > 0) {
-        data.image.forEach((file) => {
-          formData.append("images", file);
-        });
-      }
 
       if (isSubmitted && requestId) {
+        formData.append("requestId", String(requestId));
+        formData.append("Type", data.type);
+        formData.append("address", data.address);
+        formData.append("description", data.description);
+        formData.append("citizenName", data.name);
+        formData.append("citizenPhone", data.phone);
+        if (data.url) formData.append("additionLink", data.url);
+        if (data.locate) {
+          const [lat, lng] = data.locate.split(",").map((s) => s.trim());
+          formData.append("latitude", lat);
+          formData.append("longitude", lng);
+        }
+        if (data.image?.length) {
+          data.image.forEach((file) => formData.append("images", file));
+        }
+
         await updateRescueRequest(requestId, formData);
         alert("Cập nhật thông tin thành công!");
         setIsDialogOpen(false);
       } else {
-        const response = await submitRescueRequest(formData);
-        if (response && response.requestId) {
-          setRequestId(response.requestId);
-        } else {
-          console.log("Không tìm thấy requestId từ BE trả về!");
+        formData.append("type", data.type);
+        formData.append("address", data.address);
+        formData.append("description", data.description);
+        formData.append("name", data.name);
+        formData.append("phone", data.phone);
+        if (data.url) formData.append("additionalLink", data.url);
+        if (data.locate) {
+          const [lat, lng] = data.locate.split(",").map((s) => s.trim());
+          formData.append("latitude", lat);
+          formData.append("longitude", lng);
+        }
+        if (data.image?.length) {
+          data.image.forEach((file) => formData.append("images", file));
         }
 
+        const response = await submitRescueRequest(formData);
+        if (response?.requestId) setRequestId(response.requestId);
         alert("Gửi yêu cầu thành công!");
         setIsSubmitted(true);
       }
@@ -260,6 +319,7 @@ export const useRequestController = (
     }
   };
 
+  //  ảnh preview sẽ mất sau refresh vì File object không serialize được do đây là giới hạn của browser không thể tránh
   const handleCancelRequest = () => {
     if (
       !window.confirm("Bạn có chắc muốn hủy yêu cầu cứu hộ này và thoát không?")
@@ -272,6 +332,10 @@ export const useRequestController = (
     setRescueStatus("pending");
     setValue("image", undefined);
     markerRef.current?.remove();
+    localStorage.removeItem("rescue_isSubmitted");
+    localStorage.removeItem("rescue_requestId");
+    localStorage.removeItem("rescue_submittedData");
+    localStorage.removeItem("rescue_status");
   };
 
   const handleCompleteRescue = () => {
@@ -313,6 +377,7 @@ export const useRequestController = (
     isSubmitted,
     submittedData,
     isDialogOpen,
+    requestId,
     setIsDialogOpen,
     activeTab,
     setActiveTab,

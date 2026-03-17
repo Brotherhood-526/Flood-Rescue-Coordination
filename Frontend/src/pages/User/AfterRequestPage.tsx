@@ -1,5 +1,5 @@
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { type RequestSchemaType } from "@/validations/user.request.schema";
 
 interface AfterRequestPageProps {
@@ -17,7 +17,6 @@ export default function AfterRequestPage({
   submittedPreviews,
   rescueStatus,
   onCancel,
-  onComplete,
   onOpenEdit,
   onOpenChat,
 }: AfterRequestPageProps) {
@@ -34,21 +33,6 @@ export default function AfterRequestPage({
         <h1 className="text-2xl font-bold flex items-center gap-2">
           Thông tin cứu hộ
         </h1>
-        <button
-          onClick={onComplete}
-          disabled={rescueStatus === "completed"}
-          className="ml-auto rounded-full p-1 transition-all hover:bg-gray-100 disabled:hover:bg-transparent disabled:cursor-default"
-          title={
-            rescueStatus === "completed"
-              ? "Đã cứu hộ thành công"
-              : "Xác nhận đã được cứu hộ"
-          }
-        >
-          <CheckCircle2
-            className={`w-7 h-7 transition-colors ${rescueStatus === "completed" ? "text-green-500" : "text-black hover:scale-110"}`}
-            fill="white"
-          />
-        </button>
       </div>
 
       <hr className="border-black mb-3" />
