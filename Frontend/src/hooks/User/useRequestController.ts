@@ -57,8 +57,8 @@ export const useRequestController = (
   const [submittedData, setSubmittedData] = useState<RequestSchemaType | null>(
     routeState?.submittedData ?? null,
   );
-  const [rescueStatus, setRescueStatus] = useState<"pending" | "completed">(
-    routeState?.rescueStatus ?? "pending",
+  const [status, setStatus] = useState<string | null>(
+    routeState?.status ?? null,
   );
 
   const {
@@ -273,6 +273,7 @@ export const useRequestController = (
         }
         const response = await submitRescueRequest(formData);
         if (response?.requestId) setRequestId(response.requestId);
+        if (response?.status) setStatus(response.status);
         alert("Gửi yêu cầu thành công!");
         setIsSubmitted(true);
       }
@@ -289,7 +290,6 @@ export const useRequestController = (
     setSubmittedData(null);
     setIsSubmitted(false);
     setRequestId(null);
-    setRescueStatus("pending");
     setValue("image", undefined);
     markerRef.current?.remove();
   };
@@ -326,10 +326,10 @@ export const useRequestController = (
     submittedData,
     isDialogOpen,
     requestId,
+    status,
     setIsDialogOpen,
     activeTab,
     setActiveTab,
-    rescueStatus,
     isChatOpen,
     setIsChatOpen,
     chatInput,

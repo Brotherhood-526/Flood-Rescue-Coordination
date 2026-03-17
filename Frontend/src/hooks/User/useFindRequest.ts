@@ -106,9 +106,7 @@ export const useFindRequest = () => {
         // truyền qua router state thay localStorage
         isSubmitted: true,
         requestId: rawApiData.requestId,
-        rescueStatus: rawApiData.status?.includes("hoàn thành")
-          ? "completed"
-          : "pending",
+        status: rawApiData.status,
         submittedData: {
           name: rawApiData.citizenName,
           phone: rawApiData.citizenPhone,
