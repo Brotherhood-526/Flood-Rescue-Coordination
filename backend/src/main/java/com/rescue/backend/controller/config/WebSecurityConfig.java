@@ -24,7 +24,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 "https://be-floodrescuecoordination-production.up.railway.app",
                 "https://fe-flood-rescue-coordination-production.up.railway.app"
         ));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
