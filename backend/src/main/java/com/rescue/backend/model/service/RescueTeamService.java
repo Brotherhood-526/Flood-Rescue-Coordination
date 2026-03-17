@@ -44,7 +44,7 @@ public class RescueTeamService {
     }
 
     private Page<TeamAssignmentResponse> fetchTaskByFilter(UUID teamId, String dbStatus, int page) {
-        Pageable pageable = PageRequest.of(page, 20, Sort.by("request.createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending());
 
         Page<Request> assignments = (dbStatus == null)
                 ? requestDAO.findByRescueTeamId(teamId, pageable)
@@ -58,8 +58,8 @@ public class RescueTeamService {
         ));
     }
 
-    public TaskDetailResponse getAssignmentDetail(UUID assignmentId) {
-        Request assignment = requestDAO.findById(assignmentId)
+    public TaskDetailResponse getAssignmentDetail(UUID assignmentId, UUID teamId) {
+        Request assignment = requestDAO.findByRescueTeamIdAndId(teamId, assignmentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nhiệm vụ"));
 
 
