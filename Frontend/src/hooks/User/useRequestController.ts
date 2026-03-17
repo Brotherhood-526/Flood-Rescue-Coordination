@@ -14,10 +14,12 @@ import {
   updateRescueRequest,
 } from "@/services/User/requestService";
 import type { ChatMessage } from "@/pages/User/ChatBoxDialog";
-
+import { useLocation } from "react-router-dom";
 export const useRequestController = (
   mapContainer: React.RefObject<HTMLDivElement | null>,
 ) => {
+  const location = useLocation();
+  const routeState = location.state;
   const inputRef = useRef<HTMLInputElement>(null);
   const markerRef = useRef<vietmapgl.Marker | null>(null);
   const { map, mount, unmount } = useVietMap();
@@ -46,13 +48,17 @@ export const useRequestController = (
     },
   ]);
 
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [requestId, setRequestId] = useState<string | number | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(
+    routeState?.isSubmitted ?? false,
+  );
+  const [requestId, setRequestId] = useState<string | number | null>(
+    routeState?.requestId ?? null,
+  );
   const [submittedData, setSubmittedData] = useState<RequestSchemaType | null>(
-    null,
+    routeState?.submittedData ?? null,
   );
   const [rescueStatus, setRescueStatus] = useState<"pending" | "completed">(
-    "pending",
+    routeState?.rescueStatus ?? "pending",
   );
 
   const {

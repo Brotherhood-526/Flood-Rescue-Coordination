@@ -101,32 +101,28 @@ export const useFindRequest = () => {
   const handleViewDetail = () => {
     if (!rawApiData || !apiResponse?.data) return;
 
-    localStorage.setItem("rescue_isSubmitted", "true");
-    localStorage.setItem(
-      "rescue_requestId",
-      String(rawApiData.requestId ?? ""),
-    );
-    localStorage.setItem(
-      "rescue_status",
-      rawApiData.status?.includes("hoàn thành") ? "completed" : "pending",
-    );
-    localStorage.setItem(
-      "rescue_submittedData",
-      JSON.stringify({
-        name: rawApiData.citizenName,
-        phone: rawApiData.citizenPhone,
-        type: rawApiData.type ?? "",
-        address: rawApiData.address ?? "",
-        locate:
-          rawApiData.latitude && rawApiData.longitude
-            ? `${rawApiData.latitude}, ${rawApiData.longitude}`
-            : "",
-        description: rawApiData.description ?? "",
-        url: rawApiData.additionalLink ?? "",
-      }),
-    );
-
-    navigate(ROUTES.REQUEST);
+    navigate(ROUTES.REQUEST, {
+      state: {
+        // truyền qua router state thay localStorage
+        isSubmitted: true,
+        requestId: rawApiData.requestId,
+        rescueStatus: rawApiData.status?.includes("hoàn thành")
+          ? "completed"
+          : "pending",
+        submittedData: {
+          name: rawApiData.citizenName,
+          phone: rawApiData.citizenPhone,
+          type: rawApiData.type ?? "",
+          address: rawApiData.address ?? "",
+          locate:
+            rawApiData.latitude && rawApiData.longitude
+              ? `${rawApiData.latitude}, ${rawApiData.longitude}`
+              : "",
+          description: rawApiData.description ?? "",
+          url: rawApiData.additionalLink ?? "",
+        },
+      },
+    });
   };
 
   return {
