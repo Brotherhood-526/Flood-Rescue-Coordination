@@ -80,7 +80,13 @@ export type RescueRequest = {
 //         status: "processing",
 //         createdAt: "08/01/2026 07:50",
 //     },
-// ];
+/**
+ * Page that displays filter controls and a paginated list of rescue requests.
+ *
+ * Maintains local filter state and passes it to the Filters and Requests child components.
+ *
+ * @returns The page's React element containing the filter toolbar and the requests list.
+ */
 
 export default function ListRequestPage() {
   const [filter, setFilter] = useState<string>("");

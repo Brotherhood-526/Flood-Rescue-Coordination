@@ -50,7 +50,7 @@ public class Staff {
     private BigDecimal longitude;
 
     @Column(name = "geo_location",
-            columnDefinition = "POINT",
+            columnDefinition = "geography",
             insertable = false,
             updatable = false)
     private Point geoLocation;
