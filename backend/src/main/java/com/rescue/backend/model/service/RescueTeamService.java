@@ -44,7 +44,7 @@ public class RescueTeamService {
     }
 
     private Page<TeamAssignmentResponse> fetchTaskByFilter(UUID teamId, String dbStatus, int page) {
-        Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 1000, Sort.by("createdAt").descending());
 
         Page<Request> assignments = (dbStatus == null)
                 ? requestDAO.findByRescueTeamId(teamId, pageable)
@@ -78,8 +78,8 @@ public class RescueTeamService {
                 assignment.getLongitude().doubleValue(),
                 assignment.getVehicle().getType(), // vehicleType
                 assignment.getDescription(),
-                assignment.getCoordinator().getName(),
-                assignment.getCreatedAt().toString(),
+                assignment.getCoordinator() != null ? assignment.getCoordinator().getName() : "Hệ thống tự động",
+                assignment.getCreatedAt() != null ? assignment.getCreatedAt().toString() : "",
                 assignment.getStatus(),
                 imageResponses
         );
