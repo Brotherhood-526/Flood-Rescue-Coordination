@@ -1,5 +1,15 @@
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, User, CircleUserRound, Bell } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Menu,
+  X,
+  User,
+  CircleUserRound,
+  Bell,
+  BarChart3,
+  Users,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +20,7 @@ import {
 
 import { useAuth } from "@/hooks/useAuth";
 import ConfirmDialog from "@/components/ConfirmDialog";
-import {useAuthStore} from "@/store/authStore.ts";
+import { useAuthStore } from "@/store/authStore.ts";
 
 export default function Header({ role }: { role: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -30,8 +40,8 @@ export default function Header({ role }: { role: number }) {
       );
     case 2:
       return <RescueHeader noty={false} />;
-    // case 3:
-    //   return <ManagerHeader noty={false} />;
+    case 3:
+      return <ManagerHeader noty={false} />;
     case 4:
       return <CoordinatorHeader noty={false} />;
     default:
@@ -101,9 +111,9 @@ export function RescueHeader({ noty }: { noty: boolean }) {
 /* COORD HEADER */
 
 export function CoordinatorHeader({ noty }: { noty: boolean }) {
-    const [isLogoutOpen, setIsLogoutOpen] = useState(false);
-    const { logout } = useAuth();
-    const staff = useAuthStore((state) => state.staff);
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+  const { logout } = useAuth();
+  const staff = useAuthStore((state) => state.staff);
 
   const logoutStyle =
     "!text-gray-200 !hover:text-gray-200 font-bold ml-[0.5vw] cursor-pointer";
@@ -113,17 +123,21 @@ export function CoordinatorHeader({ noty }: { noty: boolean }) {
       <div className="hidden md:flex flex-row items-center justify-between px-[2vw] py-[2vh] w-full fixed top-0 left-0 bg-slate-950 shadow z-50">
         <div>
           <p className="text-[3vh] font-bold">Bảng quản lý điều phối cứu hộ</p>
-          <p className="text-gray-300">Điều phối viên tiếp nhận và phân công nhiệm vụ cứu hộ</p>
+          <p className="text-gray-300">
+            Điều phối viên tiếp nhận và phân công nhiệm vụ cứu hộ
+          </p>
         </div>
 
         <div className="flex gap-4 items-center">
-            <Button onClick={() => setIsLogoutOpen(true)}
-                className="bg-gray-200! text-black! relative">
-                Đăng xuất
-                {noty && (
-                    <div className="absolute top-0 right-0 w-3 h-3 bg-rose-500 rounded-full"></div>
-                )}
-            </Button>
+          <Button
+            onClick={() => setIsLogoutOpen(true)}
+            className="bg-gray-200! text-black! relative"
+          >
+            Đăng xuất
+            {noty && (
+              <div className="absolute top-0 right-0 w-3 h-3 bg-rose-500 rounded-full"></div>
+            )}
+          </Button>
 
           <Button className="bg-gray-200! text-black! relative">
             <Bell className="h-6! w-6!" fill="currentColor" strokeWidth={2.5} />
@@ -139,11 +153,11 @@ export function CoordinatorHeader({ noty }: { noty: boolean }) {
           </div>
         </div>
       </div>
-        <ConfirmDialog
-            isOpen={isLogoutOpen}
-            onClose={() => setIsLogoutOpen(false)}
-            onConfirm={logout}
-        />
+      <ConfirmDialog
+        isOpen={isLogoutOpen}
+        onClose={() => setIsLogoutOpen(false)}
+        onConfirm={logout}
+      />
     </header>
   );
 }
@@ -306,22 +320,117 @@ export function UserHeader({
 // /*  MANAGER HEADER */
 
 export function ManagerHeader({ noty }: { noty: boolean }) {
-  return (
-    <header className="bg-slate-950 shadow-md text-gray-200">
-      <div className="hidden md:flex flex-row items-center justify-between px-[2vw] py-[2vh] w-full fixed top-0 left-0 bg-slate-950 shadow z-50">
-        <div>
-          <p className="text-[3vh] font-bold">Bảng quản lý</p>
-          <p>Quản trị viên theo dõi và vận hành hệ thống</p>
-        </div>
+  void noty;
+  const { staff, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
-        <Button className="bg-gray-200! text-black! relative">
-          <Bell className="h-6! w-6!" fill="currentColor" strokeWidth={2.5} />
-          Thông báo
-          {noty && (
-            <div className="absolute top-0 right-0 w-3 h-3 bg-rose-500 rounded-full"></div>
-          )}
-        </Button>
-      </div>
-    </header>
+  const tabs = [
+    {
+      key: "overview",
+      label: "Tổng quan",
+      icon: BarChart3,
+      route: "/manager",
+    },
+    {
+      key: "employee",
+      label: "Quản lý nhân viên",
+      icon: Users,
+      route: "/manager/employee",
+    },
+    {
+      key: "team",
+      label: "Quản lý đội cứu hộ",
+      icon: ShieldCheck,
+      route: "/manager/team",
+    },
+    {
+      key: "vehicle",
+      label: "Quản lý phương tiện",
+      icon: Truck,
+      route: "/manager/vehicle",
+    },
+  ] as const;
+
+  const activeRoute = tabs.some((tab) => location.pathname === tab.route)
+    ? location.pathname
+    : "/manager";
+
+  const displayName = staff?.name ?? "Chưa có tên";
+  const mobileDisplayName =
+    displayName.length > 20 ? `${displayName.slice(0, 20)}...` : displayName;
+
+  return (
+    <>
+      <header className="border-b border-gray-300 bg-slate-950 text-gray-200 shadow-md">
+        <div className="fixed left-0 top-0 z-50 w-full border-b border-gray-300 bg-[#f2f2f2]">
+          <div className="hidden w-full flex-row items-center justify-between bg-slate-950 px-[2vw] py-[2vh] md:flex">
+            <div>
+              <p className="text-[3vh] font-bold">Bảng quản trị hệ thống</p>
+              <p className="text-slate-300">Quản lý toàn bộ hoạt động của nhóm</p>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <CircleUserRound size={30} />
+                <span className="text-base font-semibold">{displayName}</span>
+                <Button
+                  onClick={() => setIsLogoutOpen(true)}
+                  className="!bg-white !text-black hover:!bg-gray-200"
+                >
+                  Đăng xuất
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between bg-slate-950 px-4 py-3 text-gray-200 md:hidden">
+            <div className="flex items-center gap-2">
+              <CircleUserRound size={22} />
+              <span className="max-w-[160px] truncate text-sm font-semibold">
+                {mobileDisplayName}
+              </span>
+            </div>
+            <Button
+              type="button"
+              onClick={() => setIsLogoutOpen(true)}
+              className="h-8 !bg-white !px-3 !py-1 !text-sm !text-black hover:!bg-gray-200"
+            >
+              Đăng xuất
+            </Button>
+          </div>
+
+          <nav className="mx-auto flex w-full max-w-[1200px] items-stretch overflow-x-auto">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeRoute === tab.route;
+
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => navigate(tab.route)}
+                  className={`flex min-w-[180px] flex-1 items-center justify-center gap-3 border-r border-gray-300 px-4 py-4 text-base font-semibold cursor-pointer ${
+                    isActive
+                      ? "bg-white border-b-2 border-b-[#4438ca] text-gray-900"
+                      : "text-gray-800 hover:bg-gray-100"
+                  }`}
+                >
+                  <Icon className="h-6 w-6 shrink-0" />
+                  <span className="text-left leading-tight">{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      </header>
+
+      <ConfirmDialog
+        isOpen={isLogoutOpen}
+        onClose={() => setIsLogoutOpen(false)}
+        onConfirm={logout}
+      />
+    </>
   );
 }

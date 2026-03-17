@@ -19,9 +19,9 @@ import RescueChatBox from "@/pages/Rescue/RescueChatBox";
 
 // Manager Pages
 import { OverviewPage } from "@/pages/Manager/OverviewPage";
-// import ManageEmployeePage from "@/pages/Manager/ManageEmployeePage";
-// import ManageTeamPage from "@/pages/Manager/ManageTeamPage";
-// import ManageVehiclePage from "@/pages/Manager/ManageVehiclePage";
+import { ManageEmployeePage } from "@/pages/Manager/ManageEmployeePage";
+import { ManageTeamPage } from "@/pages/Manager/ManageTeamPage";
+import { ManageVehiclePage } from "@/pages/Manager/ManageVehiclePage";
 
 // Coordinator Pages
 import ListRequestPage from "@/pages/Coordinator/ListRequestPage";
@@ -102,21 +102,21 @@ export const router = createBrowserRouter([
         element: <MainLayout role={3} />,
         children: [{ index: true, element: <OverviewPage /> }],
       },
-      // {
-      //   path: ROUTES.MANAGER_EMPLOYEE,
-      //   element: <MainLayout role={3} />,
-      //   children: [{ index: true, element: <ManageEmployeePage /> }],
-      // },
-      // {
-      //   path: ROUTES.MANAGER_TEAM,
-      //   element: <MainLayout role={3} />,
-      //   children: [{ index: true, element: <ManageTeamPage /> }],
-      // },
-      // {
-      //   path: ROUTES.MANAGER_VEHICLE,
-      //   element: <MainLayout role={3} />,
-      //   children: [{ index: true, element: <ManageVehiclePage /> }],
-      // },
+      {
+        path: ROUTES.MANAGER_EMPLOYEE,
+        element: <MainLayout role={3} />,
+        children: [{ index: true, element: <ManageEmployeePage /> }],
+      },
+      {
+        path: ROUTES.MANAGER_TEAM,
+        element: <MainLayout role={3} />,
+        children: [{ index: true, element: <ManageTeamPage /> }],
+      },
+      {
+        path: ROUTES.MANAGER_VEHICLE,
+        element: <MainLayout role={3} />,
+        children: [{ index: true, element: <ManageVehiclePage /> }],
+      },
     ],
   },
 ]);
