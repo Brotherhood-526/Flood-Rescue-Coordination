@@ -57,17 +57,17 @@ export default function RequestPage() {
         ) : (
           <AfterRequestPage
             submittedData={c.submittedData}
+            requestId={c.requestId}
             submittedPreviews={c.submittedPreviews}
             rescueStatus={c.rescueStatus}
             onCancel={c.handleCancelRequest}
-            onComplete={c.handleCompleteRescue}
             onOpenEdit={() => c.setIsDialogOpen(true)}
             onOpenChat={() => c.setIsChatOpen(true)}
           />
         )}
       </div>
 
-      {/* RIGHT MAP */}
+      {/* right map */}
       <div className="flex-1 relative h-full">
         <div
           ref={mapContainer}

@@ -9,7 +9,6 @@ interface AfterRequestPageProps {
   submittedPreviews: string[];
   rescueStatus: "pending" | "completed";
   onCancel: () => void;
-  onComplete: () => void;
   onOpenEdit: () => void;
   onOpenChat: () => void;
 }
