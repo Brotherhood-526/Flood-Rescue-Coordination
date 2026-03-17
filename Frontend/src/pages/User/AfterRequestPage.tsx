@@ -7,7 +7,7 @@ interface AfterRequestPageProps {
   submittedData: RequestSchemaType | null;
   requestId: string | number | null;
   submittedPreviews: string[];
-  rescueStatus: "pending" | "completed";
+  status: string | null;
   onCancel: () => void;
   onOpenEdit: () => void;
   onOpenChat: () => void;
@@ -17,7 +17,7 @@ export default function AfterRequestPage({
   submittedData,
   requestId,
   submittedPreviews,
-  rescueStatus,
+  status,
   onCancel,
   onOpenEdit,
   onOpenChat,
@@ -101,15 +101,9 @@ export default function AfterRequestPage({
         </div>
         <div className="flex items-center">
           <span className="font-semibold w-32">Trạng thái:</span>
-          {rescueStatus === "pending" ? (
-            <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
-              Đang xử lý
-            </span>
-          ) : (
-            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
-              Hoàn thành
-            </span>
-          )}
+          <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+            {status ?? "Yêu cầu mới"}
+          </span>
         </div>
 
         <div className="flex items-center">

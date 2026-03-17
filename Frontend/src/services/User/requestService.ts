@@ -32,6 +32,7 @@ export const geocodeAddress = async (address: string) => {
 
 interface RescueResponse {
   requestId: string;
+  status: string;
 }
 export const submitRescueRequest = async (
   data: FormData,
