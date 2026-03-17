@@ -58,8 +58,8 @@ export default function RequestPage() {
           <AfterRequestPage
             submittedData={c.submittedData}
             requestId={c.requestId}
+            status={c.status}
             submittedPreviews={c.submittedPreviews}
-            rescueStatus={c.rescueStatus}
             onCancel={c.handleCancelRequest}
             onOpenEdit={() => c.setIsDialogOpen(true)}
             onOpenChat={() => c.setIsChatOpen(true)}
