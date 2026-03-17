@@ -2,7 +2,7 @@ import {Undo2, Phone, MapPin, Image, Helicopter, Van, Ship} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 
-import {useState, useEffect, useRef} from "react";
+import {useState, useEffect, useRef, useMemo} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {ROUTES} from "@/router/routes.tsx";
 import { useVietMap } from "@/lib/MapProvider.tsx";
@@ -11,8 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import {useRequestDetail} from "@/hooks/useRequestDetail.ts";
+import {useRequestUpdate} from "@/hooks/useRequestUpdate.ts";
 import type {RescueRequest} from "@/pages/Coordinator/ListRequestPage.tsx";
 import {useVehicleList} from "@/hooks/useVehicle.ts";
+import {useRequestReject} from "@/hooks/useRequestReject.ts";
 
 const DEFAULT_CENTER: [number, number] = [10.7769, 106.7009];
 
@@ -50,11 +52,28 @@ export type RequestDetail = {
     vehicleType: string | null;
 };
 
+export type UpdateRequest = {
+    id: string;
+    status?: string;
+    urgency?: string;
+    rescueTeamId?: string | null;
+    vehicleType?: string | null;
+    vehicleIdPrevious?: string | null;
+    vehicleState?: string;
+};
+
+export type RejectRequest = {
+    id: string;
+};
+
 export default function RequestDetailPage() {
     const topButoons =
         "!bg-gray-300 !text-black !font-bold";
 
     const navigate = useNavigate();
+    const { id } = useParams();
+
+    const requestDetail = useRequestDetail({ id: id! });
 
     const handleFullMap = () => {
         navigate(ROUTES.FULLMAP);
@@ -62,11 +81,15 @@ export default function RequestDetailPage() {
 
     const handleBack = () => {
         navigate(-1);
-    }
+    };
+
+    const handleChatBox = () => {
+        navigate(`/coordinate/chatbox/${requestDetail?.id}`);
+    };
 
     return (
         <div className="flex flex-col w-full h-full">
-            <div className="flex flex-col flex-1 w-full bg-white pt-[6vh]">
+            <div className="flex flex-col flex-1 w-full bg-white pt-[4vh]">
                 <div className="flex flex-row flex-[0.5] justify-between items-center
             px-[2vw] mb-[2vh]">
                     <div className="flex flex-row gap-[1vw]">
@@ -75,7 +98,8 @@ export default function RequestDetailPage() {
                             <Undo2 className="!w-5 !h-5" strokeWidth={2.5} />
                             Quay Lại
                         </Button>
-                        <Button className={topButoons}>
+                        <Button className={topButoons}
+                        onClick={handleChatBox}>
                             Hộp thoại
                         </Button>
                     </div>
@@ -84,34 +108,59 @@ export default function RequestDetailPage() {
                         Toàn bản đồ
                     </Button>
                 </div>
-                <Solving />
+                <Solving requestDetail={requestDetail}/>
             </div>
         </div>
     );
 }
 
-export function Solving(){
+export function Solving({ requestDetail }: { requestDetail: RequestDetail | null }){
     return (
         <div className="w-full flex-[9.5] bg-white pt-[1vh]
         flex flex-row justify-between items-start px-[2vw]">
-            <Information/>
+            <Information requestDetail={requestDetail} />
             <MiniMap/>
         </div>
     );
 }
 
-export function Information(){
+export function Information({ requestDetail }: { requestDetail: RequestDetail | null }){
     const [vehicle, setVehicle] = useState<string | null >(null);
     const [urgency, setUrgency] = useState<string | null>(null);
     const [rescueTeam, setRescueTeam] = useState<string | null>(null);
 
-    const rescueTeams = useVehicleList({ type: vehicle });
-
-    const activeStyle = "!bg-gray-100";
-
     const {id} = useParams();
+    const navigate = useNavigate();
+    const {rejectRequest} = useRequestReject();
+    const { updateRequest } = useRequestUpdate();
+
+    const rescueTeams = useVehicleList({ type: vehicle });
+    const rescueTeamsWithCurrent = useMemo(() => {
+        if (!requestDetail || requestDetail?.vehicleType != vehicle) return rescueTeams;
+
+        const exist = rescueTeams.some(
+            (t) => t.rescueTeamId === requestDetail.rescueTeamId
+        );
+
+        if (!exist && requestDetail.rescueTeamId) {
+            return [
+                ...rescueTeams,
+                {
+                    id: requestDetail.vehicleId ?? "current",
+                    type: requestDetail.vehicleType ?? "",
+                    rescueTeamId: requestDetail.rescueTeamId,
+                    rescueTeamName: requestDetail.rescueTeamName ?? "Current Team"
+                }
+            ];
+        }
+
+        return rescueTeams;
+
+    }, [rescueTeams, requestDetail]);
+
+    const activeStyle = "!bg-gray-200";
+
     console.log("ID from usePara", id);
-    const requestDetail = useRequestDetail({id: id!});
 
     const location = useLocation();
     const request = location.state as RescueRequest;
@@ -129,10 +178,10 @@ export function Information(){
     }, [requestDetail]);
 
     useEffect(() => {
-        if (requestDetail?.rescueTeamName) {
-            setRescueTeam(requestDetail.rescueTeamName);
+        if (!rescueTeam && requestDetail?.rescueTeamId && rescueTeams.length > 0) {
+            setRescueTeam(requestDetail.rescueTeamId);
         }
-    }, [requestDetail]);
+    }, [requestDetail, rescueTeams]);
 
     console.log(requestDetail);
 
@@ -171,15 +220,54 @@ export function Information(){
         }
     }
 
+    const getStatusText = (status?: string) => {
+        switch (status) {
+            case "accept":
+                return "Chấp nhận";
+            case "processing":
+                return "Đang xử lý";
+            case "completed":
+                return "Hoàn thành";
+            case "reject":
+                return "từ chối";
+            case "delayed":
+                return "tạm hoãn";
+            default:
+                return "Không xác định";
+        }
+    };
+
+    const handleSubmit = async () =>{
+        const ok = await updateRequest({
+            id: requestDetail!.id,
+            status: "accept",
+            urgency: urgency!,
+            rescueTeamId: rescueTeam,
+            vehicleType: vehicle,
+            vehicleIdPrevious: requestDetail?.vehicleId,
+            vehicleState: "using"
+        });
+
+        if (ok) {
+            navigate(-1);
+        }
+    }
+
+    const handleReject = async () =>{
+        const ok = await rejectRequest({id: requestDetail!.id});
+
+        if (ok) {navigate(-1);}
+    }
+
     return (
        <Card className="bg-white w-[54vw] h-[75vh] !py-[2vh]
         overflow-y-auto hide-scrollbar">
             <CardHeader>
 
-                <CardTitle className="text-lg font-bold mb-[-1vh]">Yêu cầu loại {requestType(requestDetail?.type)}</CardTitle>
+                <CardTitle className="text-lg font-bold mb-[-1vh]">Yêu cầu về {requestType(requestDetail?.type)}</CardTitle>
                 <CardDescription className="flex flex-row justify-between items-start text-black">
                     <div>
-                        <span className="text-base font-semibold">{requestDetail?.status === "processing" ? "yêu cầu mới" : ""}</span>
+                        <span className="text-base font-semibold">{getStatusText(requestDetail?.status)}</span>
                         <br/>
                         <span>{timeAgo(request.createdAt)}</span>
                     </div>
@@ -242,9 +330,9 @@ export function Information(){
 
                         <Button
                             className={`${vehiclesButton} ${
-                                vehicle === "boat" ? activeStyle : normalStyle
+                                vehicle === "Boat" ? activeStyle : normalStyle
                             }`}
-                            onClick={() => setVehicle("boat")}
+                            onClick={() => setVehicle("Boat")}
                         >
                             <Ship className="!h-7 !w-7" />
                             Xuồng
@@ -252,9 +340,9 @@ export function Information(){
 
                         <Button
                             className={`${vehiclesButton} ${
-                                vehicle === "heli" ? activeStyle : normalStyle
+                                vehicle === "Helicopter" ? activeStyle : normalStyle
                             }`}
-                            onClick={() => setVehicle("helicopter")}
+                            onClick={() => setVehicle("Helicopter")}
                         >
                             <Helicopter className="!h-7 !w-7" />
                             Trực thăng
@@ -271,8 +359,8 @@ export function Information(){
                         </SelectTrigger>
 
                         <SelectContent>
-                            {rescueTeams.map((team) => (
-                                <SelectItem key={team.rescueTeamId} value={team.rescueTeamName}>
+                            {rescueTeamsWithCurrent.map((team) => (
+                                <SelectItem key={team.rescueTeamId} value={team.rescueTeamId}>
                                     {team.rescueTeamName}
                                 </SelectItem>
                             ))}
@@ -284,11 +372,13 @@ export function Information(){
            {requestDetail?.status !== "completed" && (
                <CardFooter className="flex flex-row items-center justify-center px-[2vw] gap-[3vw]">
                    <Button className="!h-[5vh] !w-[8vw]
-                !text-white !font-bold !bg-red-600">
+                !text-white !font-bold !bg-red-600"
+                   onClick={handleReject}>
                        Từ chối
                    </Button>
                    <Button className="!h-[5vh] !w-[8vw]
-                !text-white !font-bold !bg-indigo-600">
+                !text-white !font-bold !bg-indigo-600"
+                   onClick={handleSubmit}>
                        {requestDetail?.status === "processing" ? "Chấp nhận"  : "Cập Nhật"}
                    </Button>
                </CardFooter>

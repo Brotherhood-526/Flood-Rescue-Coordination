@@ -13,10 +13,25 @@ import java.util.UUID;
 public interface VehicleDAO extends JpaRepositoryImplementation<Vehicle, UUID> {
     Vehicle findById(String id);
 
+    List<Vehicle> findByStaff_Id(UUID rescueTeamId);
+
+    @Query(value = """
+            SELECT TOP 1 id
+            FROM Vehicle
+            WHERE rescue_team_id = :staffId
+            AND state = 'free'
+            AND type = :type
+        """, nativeQuery = true)
+    UUID findFreeVehicleId(UUID staffId, String type);
+
     @Modifying
     @Transactional
-    @Query("UPDATE Vehicle v SET v.state = :state WHERE v.id = :id AND v.state = 'free'")
-    int setVehicle(UUID id, String state);
+    @Query("""
+        UPDATE Vehicle v
+        SET v.state = :state
+        WHERE v.id = :vehicleId
+        """)
+    int updateVehicleState(UUID vehicleId, String state);
 
     @Query("""
             SELECT new com.rescue.backend.view.dto.vehicle.response.FilterVehicleResponse(

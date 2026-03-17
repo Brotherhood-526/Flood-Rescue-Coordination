@@ -86,6 +86,18 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
             UUID vehicleId
     );
 
+    @Modifying
+    @Transactional
+    @Query("""
+        UPDATE Request r
+        SET r.status = 'reject'
+        WHERE r.id = :requestId
+        AND r.status = 'processing'
+        """)
+    int rejectRequest(UUID requestId);
+
+    List<Request> findByRescueTeam_Id(UUID teamId);
+
     Page<Request> findByRescueTeamId(UUID teamId, Pageable pageable);
 
     Page<Request> findByRescueTeamIdAndStatus(UUID teamId, String status, Pageable pageable);

@@ -2,12 +2,13 @@ package com.rescue.backend.view.dto.coordinator.request;
 
 import java.util.UUID;
 
-public record UpdateMissionReqeuest(
+public record UpdateMissionRequest(
         UUID id,
         String status,
         String urgency,
         UUID rescueTeamId,
-        UUID vehicleId,
+        String vehicleType,
+        UUID vehicleIdPrevious,
         String vehicleState
 ) {
 

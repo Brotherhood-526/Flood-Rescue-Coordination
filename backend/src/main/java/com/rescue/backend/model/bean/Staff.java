@@ -62,13 +62,10 @@ public class Staff {
     @OneToMany(mappedBy = "staff")
     private List<Vehicle> vehicles;
 
-    // Staff đóng vai trò Coordinator
     @OneToMany(mappedBy = "coordinator")
     private List<Request> coordinatedRequests;
 
     @OneToMany(mappedBy = "rescueTeam")
     private List<Request> assignedTasks;
 
-    @OneToMany(mappedBy = "senderStaff")
-    private List<Message> messages;
 }

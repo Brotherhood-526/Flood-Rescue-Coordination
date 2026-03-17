@@ -28,6 +28,7 @@ import ListRequestPage from "@/pages/Coordinator/ListRequestPage";
 import RequestDetailPage from "@/pages/Coordinator/RequestDetailPage";
 import FullMapCoordinatorPage from "@/pages/Coordinator/FullMapCoordinatorPage";
 import TestChatBox from "@/pages/Coordinator/TestChatBox";
+import CoordinatorChatBox from "@/pages/Coordinator/CoordinatorChatBox.tsx";
 
 export const router = createBrowserRouter([
   { path: ROUTES.LOGIN, element: <Login /> },
@@ -47,9 +48,7 @@ export const router = createBrowserRouter([
 
   // NHÓM ĐIỀU PHỐI VIÊN
   {
-    element: (
-      <ProtectedRoute allowedRoles={["coordinate", "rescue coordinator"]} />
-    ),
+    element: <ProtectedRoute allowedRoles={["điều phối viên", "rescue coordinator"]} />,
     children: [
       {
         path: ROUTES.COORDINATE,
@@ -61,6 +60,11 @@ export const router = createBrowserRouter([
         element: <MainLayout role={4} />,
         children: [{ index: true, element: <RequestDetailPage /> }],
       },
+      {
+        path: ROUTES.COORDINATE_CHAT_BOX,
+        element: <MainLayout role={4} />,
+        children: [{ index: true, element: <CoordinatorChatBox /> }],
+      },
       { path: ROUTES.COORDINATE_MAP, element: <FullMapCoordinatorPage /> },
       { path: ROUTES.COORDINATE_CHAT, element: <TestChatBox /> },
     ],
@@ -68,7 +72,7 @@ export const router = createBrowserRouter([
 
   // NHÓM ĐỘI CỨU HỘ
   {
-    element: <ProtectedRoute allowedRoles={["rescue team", "rescue"]} />,
+    element: <ProtectedRoute allowedRoles={["cứu hộ"]} />,
     children: [
       {
         path: ROUTES.RESCUE,
@@ -80,15 +84,6 @@ export const router = createBrowserRouter([
         element: <MainLayout role={2} />,
         children: [{ index: true, element: <RescueDetailPage /> }],
       },
-      { path: ROUTES.COORDINATE_MAP, element: <FullMapCoordinatorPage /> },
-      { path: ROUTES.COORDINATE_CHAT, element: <TestChatBox /> },
-    ],
-  },
-
-  // NHÓM ĐỘI CỨU HỘ
-  {
-    element: <ProtectedRoute allowedRoles={["rescue team", "rescue"]} />,
-    children: [
       {
         path: ROUTES.RESCUE_CHAT,
         element: <MainLayout role={2} />,
@@ -100,7 +95,7 @@ export const router = createBrowserRouter([
 
   // NHÓM QUẢN LÝ
   {
-    element: <ProtectedRoute allowedRoles={["manager", "rescue manager"]} />,
+    element: <ProtectedRoute allowedRoles={["quản lý"]} />,
     children: [
       {
         path: ROUTES.MANAGER,

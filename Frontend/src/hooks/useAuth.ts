@@ -19,6 +19,7 @@ export function useAuth() {
       });
 
       const staffData = res as unknown as Staff;
+      console.log("Staff data: ", staffData);
       localStorage.setItem("userRole", staffData.role);
       localStorage.setItem("staff", JSON.stringify(staffData));
 

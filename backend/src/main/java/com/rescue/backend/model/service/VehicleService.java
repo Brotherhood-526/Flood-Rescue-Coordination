@@ -15,9 +15,9 @@ public class VehicleService {
     @Autowired
     private VehicleDAO vehicleDAO;
 
-    public boolean setVehicle(SetVehicleRequest setVehicleRequest){
-        return vehicleDAO.setVehicle(setVehicleRequest.id(), setVehicleRequest.state()) > 0;
-    }
+//    public boolean setVehicle(SetVehicleRequest setVehicleRequest){
+//        return vehicleDAO.setVehicle(setVehicleRequest.id(), setVehicleRequest.state()) > 0;
+//    }
 
     public List<FilterVehicleResponse> filterVehicleByType(FilterVehicleRequest filterVehicleRequest){
         return vehicleDAO.filterVehicleByType(filterVehicleRequest.vehicle_type());

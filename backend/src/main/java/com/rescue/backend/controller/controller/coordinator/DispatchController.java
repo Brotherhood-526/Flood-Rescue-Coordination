@@ -2,11 +2,14 @@ package com.rescue.backend.controller.controller.coordinator;
 
 import com.rescue.backend.model.service.DispatchService;
 import com.rescue.backend.view.dto.common.ResponseObject;
+import com.rescue.backend.view.dto.coordinator.request.RejectMissionRequest;
 import com.rescue.backend.view.dto.coordinator.request.SpecificRequest;
 import com.rescue.backend.view.dto.coordinator.request.TakeListRequest;
-import com.rescue.backend.view.dto.coordinator.request.UpdateMissionReqeuest;
+import com.rescue.backend.view.dto.coordinator.request.UpdateMissionRequest;
 import com.rescue.backend.view.dto.coordinator.response.SpecificResponse;
 import com.rescue.backend.view.dto.coordinator.response.TakePageResponse;
+import com.rescue.backend.view.dto.message.request.SpecificMessagesRequest;
+import com.rescue.backend.view.dto.message.response.SpecificMessagesResponse;
 import com.rescue.backend.view.dto.vehicle.request.FilterVehicleRequest;
 import com.rescue.backend.view.dto.vehicle.response.FilterVehicleResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,13 +70,11 @@ public class DispatchController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<ResponseObject> updateRequest(
-            @RequestBody UpdateMissionReqeuest updateMissionReqeuest,
-            HttpServletRequest session
-    ){
+    public ResponseEntity<ResponseObject> updateRequest(@RequestBody UpdateMissionRequest updateMissionRequest, HttpServletRequest session){
+
         try{
 
-            boolean success = dispatchService.updateRequest(updateMissionReqeuest);
+            boolean success = dispatchService.updateRequest(updateMissionRequest);
 
             if(success){
                 return ResponseEntity.status(HttpStatus.OK).body(
@@ -93,6 +94,29 @@ public class DispatchController {
         }
     }
 
+    @PostMapping("/reject")
+    public ResponseEntity<ResponseObject> rejectRequest(@RequestBody RejectMissionRequest rejectMissionRequest, HttpServletRequest session){
+        try{
+            boolean success = dispatchService.rejectRequest(rejectMissionRequest.id());
+
+            if(success){
+                return ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseObject(200, "Từ chối yêu cầu thành công", null)
+                );
+            }
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(400, "Không thể từ chối yêu cầu", null)
+            );
+
+        } catch (Exception e) {
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Lỗi hệ thống", e.getMessage())
+            );
+        }
+    }
+
     @PostMapping("/filterVehicle")
     public ResponseEntity<ResponseObject> filterVehicleByType(@RequestBody FilterVehicleRequest filterVehicleRequest, HttpServletRequest session){
         try{
@@ -101,6 +125,26 @@ public class DispatchController {
 
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject(200, "Lấy danh sách thành công", data)
+            );
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new ResponseObject(401, "Không thể lấy dữ liệu", null)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Lỗi hệ thống", e.getMessage())
+            );
+        }
+    }
+
+    @PostMapping("/chatBox")
+    public ResponseEntity<ResponseObject> openChatBox(@RequestBody SpecificMessagesRequest specificMessagesRequest, HttpServletRequest session){
+        try{
+            List<SpecificMessagesResponse> data =
+                    dispatchService.takeAllMessageOfRequest(specificMessagesRequest);
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject(200, "Lấy tin nhắn thành công", data)
             );
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(

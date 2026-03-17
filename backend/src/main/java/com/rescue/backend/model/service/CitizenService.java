@@ -49,8 +49,10 @@ public class CitizenService {
                         rescueRequest.phone()
                 );
 
+        // 3. Nếu tìm thấy request đang hoạt động -> Thông báo lỗi
         if (existingRequest.isPresent()) {
             throw new RuntimeException("EXISTING_ACTIVE_REQUEST");
+            // Bạn có thể tạo Custom Exception riêng để Controller bắt được dễ hơn
         }
 
         Citizen citizen = citizenDAO.findByPhone(rescueRequest.phone())
@@ -73,6 +75,7 @@ public class CitizenService {
 
         Request savedRequest = requestDAO.save(request);
 
+        // 5. Xử lý Upload ảnh lên Cloudinary
         if (rescueRequest.images() != null && !rescueRequest.images().isEmpty()) {
 
             List<RequestImage> requestImageList =
@@ -113,6 +116,7 @@ public class CitizenService {
                 (request.getVehicle() != null)
                         ? request.getVehicle().getType()
                         : null;
+
 
         return new CitizenRescueResponse(
                 request.getId(),

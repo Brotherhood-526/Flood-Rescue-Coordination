@@ -17,65 +17,6 @@ export type RescueRequest = {
     createdAt: string;
 };
 
-// const fakeRequests: RescueRequest[] = [
-//     {
-//         id: 1,
-//         phone: "0723456789",
-//         rescuer: "Nguyễn Văn A",
-//         status: "reject",
-//         createdAt: "01/01/2026 00:00",
-//     },
-//     {
-//         id: 2,
-//         phone: "0988123123",
-//         rescuer: "Trần Văn B",
-//         status: "accept",
-//         createdAt: "02/01/2026 09:12",
-//     },
-//     {
-//         id: 3,
-//         phone: "0912345678",
-//         rescuer: "Lê Văn C",
-//         status: "delayed",
-//         createdAt: "03/01/2026 14:30",
-//     },
-//     {
-//         id: 4,
-//         phone: "0901112233",
-//         rescuer: "Phạm Văn D",
-//         status: "accept",
-//         createdAt: "04/01/2026 08:45",
-//     },
-//     {
-//         id: 5,
-//         phone: "0377778888",
-//         rescuer: "Hoàng Văn E",
-//         status: "accept",
-//         createdAt: "05/01/2026 11:10",
-//     },
-//     {
-//         id: 6,
-//         phone: "0399991111",
-//         rescuer: "Đỗ Văn F",
-//         status: "processing",
-//         createdAt: "06/01/2026 16:22",
-//     },
-//     {
-//         id: 7,
-//         phone: "0351234567",
-//         rescuer: "Bùi Văn G",
-//         status: "processing",
-//         createdAt: "07/01/2026 19:05",
-//     },
-//     {
-//         id: 8,
-//         phone: "0384567890",
-//         rescuer: "Vũ Văn H",
-//         status: "processing",
-//         createdAt: "08/01/2026 07:50",
-//     },
-// ];
-
 export default function ListRequestPage() {
     const [filter, setFilter] = useState<string>("");
 
