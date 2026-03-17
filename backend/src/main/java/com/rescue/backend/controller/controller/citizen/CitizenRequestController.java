@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/citizen")
 public class CitizenRequestController {
@@ -78,7 +80,7 @@ public class CitizenRequestController {
         }
     }
     @PutMapping("/cancel/{id}")
-    public ResponseEntity<ResponseObject> cancelRequest(@PathVariable Long id) {
+    public ResponseEntity<ResponseObject> cancelRequest(@PathVariable UUID id) { // ← đổi Long thành UUID
         try {
             citizenService.cancelRequest(id);
             return ResponseEntity.ok(new ResponseObject(200, "Đã hủy yêu cầu", null));

@@ -2,9 +2,10 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { useState } from "react";
-import { type SubmittedRequestType } from "@/validations/user.request.schema";
+import { type RequestSchemaType } from "@/validations/user.request.schema";
 interface AfterRequestPageProps {
-  submittedData: SubmittedRequestType | null;
+  submittedData: RequestSchemaType | null;
+  requestId: string | number | null;
   submittedPreviews: string[];
   rescueStatus: "pending" | "completed";
   onCancel: () => void;
@@ -15,6 +16,7 @@ interface AfterRequestPageProps {
 
 export default function AfterRequestPage({
   submittedData,
+  requestId,
   submittedPreviews,
   rescueStatus,
   onCancel,
@@ -27,7 +29,7 @@ export default function AfterRequestPage({
   const handleCancelRequest = async () => {
     try {
       setLoading(true);
-      await axios.put(`/api/v1/citizen/cancel/${submittedData?.id}`);
+      await axios.put(`/api/v1/citizen/cancel/${requestId}`);
       setShowConfirm(false);
       onCancel();
     } catch {
