@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,7 +45,7 @@ public class RescueTeamService {
     }
 
     private Page<TeamAssignmentResponse> fetchTaskByFilter(UUID teamId, String dbStatus, int page) {
-        Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 1000, Sort.by("createdAt").descending());
 
         Page<Request> assignments = (dbStatus == null)
                 ? requestDAO.findByRescueTeamId(teamId, pageable)
@@ -90,16 +91,15 @@ public class RescueTeamService {
         Request assignment = requestDAO.findById(assignmentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bản ghi phân công"));
 
-        assignment.setStatus(updateTaskRequest.status().toLowerCase());
         assignment.setReport(updateTaskRequest.report());
 
         String status = updateTaskRequest.status().toLowerCase();
         switch (status) {
             case "hoàn thành", "completed":
-                assignment.setStatus("completed");
+                assignment.setStatus("hoàn thành");
                 break;
             case "tạm hoãn", "delayed":
-                assignment.setStatus("delayed");
+                assignment.setStatus("tạm hoãn");
                 break;
             default:
         }

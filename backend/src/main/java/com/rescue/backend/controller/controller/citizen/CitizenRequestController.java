@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/citizen")
 public class CitizenRequestController {
@@ -75,6 +77,16 @@ public class CitizenRequestController {
                             e.getMessage()
                     )
             );
+        }
+    }
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<ResponseObject> cancelRequest(@PathVariable UUID id) { // ← đổi Long thành UUID
+        try {
+            citizenService.cancelRequest(id);
+            return ResponseEntity.ok(new ResponseObject(200, "Đã hủy yêu cầu", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseObject(500, "Lỗi hệ thống", null));
         }
     }
 }

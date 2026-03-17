@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.rescue.backend.utils.CloudinaryUtils.extractPublicId;
 
@@ -245,5 +242,12 @@ public class CitizenService {
                     }
                 })
                 .toList();
+    }
+    @Transactional
+    public void cancelRequest(UUID id) {
+        Request request = requestDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu"));
+        request.setStatus("đã huỷ");
+        requestDAO.save(request);
     }
 }

@@ -1,30 +1,74 @@
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
+import axios from "axios";
+import { useState } from "react";
 import { type RequestSchemaType } from "@/validations/user.request.schema";
-
 interface AfterRequestPageProps {
   submittedData: RequestSchemaType | null;
+  requestId: string | number | null;
   submittedPreviews: string[];
   rescueStatus: "pending" | "completed";
   onCancel: () => void;
-  onComplete: () => void;
   onOpenEdit: () => void;
   onOpenChat: () => void;
 }
 
 export default function AfterRequestPage({
   submittedData,
+  requestId,
   submittedPreviews,
   rescueStatus,
   onCancel,
   onOpenEdit,
   onOpenChat,
 }: AfterRequestPageProps) {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleCancelRequest = async () => {
+    try {
+      setLoading(true);
+      await axios.put(`/api/v1/citizen/cancel/${requestId}`);
+      setShowConfirm(false);
+      onCancel();
+    } catch {
+      alert("Hủy yêu cầu thất bại, vui lòng thử lại!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+      {/* Thêm dialog */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 mx-4 shadow-xl">
+            <h2 className="text-lg font-bold mb-2">Xác nhận hủy yêu cầu</h2>
+            <p className="text-gray-600 text-sm mb-6">
+              Bạn có chắc muốn hủy yêu cầu cứu hộ này không?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 border border-gray-300 py-2 rounded-lg text-sm font-semibold"
+              >
+                Không
+              </button>
+              <button
+                onClick={handleCancelRequest}
+                disabled={loading}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
+              >
+                {loading ? "Đang hủy..." : "Xác nhận hủy"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex items-center gap-3 pb-4">
         <button
-          onClick={onCancel}
+          onClick={() => setShowConfirm(true)}
           className="p-1 hover:bg-gray-100 rounded-full transition-colors -ml-1"
           title="Hủy yêu cầu cứu hộ"
         >
