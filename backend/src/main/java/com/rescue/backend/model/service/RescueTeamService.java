@@ -74,9 +74,9 @@ public class RescueTeamService {
                 assignment.getCitizen().getPhone(),
                 assignment.getUrgency(),
                 assignment.getAddress(),
-                assignment.getLatitude() != null ? assignment.getLatitude().doubleValue() : 0.0,
-                assignment.getLongitude() != null ? assignment.getLongitude().doubleValue() : 0.0,
-                assignment.getVehicle() != null ? assignment.getVehicle().getType() : "Chưa điều xe",
+                assignment.getLatitude().doubleValue(),
+                assignment.getLongitude().doubleValue(),
+                assignment.getVehicle().getType(), // vehicleType
                 assignment.getDescription(),
                 assignment.getCoordinator() != null ? assignment.getCoordinator().getName() : "Hệ thống tự động",
                 assignment.getCreatedAt() != null ? assignment.getCreatedAt().toString() : "",
