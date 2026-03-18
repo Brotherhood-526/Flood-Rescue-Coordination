@@ -56,6 +56,16 @@ export default function AfterRequestPage({
                 Không
               </button>
               <button
+                onClick={() => {
+                  setShowConfirm(false);
+                  onCancel(); // chỉ reset UI không gọi API hủy
+                }}
+                className="flex-1 border border-gray-500 bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-lg text-sm font-semibold"
+              >
+                Thoát
+              </button>
+
+              <button
                 onClick={handleCancelRequest}
                 disabled={loading}
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
