@@ -9,7 +9,7 @@ public class CloudinaryUtils {
 
     /**
      * Tách Public ID từ URL Cloudinary
-     * URL mẫu: https://res.cloudinary.com/diag3tget/image/upload/v1770796864/rescue_requests/uquxkzzyxwomaohcqp8s.jpg
+     * URL mẫu: <a href="https://res.cloudinary.com/diag3tget/image/upload/v1770796864/rescue_requests/uquxkzzyxwomaohcqp8s.jpg">...</a>
      * Kết quả: rescue_requests/uquxkzzyxwomaohcqp8s
      */
     public static String extractPublicId(String url) {

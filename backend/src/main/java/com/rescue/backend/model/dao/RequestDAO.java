@@ -24,8 +24,6 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
             List<String> status, String citizenPhone
     );
 
-    Optional<Request> findById(@Nonnull UUID requestId);
-
     @Query("""
     SELECT new com.rescue.backend.view.dto.coordinator.response.TakeListResponse(
         r.id,
@@ -91,4 +89,6 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
     Optional<Request> findByRescueTeamIdAndId(UUID rescueTeamId, UUID id);
 
     Optional<Request> findByRescueTeamId(UUID rescueTeamId);
+
+    long countByRescueTeamId(UUID rescueTeamId);
 }

@@ -37,6 +37,8 @@ public class CorsConfig {
                     }
                 }
             }
-        };
+        });
+        filter.setOrder(Ordered.LOWEST_PRECEDENCE - 1);
+        return filter;
     }
 }
