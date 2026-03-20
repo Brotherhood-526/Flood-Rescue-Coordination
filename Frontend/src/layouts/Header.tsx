@@ -79,12 +79,6 @@ export function RescueHeader({ noty }: { noty: boolean }) {
         </div>
 
         <div className="flex items-center gap-6">
-          <button
-            onClick={() => setIsLogoutOpen(true)}
-            className="relative flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-black transition-colors bg-[#e5e7eb] rounded hover:bg-[#d1d5db] cursor-pointer"
-          >
-            <span>Đăng xuất</span>
-          </button>
           <button className="relative flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-black transition-colors bg-[#e5e7eb] rounded hover:bg-[#d1d5db] cursor-pointer">
             <Bell size={18} className="fill-black" />
             <span>Thông báo</span>
@@ -105,6 +99,12 @@ export function RescueHeader({ noty }: { noty: boolean }) {
               {displayUserName}
             </span>
           </div>
+          <button
+            onClick={() => setIsLogoutOpen(true)}
+            className="relative flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-black transition-colors bg-[#e5e7eb] rounded hover:bg-[#d1d5db] cursor-pointer"
+          >
+            <span>Đăng xuất</span>
+          </button>
         </div>
       </header>
       <ConfirmDialog
