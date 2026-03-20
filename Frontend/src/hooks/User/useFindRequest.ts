@@ -107,6 +107,7 @@ export const useFindRequest = () => {
         isSubmitted: true,
         requestId: rawApiData.requestId,
         status: rawApiData.status,
+        imageUrls: rawApiData.images?.map((img) => img.imageUrl) ?? [],
         submittedData: {
           name: rawApiData.citizenName,
           phone: rawApiData.citizenPhone,
