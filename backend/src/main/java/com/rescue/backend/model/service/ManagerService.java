@@ -89,7 +89,7 @@ public class ManagerService {
             staff.setLongitude(null);
         } else {
             staff.setRole("cứu hộ");
-            staff.setTeamName(createStaffRequest.name());
+            staff.setTeamName(createStaffRequest.team_name());
             staff.setTeamSize(createStaffRequest.team_size());
             staff.setLatitude(createStaffRequest.latitude());
             staff.setLongitude(createStaffRequest.longitude());
@@ -116,7 +116,10 @@ public class ManagerService {
 
         staff.setName(updateStaffRequest.name());
         staff.setPhone(updateStaffRequest.phone());
-        staff.setPassword(passwordEncoder.encode(updateStaffRequest.password()));
+
+        if (updateStaffRequest.password() != null && !updateStaffRequest.password().isBlank()) {
+            staff.setPassword(passwordEncoder.encode(updateStaffRequest.password()));
+        }
 
         if ("điều phối viên".equals(updateStaffRequest.role())) {
             staff.setRole("điều phối viên");
@@ -126,7 +129,7 @@ public class ManagerService {
             staff.setLongitude(null);
         } else {
             staff.setRole("cứu hộ");
-            staff.setTeamName(updateStaffRequest.name());
+            staff.setTeamName(updateStaffRequest.team_name());
             staff.setTeamSize(updateStaffRequest.team_size());
             staff.setLatitude(updateStaffRequest.latitude());
             staff.setLongitude(updateStaffRequest.longitude());
@@ -194,12 +197,14 @@ public class ManagerService {
         Staff staff = staffDAO.findById(createVehicleRequest.rescueTeamId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đội cứu hộ với ID này"));
 
-        if (vehicle.getType() == null || !VALID_VehicleTypes.contains(vehicle.getType())) {
-            throw new IllegalArgumentException("Loại phương tiện '" + createVehicleRequest.type() + "' không hợp lệ");
-        } else {
-            vehicle.setType(createVehicleRequest.type());
-            vehicle.setStaff(staff);
+        String newType = createVehicleRequest.type();
+
+        if (newType == null || !VALID_VehicleTypes.contains(newType.trim().toLowerCase())) {
+            throw new IllegalArgumentException("Loại phương tiện '" + newType + "' không hợp lệ");
         }
+
+        vehicle.setType(createVehicleRequest.type());
+        vehicle.setStaff(staff);
 
         vehicleDAO.save(vehicle);
         return getVehicles(search, page);
@@ -234,7 +239,7 @@ public class ManagerService {
         Page<Staff> rescueTeams;
 
         if (search == null || search.isBlank()) {
-            rescueTeams = staffDAO.findAll(pageable);
+            rescueTeams = staffDAO.findAllByRole("cứu hộ", pageable);
         } else {
             rescueTeams = staffDAO.searchByRoleAndKeyword("cứu hộ", search, pageable);
         }
