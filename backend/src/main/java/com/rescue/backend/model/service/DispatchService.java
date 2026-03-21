@@ -37,12 +37,13 @@ public class DispatchService {
     @Autowired
     private ChatService chatService;
 
-     public  TakePageResponse getRequestCitizen(TakeListRequest takeListRequest){
-         Page<TakeListResponse> page =
-                 requestDAO.getRequestCitizen(takeListRequest.status(), PageRequest.of(takeListRequest.pageNumber(), takeListRequest.pageSize()));
+    public TakePageResponse getRequestCitizen(TakeListRequest takeListRequest) {
 
-         return new TakePageResponse(page.getTotalPages(), page.getContent());
-     }
+        List<TakeListResponse> list =
+                requestDAO.getRequestCitizen(takeListRequest.status());
+
+        return new TakePageResponse(1, list);
+    }
 
     public SpecificResponse getSpecificRequest(UUID id) {
         SpecificResponse response = requestDAO.findRequestDetail(id);

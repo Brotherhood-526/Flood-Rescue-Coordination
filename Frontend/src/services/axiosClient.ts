@@ -1,13 +1,12 @@
 import axios from "axios";
 
-// Create instance
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL, // Nhớ config .env
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: 30000,
 });
 
 apiClient.interceptors.response.use(

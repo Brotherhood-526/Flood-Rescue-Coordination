@@ -1,31 +1,84 @@
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
 import { type RequestSchemaType } from "@/validations/user.request.schema";
-
+import axiosClient from "@/services/axiosClient";
 interface AfterRequestPageProps {
   submittedData: RequestSchemaType | null;
+  requestId: string | number | null;
   submittedPreviews: string[];
-  rescueStatus: "pending" | "completed";
+  status: string | null;
   onCancel: () => void;
-  onComplete: () => void;
   onOpenEdit: () => void;
   onOpenChat: () => void;
 }
 
 export default function AfterRequestPage({
   submittedData,
+  requestId,
   submittedPreviews,
-  rescueStatus,
+  status,
   onCancel,
-  onComplete,
   onOpenEdit,
   onOpenChat,
 }: AfterRequestPageProps) {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleCancelRequest = async () => {
+    try {
+      setLoading(true);
+      await axiosClient.put(`/citizen/cancel/${requestId}`);
+      setShowConfirm(false);
+      onCancel();
+    } catch {
+      alert("Hủy yêu cầu thất bại, vui lòng thử lại!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+      {/* Thêm dialog */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 mx-4 shadow-xl">
+            <h2 className="text-lg font-bold mb-2">Xác nhận hủy yêu cầu</h2>
+            <p className="text-gray-600 text-sm mb-6">
+              Bạn có chắc muốn hủy yêu cầu cứu hộ này không?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 border border-gray-300 py-2 rounded-lg text-sm font-semibold"
+              >
+                Không
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirm(false);
+                  onCancel(); // chỉ reset UI không gọi API hủy
+                }}
+                className="flex-1 border border-gray-500 bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-lg text-sm font-semibold"
+              >
+                Thoát
+              </button>
+
+              <button
+                onClick={handleCancelRequest}
+                disabled={loading}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
+              >
+                {loading ? "Đang hủy..." : "Xác nhận hủy"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex items-center gap-3 pb-4">
         <button
-          onClick={onCancel}
+          onClick={() => setShowConfirm(true)}
           className="p-1 hover:bg-gray-100 rounded-full transition-colors -ml-1"
           title="Hủy yêu cầu cứu hộ"
         >
@@ -34,21 +87,6 @@ export default function AfterRequestPage({
         <h1 className="text-2xl font-bold flex items-center gap-2">
           Thông tin cứu hộ
         </h1>
-        <button
-          onClick={onComplete}
-          disabled={rescueStatus === "completed"}
-          className="ml-auto rounded-full p-1 transition-all hover:bg-gray-100 disabled:hover:bg-transparent disabled:cursor-default"
-          title={
-            rescueStatus === "completed"
-              ? "Đã cứu hộ thành công"
-              : "Xác nhận đã được cứu hộ"
-          }
-        >
-          <CheckCircle2
-            className={`w-7 h-7 transition-colors ${rescueStatus === "completed" ? "text-green-500" : "text-black hover:scale-110"}`}
-            fill="white"
-          />
-        </button>
       </div>
 
       <hr className="border-black mb-3" />
@@ -73,15 +111,11 @@ export default function AfterRequestPage({
         </div>
         <div className="flex items-center">
           <span className="font-semibold w-32">Trạng thái:</span>
-          {rescueStatus === "pending" ? (
-            <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
-              Đang xử lý
-            </span>
-          ) : (
-            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
-              Hoàn thành
-            </span>
-          )}
+          <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+            {status
+              ? status.charAt(0).toUpperCase() + status.slice(1)
+              : "Yêu cầu mới"}
+          </span>
         </div>
 
         <div className="flex items-center">

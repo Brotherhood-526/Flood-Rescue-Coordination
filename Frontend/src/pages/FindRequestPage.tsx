@@ -4,9 +4,23 @@ import Footer from "@/layouts/Footer";
 import { useFindRequest } from "@/hooks/User/useFindRequest";
 
 export default function FindRequestPage() {
-  const { phoneInput, setPhoneInput, isLoading, apiResponse, handleSearch } =
-    useFindRequest();
-
+  const {
+    phoneInput,
+    setPhoneInput,
+    isLoading,
+    apiResponse,
+    handleSearch,
+    handleViewDetail,
+  } = useFindRequest();
+  const formatStatus = (status: string) => {
+    if (!status) return "Đang cập nhật";
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+  // Format lại datetime
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "N/A";
+    return new Date(dateStr).toLocaleString("vi-VN");
+  };
   const renderContent = () => {
     if (!apiResponse) return null;
     if (!apiResponse.success || !apiResponse.data) {
@@ -100,13 +114,13 @@ export default function FindRequestPage() {
                     {victim_details.full_name}
                   </td>
                   <td className="p-3 border border-gray-400 text-center">
-                    {victim_details.urgency_level}
+                    {formatStatus(victim_details.urgency_level)}
                   </td>
                   <td className="p-3 border border-gray-400 text-center">
-                    {victim_details.current_status}
+                    {formatStatus(victim_details.current_status)}
                   </td>
                   <td className="p-3 border border-gray-400 text-center">
-                    {victim_details.created_at}
+                    {formatDate(victim_details.created_at)}
                   </td>
                 </tr>
               </tbody>
@@ -115,13 +129,23 @@ export default function FindRequestPage() {
         </div>
 
         <div className="flex justify-end mt-3 mb-20">
-          <a
-            href="#"
-            className="group flex items-center gap-1 text-black font-semibold hover:text-blue-500 transition-colors italic underline"
-          >
-            Xem chi tiết{" "}
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </a>
+          {victim_details.current_status?.toLowerCase() === "đã hủy" ? (
+            <span className="text-red-500 font-semibold italic text-sm">
+              Yêu cầu đã bị hủy — không thể xem chi tiết
+            </span>
+          ) : (
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleViewDetail();
+              }}
+              className="group flex items-center gap-1 text-black font-semibold hover:text-blue-500 transition-colors italic underline"
+            >
+              Xem chi tiết{" "}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </a>
+          )}
         </div>
       </div>
     );

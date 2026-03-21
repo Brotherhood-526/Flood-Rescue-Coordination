@@ -44,7 +44,7 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
     WHERE (:status IS NULL OR :status = '' OR r.status = :status)
     ORDER BY r.createdAt DESC
 """)
-    Page<TakeListResponse> getRequestCitizen(String status, Pageable pageable);
+    List<TakeListResponse> getRequestCitizen(String status);
 
     @Query("""
     SELECT new com.rescue.backend.view.dto.coordinator.response.SpecificResponse(

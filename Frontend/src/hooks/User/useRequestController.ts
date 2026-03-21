@@ -14,23 +14,19 @@ import {
   updateRescueRequest,
 } from "@/services/User/requestService";
 import type { ChatMessage } from "@/pages/User/ChatBoxDialog";
+import { useLocation } from "react-router-dom";
+import apiClient from "@/services/axiosClient";
 
 export const useRequestController = (
   mapContainer: React.RefObject<HTMLDivElement | null>,
 ) => {
+  const location = useLocation();
+  const routeState = location.state;
   const inputRef = useRef<HTMLInputElement>(null);
   const markerRef = useRef<vietmapgl.Marker | null>(null);
   const { map, mount, unmount } = useVietMap();
-  const [requestId, setRequestId] = useState<string | number | null>(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submittedData, setSubmittedData] = useState<RequestSchemaType | null>(
-    null,
-  );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("address");
-  const [rescueStatus, setRescueStatus] = useState<"pending" | "completed">(
-    "pending",
-  );
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -53,6 +49,53 @@ export const useRequestController = (
       bgClass: "bg-[#6366f1]",
     },
   ]);
+
+  const [isSubmitted, setIsSubmitted] = useState(
+    routeState?.isSubmitted ?? !!localStorage.getItem("rescue_requestId"),
+  );
+  const [requestId, setRequestId] = useState<string | null>(
+    routeState?.requestId ?? localStorage.getItem("rescue_requestId"),
+  );
+  const [phone, setPhone] = useState<string | null>(
+    routeState?.submittedData?.phone ?? localStorage.getItem("rescue_phone"),
+  );
+  const [submittedData, setSubmittedData] = useState<RequestSchemaType | null>(
+    routeState?.submittedData ?? null,
+  );
+  const [status, setStatus] = useState<string | null>(
+    routeState?.status ?? null,
+  );
+
+  // Refetch khi có localStorage nhưng không có routeState
+  useEffect(() => {
+    if (!isSubmitted || !phone || submittedData) return;
+    const refetch = async () => {
+      try {
+        const res = await apiClient.post("/citizen/lookup", {
+          citizenPhone: phone,
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const raw = res as any;
+        setStatus(raw.status);
+        setSubmittedData({
+          name: raw.citizenName,
+          phone: raw.citizenPhone,
+          type: raw.type ?? "",
+          address: raw.address ?? "",
+          locate:
+            raw.latitude && raw.longitude
+              ? `${raw.latitude}, ${raw.longitude}`
+              : "",
+          description: raw.description ?? "",
+          url: raw.additionalLink ?? "",
+          image: undefined,
+        });
+      } catch (e) {
+        console.error("Lỗi refetch:", e);
+      }
+    };
+    refetch();
+  }, [isSubmitted, phone, submittedData]);
 
   const {
     register,
@@ -80,14 +123,40 @@ export const useRequestController = (
   const selectedType = watch("type");
   const currentImages = (watch("image") as File[]) || [];
 
-  // MAP
+  // cái map
   useEffect(() => {
     if (!mapContainer.current) return;
     mount(mapContainer.current);
     return () => unmount();
   }, [mount, unmount, mapContainer]);
 
-  //IMAGE PREVIEW
+  // Cắm lại cờ trên bản đồ
+  useEffect(() => {
+    if (!map || !isSubmitted || !submittedData?.locate) return;
+    const [lat, lng] = submittedData.locate
+      .split(",")
+      .map((item) => Number(item.trim()));
+    if (isNaN(lat) || isNaN(lng)) return;
+    markerRef.current?.remove();
+    markerRef.current = new vietmapgl.Marker({ color: "#EF4444" })
+      .setLngLat([lng, lat])
+      .addTo(map);
+    map.flyTo({ center: [lng, lat], zoom: 16 });
+  }, [map, isSubmitted, submittedData?.locate]);
+
+  useEffect(() => {
+    if (isDialogOpen && submittedData) {
+      setValue("name", submittedData.name ?? "");
+      setValue("phone", submittedData.phone ?? "");
+      setValue("type", submittedData.type ?? "");
+      setValue("address", submittedData.address ?? "");
+      setValue("locate", submittedData.locate ?? "");
+      setValue("description", submittedData.description ?? "");
+      setValue("url", submittedData.url ?? "");
+    }
+  }, [isDialogOpen, submittedData, setValue]);
+
+  // image preview
   const previews = useMemo(() => {
     if (!currentImages?.length) return [];
     return currentImages.map((file) => URL.createObjectURL(file));
@@ -126,7 +195,8 @@ export const useRequestController = (
       }
     });
   };
-  //HANDLERS
+
+  // HANDLERS
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -181,6 +251,8 @@ export const useRequestController = (
     );
   };
 
+  const [imageUrls] = useState<string[]>(routeState?.imageUrls ?? []);
+
   const handleConfirmAddress = async () => {
     const address = getValues("address");
     if (!address?.trim())
@@ -214,43 +286,49 @@ export const useRequestController = (
   const onSubmit = async (data: RequestSchemaType) => {
     try {
       const formData = new FormData();
-      formData.append("type", data.type);
-
-      formData.append("address", data.address);
-      formData.append("description", data.description);
-      formData.append("name", data.name);
-      formData.append("phone", data.phone);
-
-      if (data.url) {
-        formData.append("additionalLink", data.url);
-      }
-
-      if (data.locate) {
-        const [lat, lng] = data.locate.split(",").map((item) => item.trim());
-        formData.append("latitude", lat);
-        formData.append("longitude", lng);
-      }
-
-      if (data.image && data.image.length > 0) {
-        data.image.forEach((file) => {
-          formData.append("images", file);
-        });
-      }
 
       if (isSubmitted && requestId) {
+        formData.append("requestId", String(requestId));
+        formData.append("Type", data.type);
+        formData.append("address", data.address);
+        formData.append("description", data.description);
+        formData.append("citizenName", data.name);
+        formData.append("citizenPhone", data.phone);
+        if (data.url) formData.append("additionLink", data.url);
+        if (data.locate) {
+          const [lat, lng] = data.locate.split(",").map((s) => s.trim());
+          formData.append("latitude", lat);
+          formData.append("longitude", lng);
+        }
+        if (data.image?.length) {
+          data.image.forEach((file) => formData.append("images", file));
+        }
         await updateRescueRequest(requestId, formData);
         alert("Cập nhật thông tin thành công!");
         setIsDialogOpen(false);
       } else {
-        const response = await submitRescueRequest(formData);
-        if (response && response.requestId) {
-          setRequestId(response.requestId);
-        } else {
-          console.log("Không tìm thấy requestId từ BE trả về!");
+        formData.append("type", data.type);
+        formData.append("address", data.address);
+        formData.append("description", data.description);
+        formData.append("name", data.name);
+        formData.append("phone", data.phone);
+        if (data.url) formData.append("additionalLink", data.url);
+        if (data.locate) {
+          const [lat, lng] = data.locate.split(",").map((s) => s.trim());
+          formData.append("latitude", lat);
+          formData.append("longitude", lng);
         }
-
+        if (data.image?.length) {
+          data.image.forEach((file) => formData.append("images", file));
+        }
+        const response = await submitRescueRequest(formData);
+        if (response?.requestId) setRequestId(response.requestId);
+        if (response?.status) setStatus(response.status);
         alert("Gửi yêu cầu thành công!");
         setIsSubmitted(true);
+        setPhone(data.phone);
+        localStorage.setItem("rescue_requestId", response.requestId);
+        localStorage.setItem("rescue_phone", data.phone);
       }
 
       setSubmittedData(data);
@@ -261,23 +339,14 @@ export const useRequestController = (
   };
 
   const handleCancelRequest = () => {
-    if (
-      !window.confirm("Bạn có chắc muốn hủy yêu cầu cứu hộ này và thoát không?")
-    )
-      return;
     reset();
     setSubmittedData(null);
     setIsSubmitted(false);
     setRequestId(null);
-    setRescueStatus("pending");
     setValue("image", undefined);
     markerRef.current?.remove();
-  };
-
-  const handleCompleteRescue = () => {
-    if (rescueStatus === "completed") return;
-    if (window.confirm("Bạn muốn xác nhận đã được cứu hộ thành công?"))
-      setRescueStatus("completed");
+    localStorage.removeItem("rescue_requestId");
+    localStorage.removeItem("rescue_phone");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
@@ -307,41 +376,36 @@ export const useRequestController = (
   };
 
   return {
-    // refs
     inputRef,
-    // state
     isSubmitted,
     submittedData,
     isDialogOpen,
+    requestId,
+    status,
+    imageUrls,
     setIsDialogOpen,
     activeTab,
     setActiveTab,
-    rescueStatus,
     isChatOpen,
     setIsChatOpen,
     chatInput,
     setChatInput,
     chatMessages,
-    // form
     register,
     handleSubmit,
     setValue,
     errors,
     isSubmitting,
     selectedType,
-    // previews
     previews,
     submittedPreviews,
-    // handlers
     handleFileChange,
     handleRemoveImage,
     handleGetLocation,
     handleConfirmAddress,
     handleCancelRequest,
-    handleCompleteRescue,
     handleKeyDown,
     handleSendMessage,
-    // submit
     onSubmit,
   };
 };

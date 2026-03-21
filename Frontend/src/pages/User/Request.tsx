@@ -28,10 +28,7 @@ export default function RequestPage() {
                   {c.submittedData?.name || "Người dùng"}
                 </span>
                 <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md w-fit mt-0.5">
-                  ID:{" "}
-                  {c.submittedData?.phone
-                    ? `#${c.submittedData.phone}`
-                    : "#---"}
+                  ID: {c.requestId ? `#${String(c.requestId)}` : "#---"}
                 </span>
               </div>
             </div>
@@ -60,17 +57,19 @@ export default function RequestPage() {
         ) : (
           <AfterRequestPage
             submittedData={c.submittedData}
-            submittedPreviews={c.submittedPreviews}
-            rescueStatus={c.rescueStatus}
+            requestId={c.requestId}
+            status={c.status}
+            submittedPreviews={
+              c.imageUrls.length > 0 ? c.imageUrls : c.submittedPreviews
+            }
             onCancel={c.handleCancelRequest}
-            onComplete={c.handleCompleteRescue}
             onOpenEdit={() => c.setIsDialogOpen(true)}
             onOpenChat={() => c.setIsChatOpen(true)}
           />
         )}
       </div>
 
-      {/* RIGHT MAP */}
+      {/* right map */}
       <div className="flex-1 relative h-full">
         <div
           ref={mapContainer}

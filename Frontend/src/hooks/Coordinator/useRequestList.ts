@@ -9,7 +9,7 @@ type TakePageResponse = {
 
 export function useRequestList(status:string) {
 
-    const pageSize = 10;
+    // const pageSize = 10;
 
     const [pageNumber, setPageNumber] = useState(0);
     const [requestList, setRequestList] = useState<RescueRequest[]>([]);
@@ -36,7 +36,6 @@ export function useRequestList(status:string) {
 
             const res = await apiClient.post("/coordinator/takeListRequest", {
                 pageNumber,
-                pageSize,
                 status
             });
             console.log(res);
@@ -56,11 +55,11 @@ export function useRequestList(status:string) {
 
     useEffect(() => {
         fetchRequestList();
-    }, [pageNumber, pageSize, status]);
+    }, [pageNumber, status]);
 
     return {
         pageNumber,
-        pageSize,
+        // pageSize,
         totalPage,
         requestList,
         handlePageChange,

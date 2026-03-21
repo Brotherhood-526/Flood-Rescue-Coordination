@@ -3,7 +3,8 @@ import { isAxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { findRequestService } from "@/services/User/findRequestService";
 import type { CitizenLookupData } from "@/types/citizen";
-
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/router/routes";
 type FindRequestViewData = {
   assigned_team: {
     id: string | null;
@@ -56,14 +57,18 @@ const getErrorMessage = (error: unknown) => {
 };
 
 export const useFindRequest = () => {
+  const navigate = useNavigate();
   const [phoneInput, setPhoneInput] = useState("");
   const [apiResponse, setApiResponse] = useState<FindRequestApiResponse | null>(
     null,
   );
 
+  const [rawApiData, setRawApiData] = useState<CitizenLookupData | null>(null);
+
   const mutation = useMutation({
     mutationFn: findRequestService.lookupCitizen,
     onSuccess: (response: CitizenLookupData) => {
+      setRawApiData(response);
       setApiResponse({
         success: true,
         message: "Tìm thấy thông tin yêu cầu cứu hộ",
@@ -93,11 +98,38 @@ export const useFindRequest = () => {
     mutation.mutate({ citizenPhone: normalizedPhone });
   };
 
+  const handleViewDetail = () => {
+    if (!rawApiData || !apiResponse?.data) return;
+
+    navigate(ROUTES.REQUEST, {
+      state: {
+        // truyền qua router state thay localStorage
+        isSubmitted: true,
+        requestId: rawApiData.requestId,
+        status: rawApiData.status,
+        imageUrls: rawApiData.images?.map((img) => img.imageUrl) ?? [],
+        submittedData: {
+          name: rawApiData.citizenName,
+          phone: rawApiData.citizenPhone,
+          type: rawApiData.type ?? "",
+          address: rawApiData.address ?? "",
+          locate:
+            rawApiData.latitude && rawApiData.longitude
+              ? `${rawApiData.latitude}, ${rawApiData.longitude}`
+              : "",
+          description: rawApiData.description ?? "",
+          url: rawApiData.additionalLink ?? "",
+        },
+      },
+    });
+  };
+
   return {
     phoneInput,
     setPhoneInput,
     isLoading: mutation.isPending,
     apiResponse,
     handleSearch,
+    handleViewDetail,
   };
 };

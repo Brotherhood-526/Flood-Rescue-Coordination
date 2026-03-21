@@ -32,6 +32,7 @@ export const geocodeAddress = async (address: string) => {
 
 interface RescueResponse {
   requestId: string;
+  status: string;
 }
 export const submitRescueRequest = async (
   data: FormData,
@@ -46,7 +47,8 @@ export const updateRescueRequest = async (
   id: string | number,
   data: FormData,
 ) => {
-  const res = await apiClient.put(`/api/requests/${id}`, data, {
+  data.append("requestId", String(id));
+  const res = await apiClient.put(`/citizen/edit`, data, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res;

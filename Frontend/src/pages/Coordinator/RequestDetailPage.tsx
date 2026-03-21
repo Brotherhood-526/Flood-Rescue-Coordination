@@ -406,6 +406,13 @@ export function Information({ requestDetail }: { requestDetail: RequestDetail | 
     );
 }
 
+/**
+ * Render a card-sized mini map centered on DEFAULT_CENTER and display markers for predefined team and user locations.
+ *
+ * Mounts the VietMap instance into an internal container and adds markers for TEAM_LOCATIONS (team markers) and USER_LOCATIONS (user markers).
+ *
+ * @returns A JSX element containing the map card and its container
+ */
 export function MiniMap() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const { map, mount } = useVietMap();
