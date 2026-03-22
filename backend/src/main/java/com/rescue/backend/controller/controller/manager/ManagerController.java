@@ -89,7 +89,7 @@ public class ManagerController {
                     .body(new ResponseObject(200, "Xóa nhân viên thành công", staffs));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseObject(400, "Lỗi khi xóa nhân viên", null));
+                    .body(new ResponseObject(400, e.getMessage(), null));
         }
     }
 
@@ -132,6 +132,9 @@ public class ManagerController {
             Page<VehicleResponse> vehicles = managerService.updateVehicle(request, id, search, page);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseObject(200, "Cập nhật phương tiện thành công", vehicles));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseObject(400, e.getMessage(), null));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ResponseObject(404, e.getMessage(), null));
@@ -147,9 +150,9 @@ public class ManagerController {
             Page<VehicleResponse> vehicles = managerService.deleteVehicle(id, search);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseObject(200, "Xóa phương tiện thành công", vehicles));
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ResponseObject(400, "Lỗi khi xóa phương tiện", null));
+                    .body(new ResponseObject(400, e.getMessage(), null));
         }
     }
 
@@ -179,7 +182,7 @@ public class ManagerController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseObject(200, "Lấy danh sách đội cứu hộ thành công", rescueTeams));
         } catch (Exception e) {
-            return  ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseObject(400, e.getMessage(), null));
         }
     }

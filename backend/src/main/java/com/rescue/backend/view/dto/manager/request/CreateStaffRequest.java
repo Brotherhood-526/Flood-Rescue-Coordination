@@ -7,8 +7,8 @@ public record CreateStaffRequest(
     String phone,
     String password,
     String role,
-    String team_name,
-    int team_size,
+    String teamName,
+    int teamSize,
     BigDecimal latitude,
     BigDecimal longitude
 ) {

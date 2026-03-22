@@ -19,7 +19,7 @@ public interface VehicleDAO extends JpaRepositoryImplementation<Vehicle, UUID> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Vehicle v SET v.state = :state WHERE v.id = :id AND v.state = 'free'")
+    @Query("UPDATE Vehicle v SET v.state = :state WHERE v.id = :id AND v.state = 'không hoạt động'")
     int setVehicle(UUID id, String state);
 
     @Query("""
@@ -32,7 +32,7 @@ public interface VehicleDAO extends JpaRepositoryImplementation<Vehicle, UUID> {
             FROM Vehicle v
             JOIN v.staff s
             WHERE v.type = :type
-            AND v.state = 'free'
+            AND v.state = 'không hoạt động'
             """)
     List<FilterVehicleResponse> filterVehicleByType(String type);
 

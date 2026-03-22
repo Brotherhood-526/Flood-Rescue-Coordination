@@ -37,10 +37,10 @@ public class Staff {
     @Column(nullable = false, length = 20)
     private String role;
 
-    @Column(name = "team_name", length = 50)
+    @Column(name = "teamName", length = 50)
     private String teamName;
 
-    @Column(name = "team_size")
+    @Column(name = "teamSize")
     private Integer teamSize;
 
     @Column(precision = 18, scale = 10)

@@ -17,11 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +48,7 @@ public class ManagerService {
 
     public Page<StaffResponse> getStaffs(String search, int page) {
 
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("id").ascending());
 
         Page<Staff> staffs;
 
@@ -68,7 +71,7 @@ public class ManagerService {
     public Page<StaffResponse> createStaffs(CreateStaffRequest createStaffRequest) {
         String role = createStaffRequest.role();
         if (role == null || !VALID_ROLES.contains(role.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Role không hợp lệ. Chỉ chấp nhận: 'điều phối viên' hoặc 'đội cứu hộ'");
+            throw new IllegalArgumentException("Role không hợp lệ. Chỉ chấp nhận: 'điều phối viên' hoặc 'cứu hộ'");
         }
 
         if (staffDAO.existsByPhone(createStaffRequest.phone())) {
@@ -89,8 +92,8 @@ public class ManagerService {
             staff.setLongitude(null);
         } else {
             staff.setRole("cứu hộ");
-            staff.setTeamName(createStaffRequest.team_name());
-            staff.setTeamSize(createStaffRequest.team_size());
+            staff.setTeamName(createStaffRequest.teamName());
+            staff.setTeamSize(createStaffRequest.teamSize());
             staff.setLatitude(createStaffRequest.latitude());
             staff.setLongitude(createStaffRequest.longitude());
         }
@@ -118,10 +121,12 @@ public class ManagerService {
         staff.setPhone(updateStaffRequest.phone());
 
         if (updateStaffRequest.password() != null && !updateStaffRequest.password().isBlank()) {
-            staff.setPassword(passwordEncoder.encode(updateStaffRequest.password()));
+            if (!passwordEncoder.matches(updateStaffRequest.password(), staff.getPassword())) {
+                staff.setPassword(passwordEncoder.encode(updateStaffRequest.password()));
+            }
         }
 
-        if ("điều phối viên".equals(updateStaffRequest.role())) {
+        if ("điều phối viên".equalsIgnoreCase(updateStaffRequest.role().trim())) {
             staff.setRole("điều phối viên");
             staff.setTeamName(null);
             staff.setTeamSize(null);
@@ -129,8 +134,8 @@ public class ManagerService {
             staff.setLongitude(null);
         } else {
             staff.setRole("cứu hộ");
-            staff.setTeamName(updateStaffRequest.team_name());
-            staff.setTeamSize(updateStaffRequest.team_size());
+            staff.setTeamName(updateStaffRequest.teamName());
+            staff.setTeamSize(updateStaffRequest.teamSize());
             staff.setLatitude(updateStaffRequest.latitude());
             staff.setLongitude(updateStaffRequest.longitude());
         }
@@ -151,7 +156,7 @@ public class ManagerService {
 
     // Vehicle
     public Page<VehicleResponse> getVehicles(String search, int page) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("id").ascending());
 
         Page<Vehicle> vehicles;
 
@@ -181,6 +186,9 @@ public class ManagerService {
         Staff staff = staffDAO.findById(createVehicleRequest.rescueTeamId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đội cứu hộ với ID " + createVehicleRequest.rescueTeamId()));
 
+        if (!"cứu hộ".equals(staff.getRole())) {
+            throw new IllegalArgumentException("Nhân viên không hợp lệ: chỉ cho phép 'cứu hộ'");
+        }
 
         vehicle.setType(createVehicleRequest.type());
         vehicle.setStaff(staff);
@@ -229,12 +237,13 @@ public class ManagerService {
                         (String) row[1]
                 ))
                 .toList();
+
     }
 
 
     //Rescue team
     public Page<RescueTeamResponse> getRescueTeams(String search, int page) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("id").ascending());
 
         Page<Staff> rescueTeams;
 
@@ -244,13 +253,24 @@ public class ManagerService {
             rescueTeams = staffDAO.searchByRoleAndKeyword("cứu hộ", search, pageable);
         }
 
+        List<UUID> teamIds = rescueTeams.getContent().stream()
+                .map(Staff::getId)
+                .toList();
+
+        Map<UUID, Long> requestCountsMap = requestDAO.countRequestsByRescueTeamIds(teamIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        result -> (UUID) result[0],
+                        result -> (Long) result[1]
+                ));
+
         return rescueTeams.map(staff -> new RescueTeamResponse(
                 staff.getId(),
                 staff.getName(),
                 staff.getTeamSize(),
                 staff.getPhone(),
                 staff.getStaffState(),
-                requestDAO.countByRescueTeamId(staff.getId())
+                requestCountsMap.getOrDefault(staff.getId(), 0L)
         ));
     }
 

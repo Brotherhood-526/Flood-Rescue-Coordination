@@ -101,10 +101,11 @@ public class RescueTeamService {
                 assignment.setStatus("tạm hoãn");
                 break;
             default:
+                throw new IllegalArgumentException("Trạng thái không hợp lệ");
         }
 
         requestDAO.save(assignment);
 
-        return (status.equalsIgnoreCase("hoàn thành")) ? "Nhiệm vụ hoàn thành" : "Nhiệm vụ đã được tạm hoãn";
+        return (assignment.getStatus().equalsIgnoreCase("hoàn thành")) ? "Nhiệm vụ hoàn thành" : "Nhiệm vụ đã được tạm hoãn";
     }
 }
