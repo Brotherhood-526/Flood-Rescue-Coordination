@@ -1,31 +1,34 @@
-import apiClient from "@/services/axiosClient.ts";
-import {useEffect, useState} from "react";
-import type {RequestDetail} from "@/pages/Coordinator/RequestDetailPage.tsx";
+import { useEffect, useState, useCallback } from "react";
+import apiClient from "@/services/axiosClient";
+import type { RequestDetail } from "@/types/coordinator";
 
+export const useRequestDetail = (id: string) => {
+  const [requestDetail, setRequestDetail] = useState<RequestDetail | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export function useRequestDetail({id}:{id:string}) {
-    const [requestDetail, setRequestDetail] = useState<RequestDetail | null>(null);
+  const fetchRequestDetail = useCallback(async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const res = (await apiClient.post("/coordinator/takeSpecificRequest", {
+        id,
+      })) as unknown as RequestDetail;
+      setRequestDetail(res);
+    } catch (err) {
+      console.error("Fetch request detail failed:", err);
+      setError("Không thể tải chi tiết yêu cầu.");
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
-    useEffect(() => {
-        const fetchRequestDetail = async () => {
-            try {
-                console.log("id:", id);
-                const res = await apiClient.post("/coordinator/takeSpecificRequest", {
-                    id: id,
-                });
+  useEffect(() => {
+    fetchRequestDetail();
+  }, [fetchRequestDetail]);
 
-                const detail = res as unknown as RequestDetail;
-                setRequestDetail(detail);
-            } catch (error) {
-                console.error("Fetch request detail failed:", error);
-            }
-        };
-
-        if (id) {
-            fetchRequestDetail();
-        }
-    }, [id]);
-
-
-    return requestDetail;
-}
+  return { requestDetail, loading, error, refetch: fetchRequestDetail };
+};

@@ -15,7 +15,8 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/router/routes";
 import { CommonTable } from "@/layouts/DataTable";
 import { TableCell, TableRow } from "@/components/ui/table";
-import type { RescueRequest } from "@/services/Rescue/rescueTeamService";
+import type { RescueRequest } from "@/types/rescue";
+import { formatDateVN } from "@/utils/parseDate";
 
 export default function ListRescuePage() {
   // Quản lý state cho UI
@@ -170,12 +171,6 @@ export default function ListRescuePage() {
               const shortId = row.id
                 ? row.id.substring(0, 8).toUpperCase()
                 : "N/A";
-              const formattedDate = row.createdAt
-                ? row.createdAt.includes("T")
-                  ? new Date(row.createdAt).toLocaleString("vi-VN")
-                  : row.createdAt
-                : "N/A";
-
               return (
                 <TableRow
                   key={idx}
@@ -192,7 +187,7 @@ export default function ListRescuePage() {
                   </TableCell>
                   <TableCell>{renderStatusBadge(row.status)}</TableCell>
                   <TableCell className="text-gray-600 font-medium">
-                    {formattedDate}
+                    {formatDateVN(row.createdAt)}
                   </TableCell>
                 </TableRow>
               );

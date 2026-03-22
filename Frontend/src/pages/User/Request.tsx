@@ -30,7 +30,7 @@ export default function RequestPage() {
               </div>
               <button
                 onClick={c.handleCancelRequest}
-                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-200 border-1 border-black text-black rounded-full text-xs font-semibold transition-all shrink-0"
+                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-200 border-2 border-black text-black rounded-full text-xs font-semibold transition-all shrink-0"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 Thoát
@@ -43,7 +43,7 @@ export default function RequestPage() {
         {!c.isSubmitted ? (
           <BeforeRequestPage
             isSubmitting={c.isSubmitting}
-            onSubmitForm={c.handleSubmit(c.onSubmit)}
+            onSubmitForm={c.onSubmitForm}
             handleKeyDown={c.handleKeyDown}
             register={c.register}
             errors={c.errors}
@@ -100,7 +100,7 @@ export default function RequestPage() {
         onOpenChange={c.setIsDialogOpen}
         isSubmitted={c.isSubmitted}
         isSubmitting={c.isSubmitting}
-        onSubmitForm={c.handleSubmit(c.onSubmit)}
+        onSubmitForm={c.onSubmitForm}
         handleKeyDown={c.handleKeyDown}
         register={c.register}
         errors={c.errors}

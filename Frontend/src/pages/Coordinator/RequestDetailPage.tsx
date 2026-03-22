@@ -7,7 +7,7 @@ import {
   Van,
   Ship,
 } from "lucide-react";
-import { Button } from "@/components/ui/button.tsx";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,102 +15,70 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card.tsx";
-
-import { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { ROUTES } from "@/router/routes.tsx";
-import { useVietMap } from "@/lib/MapProvider.tsx";
-import vietmapgl from "@vietmap/vietmap-gl-js";
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select.tsx";
-import { Textarea } from "@/components/ui/textarea.tsx";
-import { Input } from "@/components/ui/input.tsx";
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useVietMap } from "@/lib/MapProvider";
+import vietmapgl from "@vietmap/vietmap-gl-js";
+import { ROUTES } from "@/router/routes";
 import { useRequestDetail } from "@/hooks/Coordinator/useRequestDetail";
-import type { RescueRequest } from "@/pages/Coordinator/ListRequestPage.tsx";
-
 import { useVehicleList } from "@/hooks/Coordinator/useVehicle";
+import { timeAgo } from "@/utils/timeAgo";
+import { getRequestTypeLabel } from "@/utils/requestHelpers";
+import type { CoordinatorRequest } from "@/types/coordinator";
 
-const DEFAULT_CENTER: [number, number] = [10.7769, 106.7009];
+const DEFAULT_CENTER: [number, number] = [106.7009, 10.7769];
 
+// TODO: thay bằng data thật từ API
 const USER_LOCATIONS: [number, number][] = [
-  [10.8231, 106.6297],
-  [10.8453, 106.6577],
-  [10.7314, 106.6936],
-  [10.8012, 106.7143],
-  [10.756, 106.6723],
-  [10.8655, 106.743],
+  [106.6297, 10.8231],
+  [106.6577, 10.8453],
+  [106.6936, 10.7314],
+  [106.7143, 10.8012],
+  [106.6723, 10.756],
+  [106.743, 10.8655],
 ];
 
+// TODO: thay bằng data thật từ API
 const TEAM_LOCATIONS: [number, number][] = [
-  [10.7769, 106.7009],
-  [10.838, 106.667],
-  [10.7904, 106.635],
-  [10.7432, 106.6298],
-  [10.87, 106.803],
+  [106.7009, 10.7769],
+  [106.667, 10.838],
+  [106.635, 10.7904],
+  [106.6298, 10.7432],
+  [106.803, 10.87],
 ];
 
-export type RequestDetail = {
-  id: string;
-  type: string;
-  description: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  additionalLink: string;
-  status: string;
-  createdAt: string;
-
-  urgency: string | null;
-  rescueTeamId: string | null;
-  rescueTeamName: string | null;
-  vehicleId: string | null;
-  vehicleType: string | null;
-};
-
-/**
- * Page container that displays a rescue request's detail view and controls.
- *
- * Renders a top bar with navigation actions (back and open full map) and the
- * Solving layout which contains the information panel and the mini map.
- *
- * @returns The page's JSX element representing the request detail view.
- */
 export default function RequestDetailPage() {
-  const topButoons = "!bg-gray-300 !text-black !font-bold";
-
   const navigate = useNavigate();
-
-  const handleFullMap = () => {
-    navigate(ROUTES.FULLMAP);
-  };
-
-  const handleBack = () => {
-    navigate(-1);
-  };
 
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex flex-col flex-1 w-full bg-white pt-[6vh]">
-        <div
-          className="flex flex-row flex-[0.5] justify-between items-center
-            px-[2vw] mb-[2vh]"
-        >
+        <div className="flex flex-row flex-[0.5] justify-between items-center px-[2vw] mb-[2vh]">
           <div className="flex flex-row gap-[1vw]">
-            <Button className={topButoons} onClick={handleBack}>
+            <Button
+              className="bg-gray-300!text-black! font-bold!"
+              onClick={() => navigate(-1)}
+            >
               <Undo2 className="w-5! h-5!" strokeWidth={2.5} />
               Quay Lại
             </Button>
-            <Button className={topButoons}>Hộp thoại</Button>
+            <Button className="bg-gray-300! text-black! font-bold!">
+              Hộp thoại
+            </Button>
           </div>
           <Button
             className="bg-gray-300! text-black! font-bold!"
-            onClick={handleFullMap}
+            onClick={() => navigate(ROUTES.COORDINATE_MAP)}
           >
             Toàn bản đồ
           </Button>
@@ -121,82 +89,43 @@ export default function RequestDetailPage() {
   );
 }
 
-export function Solving() {
+function Solving() {
   return (
-    <div
-      className="w-full flex-[9.5] bg-white pt-[1vh]
-        flex flex-row justify-between items-start px-[2vw]"
-    >
+    <div className="w-full flex-[9.5] bg-white pt-[1vh] flex flex-row justify-between items-start px-[2vw]">
       <Information />
       <MiniMap />
     </div>
   );
 }
 
-export function Information() {
+function Information() {
   const [vehicle, setVehicle] = useState<string | null>(null);
   const [urgency, setUrgency] = useState<string | null>(null);
   const [rescueTeam, setRescueTeam] = useState<string | null>(null);
 
-  const rescueTeams = useVehicleList({ type: vehicle });
   const { id } = useParams();
-  const requestDetail = useRequestDetail({ id: id! });
+  const location = useLocation();
+  const request = location.state as CoordinatorRequest;
+
+  const { requestDetail } = useRequestDetail(id!);
+  const { vehicleList } = useVehicleList(vehicle);
+
   const displayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const displayUrgency = urgency ?? requestDetail?.urgency ?? null;
   const displayRescueTeam = rescueTeam ?? requestDetail?.rescueTeamName ?? null;
 
   const activeStyle = "!bg-gray-100";
-  console.log("ID from usePara", id);
-
-  const location = useLocation();
-  const request = location.state as RescueRequest;
-
-  console.log(requestDetail);
-
   const normalStyle = "!bg-transparent";
-
-  const fakeImgLink = "";
-
   const vehiclesButton =
     "flex flex-col gap-0 !w-[6vw] !h-[8vh] !border-gray-300 !text-black";
   const miniDiv = "flex flex-col gap-1";
 
-  function timeAgo(createdAt: string) {
-    const createdTime = new Date(createdAt.replace(" ", "T"));
-    const now = new Date();
-
-    // @ts-expect-error Date subtraction returns number in JS, but TS may complain about types
-    const diffMs = now - createdTime;
-
-    const seconds = Math.floor(diffMs / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (seconds < 60) return `${seconds} giây trước`;
-    if (minutes < 60) return `${minutes} phút trước`;
-    if (hours < 24) return `${hours} giờ trước`;
-    return `${days} ngày trước`;
-  }
-
-  function requestType(type?: string) {
-    switch (type) {
-      case "goods":
-        return "cung cấp như yếu phẩm";
-      case "rescue":
-        return "cứu hộ";
-      default:
-        return "khác";
-    }
-  }
   return (
-    <Card
-      className="bg-white w-[54vw] h-[75vh] py-[2vh]!
-        overflow-y-auto hide-scrollbar"
-    >
+    <Card className="bg-white w-[54vw] h-[75vh] py-[2vh]! overflow-y-auto hide-scrollbar">
       <CardHeader>
         <CardTitle className="text-lg font-bold mb-[-1vh]">
-          Yêu cầu loại {requestType(requestDetail?.type)}
+          Yêu cầu loại {getRequestTypeLabel(requestDetail?.type)}{" "}
+          {/* dùng util */}
         </CardTitle>
         <CardDescription className="flex flex-row justify-between items-start text-black">
           <div>
@@ -204,19 +133,18 @@ export function Information() {
               {requestDetail?.status === "processing" ? "yêu cầu mới" : ""}
             </span>
             <br />
-            <span>{timeAgo(request.createdAt)}</span>
+            <span>
+              {request?.createdAt ? timeAgo(request.createdAt) : ""}
+            </span>{" "}
+            {/* dùng util */}
           </div>
           <Select
             value={displayUrgency ?? undefined}
             onValueChange={setUrgency}
           >
-            <SelectTrigger
-              className="h-[3vh]! w-full max-w-[17vw] rounded-full! text-[2vh]!
-                        bg-transparent! "
-            >
+            <SelectTrigger className="h-[3vh]! w-full max-w-[17vw] rounded-full! text-[2vh]! bg-transparent!">
               <SelectValue placeholder="Hãy chọn mức độ khẩn cấp" />
             </SelectTrigger>
-
             <SelectContent>
               <SelectItem value="high">Cao</SelectItem>
               <SelectItem value="medium">Trung bình</SelectItem>
@@ -232,7 +160,7 @@ export function Information() {
             <Phone className="h-5! w-5!" /> Người yêu cầu
           </div>
           <span className="pl-[1.8vw] text-lg font-semibold">
-            {request.name}
+            {request?.name}
           </span>
         </div>
 
@@ -249,11 +177,7 @@ export function Information() {
           Mô tả tình trạng
           <Textarea
             readOnly
-            value={
-              requestDetail?.description === ""
-                ? "There is no description"
-                : requestDetail?.description
-            }
+            value={requestDetail?.description || "Không có mô tả"}
           />
         </div>
 
@@ -263,46 +187,39 @@ export function Information() {
           </div>
           <Input
             readOnly
-            value={
-              fakeImgLink === ""
-                ? "There is no link"
-                : requestDetail?.additionalLink
-            }
+            value={requestDetail?.additionalLink || "Không có link"}
           />
         </div>
 
         <div className={miniDiv}>
           Phân loại phương tiện phù hợp
           <div className="flex flex-row gap-[2vw]">
-            <Button
-              className={`${vehiclesButton} ${
-                displayVehicle === "Rescue Vehicle" ? activeStyle : normalStyle
-              }`}
-              onClick={() => setVehicle("Rescue Vehicle")}
-            >
-              <Van className="h-7! w-7!" />
-              Xe cứu hộ
-            </Button>
-
-            <Button
-              className={`${vehiclesButton} ${
-                displayVehicle === "boat" ? activeStyle : normalStyle
-              }`}
-              onClick={() => setVehicle("boat")}
-            >
-              <Ship className="h-7! w-7!" />
-              Xuồng
-            </Button>
-
-            <Button
-              className={`${vehiclesButton} ${
-                displayVehicle === "heli" ? activeStyle : normalStyle
-              }`}
-              onClick={() => setVehicle("helicopter")}
-            >
-              <Helicopter className="h-7! w-7!" />
-              Trực thăng
-            </Button>
+            {[
+              {
+                value: "Rescue Vehicle",
+                label: "Xe cứu hộ",
+                icon: <Van className="h-7! w-7!" />,
+              },
+              {
+                value: "boat",
+                label: "Xuồng",
+                icon: <Ship className="h-7! w-7!" />,
+              },
+              {
+                value: "helicopter",
+                label: "Trực thăng",
+                icon: <Helicopter className="h-7! w-7!" />,
+              },
+            ].map((v) => (
+              <Button
+                key={v.value}
+                className={`${vehiclesButton} ${displayVehicle === v.value ? activeStyle : normalStyle}`}
+                onClick={() => setVehicle(v.value)}
+              >
+                {v.icon}
+                {v.label}
+              </Button>
+            ))}
           </div>
         </div>
 
@@ -312,19 +229,22 @@ export function Information() {
             value={displayRescueTeam ?? undefined}
             onValueChange={setRescueTeam}
           >
-            <SelectTrigger
-              className="h-[5vh]! w-[80%] text-[2vh]!
-                        bg-transparent! "
-            >
+            <SelectTrigger className="h-[5vh]! w-[80%] text-[2vh]! bg-transparent!">
               <SelectValue placeholder="Chọn đội cứu hộ" />
             </SelectTrigger>
-
             <SelectContent>
-              {rescueTeams.map((team) => (
-                <SelectItem key={team.rescueTeamId} value={team.rescueTeamName}>
-                  {team.rescueTeamName}
-                </SelectItem>
-              ))}
+              {vehicleList.map(
+                (
+                  team, // đổi rescueTeams → vehicleList
+                ) => (
+                  <SelectItem
+                    key={team.rescueTeamId}
+                    value={team.rescueTeamName}
+                  >
+                    {team.rescueTeamName}
+                  </SelectItem>
+                ),
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -332,16 +252,10 @@ export function Information() {
 
       {requestDetail?.status !== "completed" && (
         <CardFooter className="flex flex-row items-center justify-center px-[2vw] gap-[3vw]">
-          <Button
-            className="h-[5vh]! w-[8vw]!
-                text-white! font-bold! bg-red-600!"
-          >
+          <Button className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-red-600!">
             Từ chối
           </Button>
-          <Button
-            className="h-[5vh]! w-[8vw]!
-                text-white! font-bold! bg-indigo-600!"
-          >
+          <Button className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-indigo-600!">
             {requestDetail?.status === "processing" ? "Chấp nhận" : "Cập Nhật"}
           </Button>
         </CardFooter>
@@ -350,14 +264,7 @@ export function Information() {
   );
 }
 
-/**
- * Render a card-sized mini map centered on DEFAULT_CENTER and display markers for predefined team and user locations.
- *
- * Mounts the VietMap instance into an internal container and adds markers for TEAM_LOCATIONS (team markers) and USER_LOCATIONS (user markers).
- *
- * @returns A JSX element containing the map card and its container
- */
-export function MiniMap() {
+function MiniMap() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const { map, mount } = useVietMap();
 
@@ -368,28 +275,18 @@ export function MiniMap() {
 
   useEffect(() => {
     if (!map) return;
-
-    map.flyTo({
-      center: [DEFAULT_CENTER[1], DEFAULT_CENTER[0]],
-      zoom: 13,
-    });
+    map.flyTo({ center: [DEFAULT_CENTER[0], DEFAULT_CENTER[1]], zoom: 13 });
 
     TEAM_LOCATIONS.forEach((position) => {
       const el = document.createElement("div");
       el.className = "w-3 h-3 bg-blue-600 rounded-full border-2 border-white";
-
-      new vietmapgl.Marker({ element: el })
-        .setLngLat([position[1], position[0]])
-        .addTo(map);
+      new vietmapgl.Marker({ element: el }).setLngLat(position).addTo(map);
     });
 
     USER_LOCATIONS.forEach((position) => {
       const el = document.createElement("div");
       el.className = "w-3 h-3 bg-red-600 rounded-full border-2 border-white";
-
-      new vietmapgl.Marker({ element: el })
-        .setLngLat([position[1], position[0]])
-        .addTo(map);
+      new vietmapgl.Marker({ element: el }).setLngLat(position).addTo(map);
     });
   }, [map]);
 
