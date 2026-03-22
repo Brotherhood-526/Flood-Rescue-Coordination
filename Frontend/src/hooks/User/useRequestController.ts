@@ -123,6 +123,37 @@ export const useRequestController = (
     refetch();
   }, [isSubmitted, phone, submittedData]);
 
+  // Refetch khi có localStorage nhưng không có routeState
+  useEffect(() => {
+    if (!isSubmitted || !phone || submittedData) return;
+    const refetch = async () => {
+      try {
+        const res = await apiClient.post("/citizen/lookup", {
+          citizenPhone: phone,
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const raw = res as any;
+        setStatus(raw.status);
+        setSubmittedData({
+          name: raw.citizenName,
+          phone: raw.citizenPhone,
+          type: raw.type ?? "",
+          address: raw.address ?? "",
+          locate:
+            raw.latitude && raw.longitude
+              ? `${raw.latitude}, ${raw.longitude}`
+              : "",
+          description: raw.description ?? "",
+          url: raw.additionalLink ?? "",
+          image: undefined,
+        });
+      } catch (e) {
+        console.error("Lỗi refetch:", e);
+      }
+    };
+    refetch();
+  }, [isSubmitted, phone, submittedData]);
+
   const {
     register,
     handleSubmit,
