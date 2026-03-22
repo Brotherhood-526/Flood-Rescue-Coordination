@@ -65,6 +65,10 @@ export const useRequestController = (
   const [status, setStatus] = useState<string | null>(
     routeState?.status ?? null,
   );
+
+  const [urgency, setUrgency] = useState<string | null>(
+    routeState?.urgency ?? null,
+  );
   const popupRef = useRef<vietmapgl.Popup | null>(null);
 
   const showDragPopup = useCallback(
@@ -96,6 +100,7 @@ export const useRequestController = (
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const raw = res as any;
         setStatus(raw.status);
+        setUrgency(raw.urgency ?? null);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setImageUrls(raw.images?.map((img: any) => img.imageUrl) ?? []);
         setSubmittedData({
@@ -456,6 +461,7 @@ export const useRequestController = (
     setChatInput,
     chatMessages,
     register,
+    urgency,
     handleSubmit,
     setValue,
     errors,

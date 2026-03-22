@@ -8,6 +8,7 @@ interface AfterRequestPageProps {
   requestId: string | number | null;
   submittedPreviews: string[];
   status: string | null;
+  urgency: string | null;
   onCancel: () => void;
   onOpenEdit: () => void;
   onOpenChat: () => void;
@@ -18,6 +19,7 @@ export default function AfterRequestPage({
   requestId,
   submittedPreviews,
   status,
+  urgency,
   onCancel,
   onOpenEdit,
   onOpenChat,
@@ -40,7 +42,6 @@ export default function AfterRequestPage({
 
   return (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-      {/* Thêm dialog */}
       {showConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 mx-4 shadow-xl">
@@ -51,26 +52,16 @@ export default function AfterRequestPage({
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 border border-black py-2 rounded-lg text-sm font-semibold hover:bg-gray-300"
+                className="flex-1 border border-black py-2 rounded-lg text-sm font-semibold hover:bg-gray-100"
               >
                 Không
               </button>
               <button
-                onClick={() => {
-                  setShowConfirm(false);
-                  onCancel(); // chỉ reset UI không gọi API hủy
-                }}
-                className="flex-1 border border-black hover:bg-gray-300 text-gray-800 py-2 rounded-lg text-sm font-semibold"
-              >
-                Thoát
-              </button>
-
-              <button
                 onClick={handleCancelRequest}
                 disabled={loading}
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold disabled:opacity-50 hover:bg-red-400"
+                className="flex-1 bg-red-500 hover:bg-red-400 text-white py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
               >
-                {loading ? "Đang hủy" : "Xác nhận hủy"}
+                {loading ? "Đang hủy..." : "Xác nhận hủy"}
               </button>
             </div>
           </div>
@@ -84,7 +75,7 @@ export default function AfterRequestPage({
             className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-200 border border-black text-red-600 rounded-full text-xs font-semibold transition-all"
           >
             <X className="w-3.5 h-3.5" />
-            Thoát/Hủy
+            Hủy yêu cầu cứu hộ
           </button>
         </div>
         <hr className="border-black" />
@@ -119,9 +110,21 @@ export default function AfterRequestPage({
 
         <div className="flex items-center">
           <span className="font-semibold w-32">Mức độ khẩn cấp:</span>
-          <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-yellow-500"></span> Trung
-            bình
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${
+              urgency
+                ? "bg-yellow-100 text-yellow-700"
+                : "bg-gray-100 text-gray-500"
+            }`}
+          >
+            {urgency ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                {urgency}
+              </>
+            ) : (
+              "Chưa cập nhật"
+            )}
           </span>
         </div>
 
