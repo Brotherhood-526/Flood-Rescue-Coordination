@@ -265,27 +265,27 @@ public class DispatchService {
         return getRequestDetail(request.getId());
     }
 
-    @Transactional
-    public int sendMessage(SendMessageRequest request) {
-
-        Message message = new Message();
-
-        message.setSenderRole(request.senderRole());
-        message.setContent(request.content());
-        message.setSenderId(request.senderId());
-
-        message.setSendAt(
-                request.sendAt() != null ? request.sendAt() : LocalDateTime.now()
-        );
-
-        Request req = new Request();
-        req.setId(request.requestId());
-        message.setRequest(req);
-
-        messageDAO.save(message);
-
-        return 1;
-    }
+//    @Transactional
+//    public int sendMessage(SendMessageRequest request) {
+//
+//        Message message = new Message();
+//
+//        message.setSenderRole(request.senderRole());
+//        message.setContent(request.content());
+//        message.setSenderId(request.senderId());
+//
+//        message.setSendAt(
+//                request.sendAt() != null ? request.sendAt() : LocalDateTime.now()
+//        );
+//
+//        Request req = new Request();
+//        req.setId(request.requestId());
+//        message.setRequest(req);
+//
+//        messageDAO.save(message);
+//
+//        return 1;
+//    }
 
     public List<MessageResponse> takeAllMessageOfRequest(UUID requestId){
         return chatService.takeAllMessageOfRequest(requestId);
