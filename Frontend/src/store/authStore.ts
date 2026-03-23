@@ -1,16 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-
-export interface Staff {
-  accountId: string;
-  name: string;
-  phone: string;
-  role: string;
-  teamName: string | null;
-  teamSize: number | null;
-  latitude: number | null;
-  longitude: number | null;
-}
+import type { Staff } from "@/types/auth";
 
 interface AuthState {
   staff: Staff | null;

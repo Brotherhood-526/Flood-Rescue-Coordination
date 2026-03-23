@@ -7,7 +7,7 @@ import {
   Van,
   Ship,
 } from "lucide-react";
-import { Button } from "@/components/ui/button.tsx";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -36,24 +36,29 @@ import {useRequestReject} from "@/hooks/useRequestReject.ts";
 import { useRequestDetail } from "@/hooks/Coordinator/useRequestDetail";
 import type { RescueRequest } from "@/pages/Coordinator/ListRequestPage.tsx";
 import { useVehicleList } from "@/hooks/Coordinator/useVehicle";
+import { timeAgo } from "@/utils/timeAgo";
+import { getRequestTypeLabel } from "@/utils/requestHelpers";
+import type { CoordinatorRequest } from "@/types/coordinator";
 
-const DEFAULT_CENTER: [number, number] = [10.7769, 106.7009];
+const DEFAULT_CENTER: [number, number] = [106.7009, 10.7769];
 
+// TODO: thay bằng data thật từ API
 const USER_LOCATIONS: [number, number][] = [
-  [10.8231, 106.6297],
-  [10.8453, 106.6577],
-  [10.7314, 106.6936],
-  [10.8012, 106.7143],
-  [10.756, 106.6723],
-  [10.8655, 106.743],
+  [106.6297, 10.8231],
+  [106.6577, 10.8453],
+  [106.6936, 10.7314],
+  [106.7143, 10.8012],
+  [106.6723, 10.756],
+  [106.743, 10.8655],
 ];
 
+// TODO: thay bằng data thật từ API
 const TEAM_LOCATIONS: [number, number][] = [
-  [10.7769, 106.7009],
-  [10.838, 106.667],
-  [10.7904, 106.635],
-  [10.7432, 106.6298],
-  [10.87, 106.803],
+  [106.7009, 10.7769],
+  [106.667, 10.838],
+  [106.635, 10.7904],
+  [106.6298, 10.7432],
+  [106.803, 10.87],
 ];
 
 export type RequestDetail = {
@@ -296,7 +301,7 @@ export function Information({ requestDetail }: { requestDetail: RequestDetail | 
             <Phone className="h-5! w-5!" /> Người yêu cầu
           </div>
           <span className="pl-[1.8vw] text-lg font-semibold">
-            {request.name}
+            {request?.name}
           </span>
         </div>
         <div className={miniDiv}>
@@ -312,11 +317,7 @@ export function Information({ requestDetail }: { requestDetail: RequestDetail | 
           Mô tả tình trạng
           <Textarea
             readOnly
-            value={
-              requestDetail?.description === ""
-                ? "There is no description"
-                : requestDetail?.description
-            }
+            value={requestDetail?.description || "Không có mô tả"}
           />
         </div>
 
@@ -326,11 +327,7 @@ export function Information({ requestDetail }: { requestDetail: RequestDetail | 
           </div>
           <Input
             readOnly
-            value={
-              fakeImgLink === ""
-                ? "There is no link"
-                : requestDetail?.additionalLink
-            }
+            value={requestDetail?.additionalLink || "Không có link"}
           />
         </div>
 
@@ -406,14 +403,7 @@ export function Information({ requestDetail }: { requestDetail: RequestDetail | 
     );
 }
 
-/**
- * Render a card-sized mini map centered on DEFAULT_CENTER and display markers for predefined team and user locations.
- *
- * Mounts the VietMap instance into an internal container and adds markers for TEAM_LOCATIONS (team markers) and USER_LOCATIONS (user markers).
- *
- * @returns A JSX element containing the map card and its container
- */
-export function MiniMap() {
+function MiniMap() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const { map, mount } = useVietMap();
 
@@ -424,28 +414,18 @@ export function MiniMap() {
 
   useEffect(() => {
     if (!map) return;
-
-    map.flyTo({
-      center: [DEFAULT_CENTER[1], DEFAULT_CENTER[0]],
-      zoom: 13,
-    });
+    map.flyTo({ center: [DEFAULT_CENTER[0], DEFAULT_CENTER[1]], zoom: 13 });
 
     TEAM_LOCATIONS.forEach((position) => {
       const el = document.createElement("div");
       el.className = "w-3 h-3 bg-blue-600 rounded-full border-2 border-white";
-
-      new vietmapgl.Marker({ element: el })
-        .setLngLat([position[1], position[0]])
-        .addTo(map);
+      new vietmapgl.Marker({ element: el }).setLngLat(position).addTo(map);
     });
 
     USER_LOCATIONS.forEach((position) => {
       const el = document.createElement("div");
       el.className = "w-3 h-3 bg-red-600 rounded-full border-2 border-white";
-
-      new vietmapgl.Marker({ element: el })
-        .setLngLat([position[1], position[0]])
-        .addTo(map);
+      new vietmapgl.Marker({ element: el }).setLngLat(position).addTo(map);
     });
   }, [map]);
 

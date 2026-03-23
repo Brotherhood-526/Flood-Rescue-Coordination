@@ -18,23 +18,7 @@ export const requestSchema = z.object({
       message: "Số điện thoại không hợp lệ",
     }),
   name: z.string().min(2, { message: "Vui lòng nhập họ và tên" }),
-  url: z
-    .string()
-    .optional()
-    .refine(
-      (val) => {
-        if (!val || val.trim() === "") return true;
-        const isGoogleMapLink =
-          /(google\.com\/maps|maps\.google\.com|goo\.gl\/maps|maps\.app\.goo\.gl)/i.test(
-            val,
-          );
-        return isGoogleMapLink;
-      },
-      {
-        message:
-          "Link không hợp lệ. Vui lòng dán đúng đường dẫn chia sẻ từ Google Maps!",
-      },
-    ),
+  url: z.string().optional(),
   image: z
     .array(z.instanceof(File))
     .min(1, { message: "Vui lòng tải lên ít nhất 1 ảnh" })

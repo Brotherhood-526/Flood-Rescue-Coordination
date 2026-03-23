@@ -1,55 +1,38 @@
-import { useEffect, useRef, useMemo, useState } from "react";
+import { useEffect, useRef, useMemo, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocation } from "react-router-dom";
+import vietmapgl from "@vietmap/vietmap-gl-js";
+import { useVietMap } from "@/lib/MapProvider";
+import { requestService } from "@/services/User/requestService";
+import { vietmapService } from "@/services/User/vietmapService";
 import {
   requestSchema,
   type RequestSchemaType,
 } from "@/validations/user.request.schema";
-import { useVietMap } from "@/lib/MapProvider";
-import vietmapgl from "@vietmap/vietmap-gl-js";
-import {
-  reverseGeocode,
-  geocodeAddress,
-  submitRescueRequest,
-  updateRescueRequest,
-} from "@/services/User/requestService";
-import type { ChatMessage } from "@/pages/User/ChatBoxDialog";
-import { useLocation } from "react-router-dom";
-import apiClient from "@/services/axiosClient";
+import type { ChatMessage, CitizenLookupData } from "@/types/request";
+import type { RescueImage } from "@/types/apiRescue";
 
 export const useRequestController = (
   mapContainer: React.RefObject<HTMLDivElement | null>,
 ) => {
   const location = useLocation();
   const routeState = location.state;
+  const { map, mount, unmount } = useVietMap();
+
   const inputRef = useRef<HTMLInputElement>(null);
   const markerRef = useRef<vietmapgl.Marker | null>(null);
-  const { map, mount, unmount } = useVietMap();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("address");
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      role: "coordinator",
-      name: "Điều phối viên",
-      time: "Hard code",
-      text: "Happy new year",
-      colorClass: "text-[#3b82f6]",
-      bgClass: "bg-[#3b82f6]",
-    },
-    {
-      id: 2,
-      role: "team",
-      name: "Đội cứu hộ",
-      time: "Hard code",
-      text: "Happy birthday.",
-      colorClass: "text-[#6366f1]",
-      bgClass: "bg-[#6366f1]",
-    },
-  ]);
+  const popupRef = useRef<vietmapgl.Popup | null>(null);
 
+  // ── State ──────────────────────────────────────────────
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("address");
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [imageUrls, setImageUrls] = useState<string[]>(
+    routeState?.imageUrls ?? [],
+  );
   const [isSubmitted, setIsSubmitted] = useState(
     routeState?.isSubmitted ?? !!localStorage.getItem("rescue_requestId"),
   );
@@ -65,38 +48,11 @@ export const useRequestController = (
   const [status, setStatus] = useState<string | null>(
     routeState?.status ?? null,
   );
+  const [urgency, setUrgency] = useState<string | null>(
+    routeState?.urgency ?? null,
+  );
 
-  // Refetch khi có localStorage nhưng không có routeState
-  useEffect(() => {
-    if (!isSubmitted || !phone || submittedData) return;
-    const refetch = async () => {
-      try {
-        const res = await apiClient.post("/citizen/lookup", {
-          citizenPhone: phone,
-        });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const raw = res as any;
-        setStatus(raw.status);
-        setSubmittedData({
-          name: raw.citizenName,
-          phone: raw.citizenPhone,
-          type: raw.type ?? "",
-          address: raw.address ?? "",
-          locate:
-            raw.latitude && raw.longitude
-              ? `${raw.latitude}, ${raw.longitude}`
-              : "",
-          description: raw.description ?? "",
-          url: raw.additionalLink ?? "",
-          image: undefined,
-        });
-      } catch (e) {
-        console.error("Lỗi refetch:", e);
-      }
-    };
-    refetch();
-  }, [isSubmitted, phone, submittedData]);
-
+  // ── Form ───────────────────────────────────────────────
   const {
     register,
     handleSubmit,
@@ -123,19 +79,50 @@ export const useRequestController = (
   const selectedType = watch("type");
   const currentImages = (watch("image") as File[]) || [];
 
-  // cái map
+  // ── Map setup ──────────────────────────────────────────
   useEffect(() => {
     if (!mapContainer.current) return;
     mount(mapContainer.current);
     return () => unmount();
   }, [mount, unmount, mapContainer]);
 
-  // Cắm lại cờ trên bản đồ
+  // ── Refetch từ localStorage ──
+  useEffect(() => {
+    if (!isSubmitted || !phone || submittedData) return;
+    const refetch = async () => {
+      try {
+        const raw = (await requestService.lookup(
+          phone,
+        )) as unknown as CitizenLookupData;
+        setStatus(raw.status);
+        setUrgency(raw.urgency ?? null);
+        setImageUrls(raw.images?.map((img: RescueImage) => img.imageUrl) ?? []);
+        setSubmittedData({
+          name: raw.citizenName,
+          phone: raw.citizenPhone,
+          type: raw.type ?? "",
+          address: raw.address ?? "",
+          locate:
+            raw.latitude && raw.longitude
+              ? `${raw.latitude}, ${raw.longitude}`
+              : "",
+          description: raw.description ?? "",
+          url: raw.additionalLink ?? "",
+          image: undefined,
+        });
+      } catch (e) {
+        console.error("Lỗi refetch:", e);
+      }
+    };
+    refetch();
+  }, [isSubmitted, phone, submittedData]);
+
+  // ── Cắm cờ sau submit ──────────────────────────────────
   useEffect(() => {
     if (!map || !isSubmitted || !submittedData?.locate) return;
     const [lat, lng] = submittedData.locate
       .split(",")
-      .map((item) => Number(item.trim()));
+      .map((v) => Number(v.trim()));
     if (isNaN(lat) || isNaN(lng)) return;
     markerRef.current?.remove();
     markerRef.current = new vietmapgl.Marker({ color: "#EF4444" })
@@ -144,74 +131,120 @@ export const useRequestController = (
     map.flyTo({ center: [lng, lat], zoom: 16 });
   }, [map, isSubmitted, submittedData?.locate]);
 
-  useEffect(() => {
-    if (isDialogOpen && submittedData) {
-      setValue("name", submittedData.name ?? "");
-      setValue("phone", submittedData.phone ?? "");
-      setValue("type", submittedData.type ?? "");
-      setValue("address", submittedData.address ?? "");
-      setValue("locate", submittedData.locate ?? "");
-      setValue("description", submittedData.description ?? "");
-      setValue("url", submittedData.url ?? "");
-    }
-  }, [isDialogOpen, submittedData, setValue]);
-
-  // image preview
-  const previews = useMemo(() => {
-    if (!currentImages?.length) return [];
-    return currentImages.map((file) => URL.createObjectURL(file));
-  }, [currentImages]);
-
-  useEffect(
-    () => () => previews.forEach((url) => URL.revokeObjectURL(url)),
-    [previews],
+  // ── Popup kéo cờ ──────────────────────────────────────
+  const showDragPopup = useCallback(
+    (lngLat: [number, number]) => {
+      popupRef.current?.remove();
+      if (!map) return;
+      popupRef.current = new vietmapgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: 35,
+      })
+        .setLngLat(lngLat)
+        .setHTML(
+          `<div style="font-family:sans-serif;text-align:center;font-size:12px;font-weight:600;color:#374151;">Bạn có thể kéo cờ để chọn vị trí chính xác nhất.</div>`,
+        )
+        .addTo(map);
+    },
+    [map],
   );
 
-  const submittedPreviews = useMemo(() => {
-    const images = (submittedData?.image as File[]) || [];
-    if (!images?.length) return [];
-    return images.map((file) => URL.createObjectURL(file));
-  }, [submittedData?.image]);
+  // ── Drag marker ───────────────────────────────────────
+  const attachDraggable = useCallback(
+    (marker: vietmapgl.Marker) => {
+      marker.on("dragend", async () => {
+        const { lng, lat } = marker.getLngLat();
+        setValue("locate", `${lat.toFixed(6)}, ${lng.toFixed(6)}`, {
+          shouldValidate: true,
+        });
+        try {
+          const address = await vietmapService.reverseGeocode(lat, lng);
+          if (address) {
+            setValue("address", address, { shouldValidate: true });
+            setActiveTab("address");
+          }
+          showDragPopup([lng, lat]);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    },
+    [setValue, setActiveTab, showDragPopup],
+  );
 
+  // ── Default marker (HCMC) ─────────────────────────────
+  useEffect(() => {
+    if (!map || isSubmitted || getValues("locate")) return;
+    const HCMC: [number, number] = [106.7009, 10.7769];
+    markerRef.current?.remove();
+    markerRef.current = new vietmapgl.Marker({
+      color: "#3B82F6",
+      draggable: true,
+    })
+      .setLngLat(HCMC)
+      .addTo(map);
+    map.flyTo({ center: HCMC, zoom: 14 });
+    (async () => {
+      setValue("locate", `${HCMC[1]}, ${HCMC[0]}`, { shouldValidate: true });
+      try {
+        const address = await vietmapService.reverseGeocode(HCMC[1], HCMC[0]);
+        if (address) setValue("address", address, { shouldValidate: true });
+        showDragPopup(HCMC);
+      } catch (err) {
+        console.error("Lỗi lấy địa chỉ mặc định:", err);
+      }
+    })();
+    attachDraggable(markerRef.current);
+  }, [map, isSubmitted, getValues, setValue, attachDraggable, showDragPopup]);
+
+  // ── Dialog edit fill values ───────────────────────────
+  useEffect(() => {
+    if (!isDialogOpen || !submittedData) return;
+    (
+      [
+        "name",
+        "phone",
+        "type",
+        "address",
+        "locate",
+        "description",
+        "url",
+      ] as const
+    ).forEach((k) => setValue(k, submittedData[k] ?? ""));
+  }, [isDialogOpen, submittedData, setValue]);
+
+  // ── Image preview ─────────────────────────────────────
+  const previews = useMemo(() => {
+    const images = (watch("image") as File[]) || [];
+    return images.map((f) => URL.createObjectURL(f));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch("image")]);
+  useEffect(() => () => previews.forEach(URL.revokeObjectURL), [previews]);
+
+  const submittedPreviews = useMemo(() => {
+    const imgs = (submittedData?.image as File[]) || [];
+    return imgs.map((f) => URL.createObjectURL(f));
+  }, [submittedData?.image]);
   useEffect(
-    () => () => submittedPreviews.forEach((url) => URL.revokeObjectURL(url)),
+    () => () => submittedPreviews.forEach(URL.revokeObjectURL),
     [submittedPreviews],
   );
 
-  const attachDraggable = (marker: vietmapgl.Marker) => {
-    marker.on("dragend", async () => {
-      const { lng, lat } = marker.getLngLat();
-      setValue("locate", `${lat.toFixed(6)}, ${lng.toFixed(6)}`, {
-        shouldValidate: true,
-      });
-      try {
-        const address = await reverseGeocode(lat, lng);
-        if (address) {
-          setValue("address", address, { shouldValidate: true });
-          setActiveTab("address");
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    });
-  };
-
-  // HANDLERS
+  // ── Handlers ──────────────────────────────────────────
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-    const totalImages = [...currentImages, ...files];
-    setValue(
-      "image",
-      totalImages.length > 3 ? totalImages.slice(0, 3) : totalImages,
-      { shouldValidate: true },
-    );
-    if (totalImages.length > 3) alert("Bạn chỉ được tải lên tối đa 3 ảnh");
+    const total = [...currentImages, ...files];
+    setValue("image", total.length > 3 ? total.slice(0, 3) : total, {
+      shouldValidate: true,
+    });
+    if (total.length > 3) alert("Bạn chỉ được tải lên tối đa 3 ảnh");
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const handleRemoveImage = (indexToRemove: number) => {
-    const updated = currentImages.filter((_, i) => i !== indexToRemove);
+  const handleRemoveImage = (i: number) => {
+    const updated = currentImages.filter((_, idx) => idx !== i);
     setValue("image", updated.length > 0 ? updated : undefined, {
       shouldValidate: true,
     });
@@ -221,8 +254,7 @@ export const useRequestController = (
     if (!navigator.geolocation)
       return alert("Trình duyệt không hỗ trợ định vị");
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude: lat, longitude: lng } = position.coords;
+      async ({ coords: { latitude: lat, longitude: lng } }) => {
         setValue("locate", `${lat.toFixed(6)}, ${lng.toFixed(6)}`, {
           shouldValidate: true,
         });
@@ -236,29 +268,28 @@ export const useRequestController = (
             .setLngLat([lng, lat])
             .addTo(map);
           attachDraggable(markerRef.current);
+          showDragPopup([lng, lat]);
         }
         try {
-          const address = await reverseGeocode(lat, lng);
+          const address = await vietmapService.reverseGeocode(lat, lng);
           if (address) {
             setValue("address", address, { shouldValidate: true });
             setActiveTab("address");
           }
-        } catch (error) {
-          console.error("Lỗi reverse geocode:", error);
+        } catch (err) {
+          console.error("Lỗi reverse geocode:", err);
         }
       },
       () => alert("Bạn chưa cấp quyền định vị"),
     );
   };
 
-  const [imageUrls] = useState<string[]>(routeState?.imageUrls ?? []);
-
   const handleConfirmAddress = async () => {
     const address = getValues("address");
     if (!address?.trim())
       return alert("Vui lòng nhập địa chỉ trước khi xác nhận!");
     try {
-      const coords = await geocodeAddress(address);
+      const coords = await vietmapService.geocodeAddress(address);
       if (!coords)
         return alert("Không tìm thấy địa chỉ này trên bản đồ Vietmap.");
       if (isNaN(coords.lat) || isNaN(coords.lng))
@@ -277,16 +308,16 @@ export const useRequestController = (
           .setLngLat([coords.lng, coords.lat])
           .addTo(map);
         attachDraggable(markerRef.current);
+        showDragPopup([coords.lng, coords.lat]);
       }
-    } catch (error) {
-      console.error("Lỗi tìm tọa độ:", error);
+    } catch (err) {
+      console.error("Lỗi tìm tọa độ:", err);
     }
   };
 
   const onSubmit = async (data: RequestSchemaType) => {
     try {
       const formData = new FormData();
-
       if (isSubmitted && requestId) {
         formData.append("requestId", String(requestId));
         formData.append("Type", data.type);
@@ -294,16 +325,14 @@ export const useRequestController = (
         formData.append("description", data.description);
         formData.append("citizenName", data.name);
         formData.append("citizenPhone", data.phone);
-        if (data.url) formData.append("additionLink", data.url);
         if (data.locate) {
           const [lat, lng] = data.locate.split(",").map((s) => s.trim());
           formData.append("latitude", lat);
           formData.append("longitude", lng);
         }
-        if (data.image?.length) {
-          data.image.forEach((file) => formData.append("images", file));
-        }
-        await updateRescueRequest(requestId, formData);
+        if (data.url) formData.append("additionLink", data.url);
+        data.image?.forEach((f) => formData.append("images", f));
+        await requestService.update(requestId, formData);
         alert("Cập nhật thông tin thành công!");
         setIsDialogOpen(false);
       } else {
@@ -312,16 +341,14 @@ export const useRequestController = (
         formData.append("description", data.description);
         formData.append("name", data.name);
         formData.append("phone", data.phone);
-        if (data.url) formData.append("additionalLink", data.url);
         if (data.locate) {
           const [lat, lng] = data.locate.split(",").map((s) => s.trim());
           formData.append("latitude", lat);
           formData.append("longitude", lng);
         }
-        if (data.image?.length) {
-          data.image.forEach((file) => formData.append("images", file));
-        }
-        const response = await submitRescueRequest(formData);
+        if (data.url) formData.append("additionalLink", data.url);
+        data.image?.forEach((f) => formData.append("images", f));
+        const response = await requestService.submit(formData);
         if (response?.requestId) setRequestId(response.requestId);
         if (response?.status) setStatus(response.status);
         alert("Gửi yêu cầu thành công!");
@@ -330,10 +357,9 @@ export const useRequestController = (
         localStorage.setItem("rescue_requestId", response.requestId);
         localStorage.setItem("rescue_phone", data.phone);
       }
-
       setSubmittedData(data);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error(err);
       alert("Có lỗi xảy ra, vui lòng thử lại!");
     }
   };
@@ -345,6 +371,8 @@ export const useRequestController = (
     setRequestId(null);
     setValue("image", undefined);
     markerRef.current?.remove();
+    popupRef.current?.remove();
+    popupRef.current = null;
     localStorage.removeItem("rescue_requestId");
     localStorage.removeItem("rescue_phone");
   };
@@ -382,6 +410,7 @@ export const useRequestController = (
     isDialogOpen,
     requestId,
     status,
+    urgency,
     imageUrls,
     setIsDialogOpen,
     activeTab,
@@ -392,7 +421,6 @@ export const useRequestController = (
     setChatInput,
     chatMessages,
     register,
-    handleSubmit,
     setValue,
     errors,
     isSubmitting,
@@ -406,6 +434,6 @@ export const useRequestController = (
     handleCancelRequest,
     handleKeyDown,
     handleSendMessage,
-    onSubmit,
+    onSubmitForm: handleSubmit(onSubmit),
   };
 };

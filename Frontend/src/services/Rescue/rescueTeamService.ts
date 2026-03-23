@@ -46,48 +46,33 @@ function mapTaskDetail(raw: any): RescueRequest {
 }
 
 export const rescueTeamService = {
-  getRequests: async (filter: string = ""): Promise<RescueRequest[]> => {
-    try {
-      const params = new URLSearchParams();
-      params.append("page", "0");
-      params.append("size", "1000");
-      if (filter) params.append("filter", filter);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response: any = await apiClient.get(
-        `/rescueteam/tasks?${params.toString()}`,
-      );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rawList: any[] =
-        response?.content || (Array.isArray(response) ? response : []);
+  getRequests: async (): Promise<RescueRequest[]> => {
+    const response = (await apiClient.get("/rescueteam/tasks", {
+      params: { page: 0, size: 1000 },
+    })) as PaginatedResponse<RawRescueTask> | RawRescueTask[];
 
-      return rawList.map(mapTaskDetail);
-    } catch (error) {
-      console.error("Lỗi getRequests:", error);
-      throw error;
-    }
+    const raw =
+      (response as PaginatedResponse<RawRescueTask>).content ??
+      (Array.isArray(response) ? response : []);
+
+    return raw.map(mapRescueTask);
   },
 
   getTaskDetail: async (taskId: string): Promise<RescueRequest> => {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response: any = await apiClient.get(`/rescueteam/tasks/${taskId}`);
-      return mapTaskDetail(response);
-    } catch (error) {
-      console.error("Lỗi getTaskDetail:", error);
-      throw error;
-    }
+    const response = (await apiClient.get(
+      `/rescueteam/tasks/${taskId}`,
+    )) as RawRescueTask;
+
+    return mapRescueTask(response);
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateTaskStatus: async (taskId: string, newStatus: string): Promise<any> => {
-    try {
-      const response = await apiClient.patch(
-        `/rescueteam/tasks/${taskId}/status`,
-        { status: newStatus, report: "" },
-      );
-      return response;
-    } catch (error) {
-      console.error("Lỗi updateTaskStatus:", error);
-      throw error;
-    }
+
+  updateTaskStatus: async (
+    taskId: string,
+    newStatus: string,
+  ): Promise<void> => {
+    await apiClient.patch(`/rescueteam/tasks/${taskId}/status`, {
+      status: newStatus,
+      report: "",
+    });
   },
 };

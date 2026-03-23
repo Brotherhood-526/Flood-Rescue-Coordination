@@ -80,8 +80,8 @@ public class RescueTeamService {
                 assignment.getLongitude() != null ? assignment.getLongitude().doubleValue() : 0.0,
                 assignment.getVehicle() != null ? assignment.getVehicle().getType() : "Chưa điều xe",
                 assignment.getDescription(),
-                assignment.getCoordinator() != null ? assignment.getCoordinator().getName() : "Hệ thống tự động",
-                assignment.getCreatedAt() != null ? assignment.getCreatedAt().toString() : "",
+                assignment.getCoordinator().getName(),
+                assignment.getCreatedAt().toString(),
                 assignment.getStatus(),
                 imageResponses
         );
@@ -103,6 +103,7 @@ public class RescueTeamService {
                 assignment.setStatus("tạm hoãn");
                 break;
             default:
+                throw new IllegalArgumentException("Trạng thái không hợp lệ");
         }
 
         requestDAO.save(assignment);

@@ -1,16 +1,17 @@
-// Frontend/src/services/findRequestService.ts
-import axiosClient from "../axiosClient";
+import axiosClient from "@/services/axiosClient";
 import type {
   CitizenLookupData,
   LookupCitizenRequestBody,
-} from "../../types/citizen";
+} from "@/types/request";
 
 export const findRequestService = {
-  lookupCitizen: async (payload: LookupCitizenRequestBody) => {
-    const res = await axiosClient.post<CitizenLookupData>(
+  lookupCitizen: async (
+    payload: LookupCitizenRequestBody,
+  ): Promise<CitizenLookupData> => {
+    const res = (await axiosClient.post(
       "/citizen/lookup",
       payload,
-    );
-    return res as unknown as CitizenLookupData;
+    )) as CitizenLookupData;
+    return res;
   },
 };

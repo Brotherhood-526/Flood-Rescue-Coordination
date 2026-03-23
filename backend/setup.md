@@ -101,7 +101,7 @@ Download the **MySQL Installer** from the provided **Google Drive link**.
 
 [Download MySQL Installer](https://drive.google.com/drive/u/0/folders/1-o-26cV1B0YvS_QCc-L3dLvUD78nGFRn)
 
-Or watch database setup on **[youtube link](https://www.youtube.com/watch?v=F5mDv9Tjztg)**.
+Or watch database setup on **[Youtube link](https://www.youtube.com/watch?v=F5mDv9Tjztg)**.
 
 After downloading, run the installer to begin the setup process.
 

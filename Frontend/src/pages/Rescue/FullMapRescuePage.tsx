@@ -29,9 +29,9 @@ export default function FullMapPage() {
       try {
         const detail = await rescueTeamService.getTaskDetail(requestId);
 
-        if (!detail.geo_location) return;
+        if (!detail.geoLocation) return;
 
-        const [lat, lng] = detail.geo_location.split(",").map(Number);
+        const [lat, lng] = detail.geoLocation.split(",").map(Number);
         const requestCoords: [number, number] = [lng, lat];
 
         // Marker đỏ: vị trí yêu cầu cứu hộ

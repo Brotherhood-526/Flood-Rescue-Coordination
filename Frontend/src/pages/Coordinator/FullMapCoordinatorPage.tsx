@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowBigLeft } from "lucide-react";
-import { useVietMap } from "@/lib/MapProvider.tsx";
+import { useVietMap } from "@/lib/MapProvider";
 import vietmapgl from "@vietmap/vietmap-gl-js";
-import {useNavigate} from "react-router-dom";
 
 const DEFAULT_CENTER: [number, number] = [106.7009, 10.7769];
 
+//  thay bằng data thật từ API
 const USER_LOCATIONS: [number, number][] = [
   [106.6297, 10.8231],
   [106.6577, 10.8453],
@@ -15,6 +16,7 @@ const USER_LOCATIONS: [number, number][] = [
   [106.743, 10.8655],
 ];
 
+// thay bằng data thật từ API
 const TEAM_LOCATIONS: [number, number][] = [
   [106.7009, 10.7769],
   [106.667, 10.838],
@@ -24,6 +26,7 @@ const TEAM_LOCATIONS: [number, number][] = [
 ];
 
 export default function FullMapCoordinatorPage() {
+  const navigate = useNavigate(); // ✅ lên trên cùng
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const { map, mount } = useVietMap();
 
@@ -34,51 +37,32 @@ export default function FullMapCoordinatorPage() {
 
   useEffect(() => {
     if (!map) return;
+    map.flyTo({ center: DEFAULT_CENTER, zoom: 13 });
 
-    // Center map
-    map.flyTo({
-      center: DEFAULT_CENTER,
-      zoom: 13,
-    });
-
-    // Clear old markers nếu cần
-    // (nếu MapProvider có clearMarkers thì dùng)
-
-    // Team markers (màu xanh)
     TEAM_LOCATIONS.forEach((position) => {
       const el = document.createElement("div");
       el.className = "w-4 h-4 bg-blue-600 rounded-full border-2 border-white";
-
       new vietmapgl.Marker({ element: el }).setLngLat(position).addTo(map);
     });
 
-    // User markers (màu đỏ)
     USER_LOCATIONS.forEach((position) => {
       const el = document.createElement("div");
       el.className = "w-4 h-4 bg-red-600 rounded-full border-2 border-white";
-
       new vietmapgl.Marker({ element: el }).setLngLat(position).addTo(map);
     });
   }, [map]);
-
-    const navigate = useNavigate();
-
-    const handleBack = () => {
-        navigate(-1);
-    }
 
   return (
     <>
       <div className="w-screen h-screen">
         <div ref={mapContainer} className="h-full w-full" />
       </div>
-
       <ArrowBigLeft
-        className="fixed top-[11vh] left-[0.5vw] z-[999] w-10 h-10 p-2 rounded-full
-        bg-white border border-black/20 transition-all duration-200
-        hover:bg-gray-100 hover:border-2 hover:border-gray-400 cursor-pointer"
+        className="fixed top-[11vh] left-[0.5vw] z-999 w-10 h-10 p-2 rounded-full
+          bg-white border border-black/20 transition-all duration-200
+          hover:bg-gray-100 hover:border-2 hover:border-gray-400 cursor-pointer"
         strokeWidth={1.5}
-        onClick={handleBack}
+        onClick={() => navigate(-1)}
       />
     </>
   );

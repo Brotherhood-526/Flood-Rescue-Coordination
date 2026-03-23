@@ -27,12 +27,6 @@ interface BeforeRequestPageProps {
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-/**
- * Render the "Gửi thông tin cứu hộ" form used to collect and submit rescue request details.
- *
- * @param props - Component props containing form state, validation handlers, input/register helpers, tab and type controls, location handlers, image previews and upload handlers, and submission state.
- * @returns The JSX element for the rescue request submission form.
- */
 export default function BeforeRequestPage(props: BeforeRequestPageProps) {
   const {
     isSubmitting,
@@ -77,7 +71,7 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
                 key={item.value}
                 type="button"
                 className={`rounded-full border px-5 py-2 text-base font-medium transition-all duration-200 
-      ${selectedType === item.value ? "bg-red-600 text-white border-red-600" : "bg-white border-gray-300 text-gray-600 hover:bg-gray-100"}`}
+        ${selectedType === item.value ? "bg-red-600 text-white border-red-600" : "bg-white border-gray-300 text-gray-600 hover:bg-gray-100"}`}
                 onClick={() =>
                   setValue("type", item.value, { shouldValidate: true })
                 }
@@ -208,12 +202,9 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
           <input
             type="text"
             placeholder="Link nguồn google map"
-            className={`mt-2 w-full rounded-md border px-3 py-2 ${errors.url ? "border-red-500" : "border-gray-300"}`}
+            className={`mt-2 w-full rounded-md border px-3 py-2 `}
             {...register("url")}
           />
-          {errors.url && (
-            <p className="text-red-500 text-xs mt-1">{errors.url.message}</p>
-          )}
         </div>
 
         {/* Upload ảnh */}
