@@ -183,7 +183,7 @@ public class DispatchController {
         }
     }
 
-    @GetMapping("/messages/{requestId}")
+    @GetMapping("/chat/{requestId}")
     public ResponseEntity<ResponseObject> getAllMessages(@PathVariable UUID requestId) {
         try {
             List<MessageResponse> result = dispatchService.takeAllMessageOfRequest(requestId);
