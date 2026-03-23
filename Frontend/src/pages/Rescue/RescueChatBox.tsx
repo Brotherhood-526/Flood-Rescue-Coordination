@@ -108,7 +108,7 @@ export default function RescueChatBox() {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-80px)] pr-5 pl-5 pb-5 -mt-15 bg-white font-sans">
+    <div className="w-full min-h-[calc(100vh-80px)] pr-5 pl-5 pb-5 mt-10 bg-white font-sans">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 px-5 py-2.5 mb-6 bg-[#e5e7eb] hover:bg-[#d1d5db] text-gray-800 rounded-full font-bold text-sm transition-colors w-fit shadow-sm"

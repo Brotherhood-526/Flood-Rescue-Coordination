@@ -1,18 +1,21 @@
 import { useEffect, useState, useCallback } from "react";
 import apiClient from "@/services/axiosClient";
 import { PAGE_SIZE } from "@/constants/coordinatorConfig";
+import { toTimestamp } from "@/utils/parseDate";
 import type { CoordinatorRequest, TakePageResponse } from "@/types/coordinator";
 
-export const useRequestList = (status: string) => {
+export const useRequestList = (
+  status: string,
+  sortOrder: "asc" | "desc" = "desc",
+) => {
   const [pageNumber, setPageNumber] = useState(0);
   const [requestList, setRequestList] = useState<CoordinatorRequest[]>([]);
   const [totalPage, setTotalPage] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // Reset page khi đổi status
   useEffect(() => {
     setPageNumber(0);
-  }, [status]);
+  }, [status, sortOrder]);
 
   const fetchRequestList = useCallback(async () => {
     try {
@@ -35,18 +38,22 @@ export const useRequestList = (status: string) => {
     fetchRequestList();
   }, [fetchRequestList]);
 
+  const sortedList = [...requestList].sort((a, b) => {
+    const diff = toTimestamp(a.createdAt) - toTimestamp(b.createdAt);
+    return sortOrder === "desc" ? -diff : diff;
+  });
+
   const handlePageChange = (left: boolean) => {
-    setPageNumber((prev) => {
-      if (left) return Math.max(0, prev - 1);
-      return Math.min(totalPage - 1, prev + 1);
-    });
+    setPageNumber((prev) =>
+      left ? Math.max(0, prev - 1) : Math.min(totalPage - 1, prev + 1),
+    );
   };
 
   return {
     pageNumber,
     pageSize: PAGE_SIZE,
     totalPage,
-    requestList,
+    requestList: sortedList,
     loading,
     handlePageChange,
     refetch: fetchRequestList,

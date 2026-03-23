@@ -1,9 +1,9 @@
 export type CoordinatorRequestStatus =
-  | "accept"
-  | "reject"
-  | "delayed"
-  | "processing"
-  | "completed";
+  | "yêu cầu mới"
+  | "đang xử lý"
+  | "tạm hoãn"
+  | "hoàn thành"
+  | "đã hủy";
 
 export interface CoordinatorRequest {
   requestID: string;

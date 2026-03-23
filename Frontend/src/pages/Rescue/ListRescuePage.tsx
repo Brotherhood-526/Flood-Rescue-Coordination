@@ -77,7 +77,7 @@ export default function ListRescuePage() {
   return (
     <div className="w-full min-h-[calc(100vh-80px)] p-8 bg-[#fdfdfd] font-sans">
       {/* Filter buttons */}
-      <div className="flex flex-col items-center justify-center w-full -mt-5 mb-10">
+      <div className="flex flex-col items-center justify-center w-full mt-20 mb-10">
         <div className="flex gap-8">
           {[
             {
@@ -156,7 +156,7 @@ export default function ListRescuePage() {
           <div className="flex flex-col items-center justify-center py-20 text-[#25a863] gap-3">
             <Loader2 className="animate-spin" size={36} />
             <p className="text-gray-500 font-medium">
-              Đang tải danh sách yêu cầu...
+              Đang tải danh sách yêu cầu
             </p>
           </div>
         ) : error ? (

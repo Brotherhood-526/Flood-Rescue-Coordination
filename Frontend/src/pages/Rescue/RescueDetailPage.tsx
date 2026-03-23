@@ -107,7 +107,7 @@ export default function RescueDetailPage() {
   );
 
   return (
-    <div className="w-full min-h-[calc(100vh-80px)] bg-[#fdfdfd] font-sans pl-10 pr-10 pb-5 -mt-15">
+    <div className="w-full min-h-[calc(100vh-80px)] bg-[#fdfdfd] font-sans pl-10 pr-10 pb-5 mt-10">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
         <div className="flex items-center gap-4">

@@ -1,11 +1,11 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  User,
   CircleUserRound,
   BarChart3,
   Users,
   ShieldCheck,
   Truck,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -14,10 +14,17 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-
 import { useAuth } from "@/hooks/Auth/useAuth";
 import ConfirmDialog from "@/components/ConfirmDialog";
-import { useAuthStore } from "@/store/authStore.ts";
+import { useAuthStore } from "@/store/authStore";
+
+// Shared style constants─
+const HEADER_BG = "bg-[#0f172a]";
+const HEADER_BASE = `flex items-center justify-between w-full px-8 py-5 ${HEADER_BG}`;
+const TITLE_STYLE = "text-xl font-bold text-white";
+const SUB_STYLE = "text-sm text-slate-400 mt-0.5";
+const LOGOUT_BTN =
+  "bg-white text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer";
 
 export default function Header({ role }: { role: number }) {
   switch (role) {
@@ -34,17 +41,15 @@ export default function Header({ role }: { role: number }) {
   }
 }
 
-// User header
+//User Header
 export function UserHeader() {
   const location = useLocation();
 
   const getLinkClass = (path: string) => {
     const base = "px-5 py-2 font-medium transition";
-    const active = "text-blue-600 font-bold underline";
-    const inactive = "text-gray-700 hover:text-blue-600";
     return location.pathname === path
-      ? `${base} ${active}`
-      : `${base} ${inactive}`;
+      ? `${base} text-blue-600 font-bold underline`
+      : `${base} text-gray-700 hover:text-blue-600`;
   };
 
   return (
@@ -58,91 +63,65 @@ export function UserHeader() {
               className="h-12 w-auto cursor-pointer"
             />
           </Link>
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="flex items-center space-x-8">
             <NavigationMenu>
               <NavigationMenuList>
-                <NavigationMenuItem>
-                  <Link to="/" className={getLinkClass("/")}>
-                    Trang chủ
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link to="/map" className={getLinkClass("/map")}>
-                    Bản đồ
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link to="/search" className={getLinkClass("/search")}>
-                    Tra cứu
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link to="/contact" className={getLinkClass("/contact")}>
-                    Liên hệ
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link to="/guide" className={getLinkClass("/guide")}>
-                    Hướng dẫn sử dụng
-                  </Link>
-                </NavigationMenuItem>
+                {[
+                  { to: "/", label: "Trang chủ" },
+                  { to: "/map", label: "Bản đồ" },
+                  { to: "/search", label: "Tra cứu" },
+                  { to: "/contact", label: "Liên hệ" },
+                  { to: "/guide", label: "Hướng dẫn sử dụng" },
+                ].map(({ to, label }) => (
+                  <NavigationMenuItem key={to}>
+                    <Link to={to} className={getLinkClass(to)}>
+                      {label}
+                    </Link>
+                  </NavigationMenuItem>
+                ))}
               </NavigationMenuList>
             </NavigationMenu>
           </nav>
-
-          <div className="hidden md:block">
-            <Link to="/login">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
-                Đăng nhập
-              </Button>
-            </Link>
-          </div>
+          <Link to="/login">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
+              Đăng nhập
+            </Button>
+          </Link>
         </div>
       </div>
     </header>
   );
 }
 
-// Rescue header
+// Rescue Header
 export function RescueHeader() {
   const { staff, logout } = useAuth();
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
-  const displayTeamName = staff?.teamName ?? "Chưa có tên đội";
-  const displayMemberCount = staff?.teamSize ?? "null";
-  const displayUserName = staff?.name ?? "null";
 
   return (
     <>
-      <header className="flex items-center justify-between w-full px-6 py-6 bg-[#141e2e] font-sans">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-bold text-white tracking-wide">
-            Bảng quản lý cứu hộ
-          </h1>
-          <div className="flex items-center text-[#9ca3af] text-sm">
-            <span>Đội cứu hộ #{displayTeamName}</span>
-            <span className="mx-3 text-[#6b7280]">|</span>
-            <span>{displayMemberCount} thành viên</span>
-          </div>
+      <header
+        className={`${HEADER_BASE} fixed top-0 left-0 w-full z-50 shadow-md`}
+      >
+        <div>
+          <p className={TITLE_STYLE}>Bảng quản lý cứu hộ</p>
+          <p className={SUB_STYLE}>
+            Đội cứu hộ #{staff?.teamName ?? "Chưa có tên đội"}
+            <span className="mx-2 text-slate-600">|</span>
+            {staff?.teamSize ?? "—"} thành viên
+          </p>
         </div>
-
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3 cursor-pointer">
-            <div className="flex items-center justify-center w-8 h-8 bg-gray-300 rounded-full">
-              <User size={18} className="text-black fill-black" />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-8 h-8 bg-slate-700 rounded-full">
+              <User size={16} className="text-white" />
             </div>
             <span className="text-sm font-medium text-white">
-              {displayUserName}
+              {staff?.name ?? "—"}
             </span>
           </div>
-          <button
-            onClick={() => setIsLogoutOpen(true)}
-            className="relative flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-black transition-colors bg-[#e5e7eb] rounded hover:bg-[#d1d5db] cursor-pointer"
-          >
-            <span>Đăng xuất</span>
+          <button onClick={() => setIsLogoutOpen(true)} className={LOGOUT_BTN}>
+            Đăng xuất
           </button>
         </div>
       </header>
@@ -155,48 +134,45 @@ export function RescueHeader() {
   );
 }
 
+// Coordinator Header
 export function CoordinatorHeader() {
-  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const { logout } = useAuth();
   const staff = useAuthStore((state) => state.staff);
-
-  const logoutStyle =
-    "!text-gray-200 !hover:text-gray-200 font-bold ml-[0.5vw] cursor-pointer";
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   return (
-    <header className="bg-slate-950 shadow-md text-gray-200">
-      <div className="hidden md:flex flex-row items-center justify-between px-[2vw] py-[2vh] w-full fixed top-0 left-0 bg-slate-950 shadow z-50">
+    <>
+      <header
+        className={`${HEADER_BASE} fixed top-0 left-0 w-full z-50 shadow-md`}
+      >
         <div>
-          <p className="text-[3vh] font-bold">Bảng quản lý điều phối cứu hộ</p>
-          <p className="text-gray-300">
+          <p className={TITLE_STYLE}>Bảng quản lý điều phối cứu hộ</p>
+          <p className={SUB_STYLE}>
             Điều phối viên tiếp nhận và phân công nhiệm vụ cứu hộ
           </p>
         </div>
-
-        <div className="flex gap-4 items-center">
-          <Button
-            onClick={() => setIsLogoutOpen(true)}
-            className="bg-gray-200! text-black! relative"
-          >
-            Đăng xuất
-          </Button>
-
-          <div className="flex gap-1 items-center">
-            <CircleUserRound size={30} />
-            <span className={logoutStyle}>{staff?.name}</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <CircleUserRound size={22} className="text-slate-300" />
+            <span className="text-sm font-medium text-white">
+              {staff?.name ?? "—"}
+            </span>
           </div>
+          <button onClick={() => setIsLogoutOpen(true)} className={LOGOUT_BTN}>
+            Đăng xuất
+          </button>
         </div>
-      </div>
+      </header>
       <ConfirmDialog
         isOpen={isLogoutOpen}
         onClose={() => setIsLogoutOpen(false)}
         onConfirm={logout}
       />
-    </header>
+    </>
   );
 }
 
-// Manager header
+//Manager Header
 export function ManagerHeader() {
   const { staff, logout } = useAuth();
   const location = useLocation();
@@ -204,12 +180,7 @@ export function ManagerHeader() {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   const tabs = [
-    {
-      key: "overview",
-      label: "Tổng quan",
-      icon: BarChart3,
-      route: "/manager",
-    },
+    { key: "overview", label: "Tổng quan", icon: BarChart3, route: "/manager" },
     {
       key: "employee",
       label: "Quản lý nhân viên",
@@ -230,63 +201,60 @@ export function ManagerHeader() {
     },
   ] as const;
 
-  const activeRoute = tabs.some((tab) => location.pathname === tab.route)
+  const activeRoute = tabs.some((t) => t.route === location.pathname)
     ? location.pathname
     : "/manager";
 
-  const displayName = staff?.name ?? "Chưa có tên";
-
   return (
     <>
-      <header className="border-b border-gray-300 bg-slate-950 text-gray-200 shadow-md">
-        <div className="fixed left-0 top-0 z-50 w-full border-b border-gray-300 bg-[#f2f2f2]">
-          <div className="flex w-full flex-row items-center justify-between bg-slate-950 px-[2vw] py-[2vh]">
+      <header className="shadow-md">
+        <div className="fixed left-0 top-0 z-50 w-full">
+          {/* Top bar */}
+          <div
+            className={`${HEADER_BASE} fixed top-0 left-0 w-full z-50 shadow-md`}
+          >
             <div>
-              <p className="text-[3vh] font-bold">Bảng quản trị hệ thống</p>
-              <p className="text-slate-300">
-                Quản lý toàn bộ hoạt động của nhóm
-              </p>
+              <p className={TITLE_STYLE}>Bảng quản trị hệ thống</p>
+              <p className={SUB_STYLE}>Quản lý toàn bộ hoạt động của nhóm</p>
             </div>
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <CircleUserRound size={30} />
-                <span className="text-base font-semibold">{displayName}</span>
-                <Button
-                  onClick={() => setIsLogoutOpen(true)}
-                  className="bg-white! text-black! hover:bg-gray-200!"
-                >
-                  Đăng xuất
-                </Button>
-              </div>
+            <div className="flex items-center gap-3">
+              <CircleUserRound size={22} className="text-slate-300" />
+              <span className="text-sm font-medium text-white">
+                {staff?.name ?? "Chưa có tên"}
+              </span>
+              <button
+                onClick={() => setIsLogoutOpen(true)}
+                className={LOGOUT_BTN}
+              >
+                Đăng xuất
+              </button>
             </div>
           </div>
 
-          <nav className="mx-auto flex w-full max-w-300 items-stretch overflow-x-auto">
+          {/* Nav tabs */}
+          <nav className="flex w-full bg-white border-b border-gray-200">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeRoute === tab.route;
-
               return (
                 <button
                   key={tab.key}
                   type="button"
                   onClick={() => navigate(tab.route)}
-                  className={`flex min-w-45 flex-1 items-center justify-center gap-3 border-r border-gray-300 px-4 py-4 text-base font-semibold cursor-pointer ${
+                  className={`flex flex-1 items-center justify-center gap-2 px-4 py-4 text-sm font-semibold border-r border-gray-200 cursor-pointer transition-colors ${
                     isActive
-                      ? "bg-white border-b-2 border-b-[#4438ca] text-gray-900"
-                      : "text-gray-800 hover:bg-gray-100"
+                      ? "bg-white border-b-2 border-b-[#0f172a] text-[#0f172a]"
+                      : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
-                  <Icon className="h-6 w-6 shrink-0" />
-                  <span className="text-left leading-tight">{tab.label}</span>
+                  <Icon className="h-5 w-5 shrink-0" />
+                  <span>{tab.label}</span>
                 </button>
               );
             })}
           </nav>
         </div>
       </header>
-
       <ConfirmDialog
         isOpen={isLogoutOpen}
         onClose={() => setIsLogoutOpen(false)}
