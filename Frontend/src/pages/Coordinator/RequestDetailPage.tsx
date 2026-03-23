@@ -108,7 +108,7 @@ function Information() {
   const request = location.state as CoordinatorRequest;
 
   const { requestDetail } = useRequestDetail(id!);
-  const { vehicleList } = useVehicleList(vehicle);
+  const { vehicleList } = useVehicleList(id, vehicle);
 
   const displayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const displayUrgency = urgency ?? requestDetail?.urgency ?? null;
@@ -160,7 +160,7 @@ function Information() {
             <Phone className="h-5! w-5!" /> Người yêu cầu
           </div>
           <span className="pl-[1.8vw] text-lg font-semibold">
-            {request?.name}
+            {request?.citizenName}
           </span>
         </div>
 
