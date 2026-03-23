@@ -63,8 +63,8 @@ public interface StaffDAO extends JpaRepository<Staff, UUID> {
              SELECT
                  s.id,
                  s.team_name
-             FROM staff s
-             INNER JOIN vehicle v ON v.rescue_team_id = s.id
+             FROM Staff s
+             INNER JOIN Vehicle v ON v.rescue_team_id = s.id
              WHERE s.role        = 'cứu hộ'
                AND s.staff_state = 'hoạt động'
                AND v.type        = :vehicleType

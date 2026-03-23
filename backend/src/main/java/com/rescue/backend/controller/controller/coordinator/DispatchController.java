@@ -152,6 +152,9 @@ public class DispatchController {
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new ResponseObject(404, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Không thể lấy đội cứu hộ gần nhất", e.getMessage()));
         }
     }
 

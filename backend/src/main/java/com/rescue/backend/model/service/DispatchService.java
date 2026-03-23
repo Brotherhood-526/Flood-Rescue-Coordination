@@ -193,7 +193,7 @@ public class DispatchService {
         double lng = request.getLongitude().doubleValue();
 
         List<Object[]> rows = staffDAO.findTop4NearbyTeams(
-                lng, lat, vehicleType.trim().toLowerCase());
+                lat, lng, vehicleType.trim().toLowerCase());
 
         if (rows == null || rows.isEmpty()) {
             throw new IllegalStateException(
@@ -202,10 +202,20 @@ public class DispatchService {
 
         return rows.stream()
                 .map(row -> new NearbyTeamResponse(
-                        UUID.fromString((String) row[0]),
+                        toUuid(row[0]),
                         (String) row[1]
                 ))
                 .toList();
+    }
+
+    private UUID toUuid(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof UUID uuid) {
+            return uuid;
+        }
+        return UUID.fromString(value.toString());
     }
 
     public RequestDetailResponse updateRequest(UUID requestID, UUID coordinatorID, UpdateRequest dto) {

@@ -24,7 +24,7 @@ public interface MessageDAO  extends JpaRepository<Message, UUID> {
             ON m.sender_id = c.id AND m.sender_role = 'người dân'
         LEFT JOIN Staff s 
             ON m.sender_id = s.id 
-            AND m.sender_role IN ('điều phối viên cứu hộ', 'đội cứu hộ')
+            AND m.sender_role IN ('điều phối viên', 'cứu hộ')
         WHERE m.request_id = :requestId
         ORDER BY m.send_at
     """, nativeQuery = true)
