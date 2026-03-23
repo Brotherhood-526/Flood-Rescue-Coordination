@@ -1,6 +1,5 @@
 package com.rescue.backend.model.dao;
 
-import com.rescue.backend.model.bean.Staff;
 import com.rescue.backend.model.bean.Vehicle;
 import com.rescue.backend.view.dto.vehicle.response.FilterVehicleResponse;
 import org.springframework.data.domain.Page;
@@ -45,4 +44,15 @@ public interface VehicleDAO extends JpaRepositoryImplementation<Vehicle, UUID> {
             """)
     Page<Vehicle> searchVehicle(@Param("keyword") String keyword, Pageable pageable);
 
+    long countByState(String state);
+
+    long countBy();
+
+    @Query("""
+    SELECT v FROM Vehicle v
+    WHERE v.staff.id = :teamId
+      AND v.state = 'không hoạt động'
+      AND v.type = :type
+""")
+    List<Vehicle> findAvailableVehicle(UUID teamId, String type, Pageable pageable);
 }
