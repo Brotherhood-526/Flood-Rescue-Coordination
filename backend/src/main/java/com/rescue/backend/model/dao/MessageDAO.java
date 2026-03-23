@@ -17,7 +17,8 @@ public interface MessageDAO  extends JpaRepository<Message, UUID> {
                 m.senderRole,
                 m.content,
                 m.sendAt,
-                COALESCE(c.name, s.name) as senderName
+                COALESCE(c.name, s.name) as senderName,
+                m.senderId
             )
             FROM Message m
             LEFT JOIN Citizen c ON m.senderId = c.id

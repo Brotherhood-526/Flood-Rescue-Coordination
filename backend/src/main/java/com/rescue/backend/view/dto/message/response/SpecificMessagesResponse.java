@@ -8,7 +8,8 @@ public record SpecificMessagesResponse(
         String senderRole,
         String content,
         LocalDateTime sendAt,
-        String senderName
+        String senderName,
+        UUID senderId
 ){
 
 }

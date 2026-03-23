@@ -8,29 +8,30 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface VehicleDAO extends JpaRepositoryImplementation<Vehicle, UUID> {
-    Vehicle findById(String id);
+    Optional<Vehicle> findById(UUID id);
 
     List<Vehicle> findByStaff_Id(UUID rescueTeamId);
 
-    @Query(value = """
-            SELECT TOP 1 id
-            FROM Vehicle
-            WHERE rescue_team_id = :staffId
-            AND state = 'free'
-            AND type = :type
-        """, nativeQuery = true)
+    @Query("""
+        SELECT v.id
+        FROM Vehicle v
+        WHERE v.staff.id = :staffId
+        AND v.state = 'free'
+        AND v.type = :type
+    """)
     UUID findFreeVehicleId(UUID staffId, String type);
 
     @Modifying
     @Transactional
-    @Query("""
-        UPDATE Vehicle v
-        SET v.state = :state
-        WHERE v.id = :vehicleId
-        """)
+    @Query(value = """
+        UPDATE Vehicle
+        SET state = :state
+        WHERE id = :vehicleId
+    """, nativeQuery = true)
     int updateVehicleState(UUID vehicleId, String state);
 
     @Query("""

@@ -4,6 +4,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import ChatBox, {type MessageComponent} from "@/layouts/ChatBox.tsx";
 import {useEffect, useState} from "react";
 import {useChatbox} from "@/hooks/useChatbox.ts";
+import { useAuthStore } from "@/store/authStore";
 
 // const mockMessages: MessageComponent[] = [
 //     { content: "Hello world", time: "10:30 AM", name: "Điều phối viên" },
@@ -17,6 +18,7 @@ export type ChatBoxInfo = {
     content: string;
     sendAt: string;
     senderName: string;
+    senderId: string;
 }
 
 export default function CoordinatorChatBox() {
@@ -24,12 +26,25 @@ export default function CoordinatorChatBox() {
     const [messages, setMessages] = useState<MessageComponent[]>([]);
     const {fetchMessage} = useChatbox();
     const { requestId } = useParams();
+    const [tick, setTick] = useState(0);
+    const staff = useAuthStore((state) => state.staff);
+
+    const senderId = staff?.accountId;
+    const senderName = staff?.name;
+    const senderRole = staff?.role;
 
     const handleBack = ()=> {
         navigate(-1);
     }
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTick((prev) => prev + 1);
+            setTick((prev) => prev + 1);
+        }, 2000);
 
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         const loadMessages = async () => {
@@ -44,13 +59,17 @@ export default function CoordinatorChatBox() {
                     minute: "2-digit",
                 }),
                 name: msg.senderName,
+                senderId: msg.senderId,
             }));
 
             setMessages(formatted);
         };
 
         loadMessages();
-    }, [requestId]);
+    }, [requestId, tick]);
+
+
+
     return (
         <div className="flex flex-col w-full h-full mt-[3vh]">
             <div className="ml-[1vw]">
@@ -63,7 +82,10 @@ export default function CoordinatorChatBox() {
 
             <div className="flex flex-row w-full mt-[2vh]">
                 <div className="w-1/2 h-[75vh]">
-                    <ChatBox title={"Hộp Thoại"} senderName={"Điều phối viên"} messages={messages} setMessages={setMessages} />
+                    <ChatBox title={"Hộp Thoại"} senderName={senderName!}
+                             senderId={senderId!} requestId={requestId!}
+                             senderRole={senderRole === "rescue coordinator" ? "coordinator" : senderRole!}
+                             messages={messages} setMessages={setMessages} />
                 </div>
 
                 <div className="w-1/2 h-[75vh]">

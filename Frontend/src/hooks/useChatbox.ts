@@ -12,5 +12,22 @@ export function useChatbox() {
         return data;
     }
 
-    return {fetchMessage}
+    const sendMessage = async (
+        requestId: string,
+        senderId: string,
+        senderRole: string,
+        content: string
+    ) => {
+
+        await apiClient.post("/coordinator/sendMessage", {
+            requestId,
+            senderRole,
+            content,
+            senderId,
+            sendAt: new Date().toISOString()
+        });
+
+    }
+
+    return {fetchMessage, sendMessage}
 }

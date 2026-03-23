@@ -26,6 +26,7 @@ public class Message {
     private Request request;
 
     @Column(name = "sender_id")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID senderId;
 
     @Column(name = "sender_role", nullable = false, length = 20)

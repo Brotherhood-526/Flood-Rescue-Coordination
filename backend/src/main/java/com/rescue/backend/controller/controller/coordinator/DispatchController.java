@@ -1,6 +1,7 @@
 package com.rescue.backend.controller.controller.coordinator;
 
 import com.rescue.backend.model.service.DispatchService;
+import com.rescue.backend.view.dto.chat.request.SendMessageRequest;
 import com.rescue.backend.view.dto.common.ResponseObject;
 import com.rescue.backend.view.dto.coordinator.request.RejectMissionRequest;
 import com.rescue.backend.view.dto.coordinator.request.SpecificRequest;
@@ -145,6 +146,25 @@ public class DispatchController {
 
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject(200, "Lấy tin nhắn thành công", data)
+            );
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new ResponseObject(401, "Không thể lấy dữ liệu", null)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Lỗi hệ thống", e.getMessage())
+            );
+        }
+    }
+
+    @PostMapping("/sendMessage")
+    public ResponseEntity<ResponseObject> sendMessage(@RequestBody SendMessageRequest request, HttpServletRequest session){
+        try{
+            dispatchService.sendMessage(request);
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject(200, "Gửi tin nhắn thành công","")
             );
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(

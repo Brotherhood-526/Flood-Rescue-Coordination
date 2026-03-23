@@ -1,9 +1,12 @@
 package com.rescue.backend.model.service;
 
+import com.rescue.backend.model.bean.Message;
 import com.rescue.backend.model.bean.Request;
 import com.rescue.backend.model.dao.MessageDAO;
 import com.rescue.backend.model.dao.RequestDAO;
 import com.rescue.backend.model.dao.VehicleDAO;
+import com.rescue.backend.repositories.MessageRepository;
+import com.rescue.backend.view.dto.chat.request.SendMessageRequest;
 import com.rescue.backend.view.dto.coordinator.request.TakeListRequest;
 import com.rescue.backend.view.dto.coordinator.request.UpdateMissionRequest;
 import com.rescue.backend.view.dto.coordinator.response.SpecificResponse;
@@ -19,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +34,9 @@ public class DispatchService {
 
     @Autowired
     private VehicleDAO vehicleDAO;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
 //    @Autowired
 //    private MessageDAO messageDAO;
@@ -113,5 +120,27 @@ public class DispatchService {
 
     public List<SpecificMessagesResponse> takeAllMessageOfRequest(SpecificMessagesRequest specificMessagesRequest){
          return chatService.takeAllMessageOfRequest(specificMessagesRequest);
+    }
+
+    @Transactional
+    public int sendMessage(SendMessageRequest request) {
+
+        Message message = new Message();
+
+        message.setSenderRole(request.senderRole());
+        message.setContent(request.content());
+        message.setSenderId(request.senderId());
+
+        message.setSendAt(
+                request.sendAt() != null ? request.sendAt() : LocalDateTime.now()
+        );
+
+        Request req = new Request();
+        req.setId(request.requestId());
+        message.setRequest(req);
+
+        messageRepository.save(message);
+
+        return 1;
     }
 }
