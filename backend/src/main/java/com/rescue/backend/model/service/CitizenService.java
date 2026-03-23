@@ -7,7 +7,6 @@ import com.rescue.backend.model.bean.*;
 import com.rescue.backend.model.dao.CitizenDAO;
 import com.rescue.backend.model.dao.RequestDAO;
 import com.rescue.backend.model.dao.RequestImageDAO;
-import com.rescue.backend.model.dao.VehicleDAO;
 import com.rescue.backend.view.dto.citizen.request.LookupRequest;
 import com.rescue.backend.view.dto.citizen.request.RescueRequest;
 import com.rescue.backend.view.dto.citizen.request.UpdateRequest;

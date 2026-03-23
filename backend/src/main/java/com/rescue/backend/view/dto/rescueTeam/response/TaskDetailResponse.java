@@ -21,5 +21,4 @@ public record TaskDetailResponse (
         String status,
         List<LookupImageResponse> images
 ){
-
 }

@@ -4,17 +4,12 @@ import com.rescue.backend.model.service.ChatService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/common/chat")
 public class ChatController {
 
-    private final ChatService chatService;
+    private ChatService chatService;
 
-    public ChatController(ChatService chatService) {
-        this.chatService = chatService;
-    }
 
 //    @GetMapping("/{requestId}")
 //    public ResponseEntity<ResponseObject> getHistory(@PathVariable UUID requestId) {
