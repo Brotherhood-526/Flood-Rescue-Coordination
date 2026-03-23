@@ -99,7 +99,49 @@ To make sure Frontend and Backend work well together, the Frontend's React archi
 ## 4.6 Technology Stack
 
 ### 4.6.1 Backend Technologies
-
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| Framework | Spring Boot | Main backend framework for building RESTful applications |
+| Web | Spring MVC | Handles HTTP requests and REST APIs |
+| Real-time | WebSocket (Spring) | Enables real-time communication (e.g., messaging) |
+| Security | Spring Security | Authentication and authorization (JWT, BCrypt) |
+| ORM | Spring Data JPA | Database abstraction layer |
+| ORM | Hibernate | JPA implementation and ORM provider |
+| Database | MySQL | Relational database for persistent storage |
+| Spatial Data | Hibernate Spatial | Supports geographic/spatial queries |
+| Spatial Data | JTS (Java Topology Suite) | Geometry processing for map features |
+| Build Tool | Maven | Dependency management and build automation |
+| Language | Java (21) | Core programming language |
+| Utility | Lombok | Reduces boilerplate code (getters, setters, etc.) |
+| Config | Spring Dotenv | Loads environment variables from `.env` |
+| Media Storage | Cloudinary | Handles image upload and storage |
+| API Docs | SpringDoc OpenAPI (Swagger) | API documentation and testing UI |
+| Data Format | JSON | Data exchange format between frontend and backend |
+| Dev Tools | Spring Boot DevTools | Hot reload during development |
+| Testing | Spring Boot Test | Backend testing framework |
+| Testing | Spring Security Test | Security-related testing utilities |
 ### 4.6.2 Frontend Technologies
-
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| Core | React | Component-based UI development |
+| Core | TypeScript | Static typing and improved maintainability |
+| Build Tool | Vite | Fast development server and optimized builds |
+| Styling | Tailwind CSS | Utility-first CSS framework |
+| Styling | Radix UI | Accessible UI primitives |
+| Styling | shadcn/ui | Pre-built UI components |
+| Styling | Lucide React | Icon library |
+| State Management | Zustand | Global state management |
+| Data Fetching | TanStack Query | Server state management and caching |
+| API Communication | Axios | HTTP client for backend communication |
+| Routing | React Router | Client-side routing and navigation |
+| Forms | React Hook Form | Efficient form handling |
+| Validation | Zod | Schema-based validation |
+| Maps | Vietmap GL JS | Interactive map integration |
+| Notifications | React Toastify | User feedback via toast messages |
+| Utilities | clsx | Conditional class handling |
+| Utilities | tailwind-merge | Tailwind class conflict resolution |
+| Utilities | class-variance-authority | Manage component variants |
+| Dev Tools | ESLint | Code linting and quality control |
+| Dev Tools | typescript-eslint | TypeScript linting rules |
+| Dev Tools | Vite React Plugin | React integration for Vite |
 ## 4.7 Summary
