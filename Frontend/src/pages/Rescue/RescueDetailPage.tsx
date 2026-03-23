@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { ROUTES } from "@/router/routes";
 import vietmapgl from "@vietmap/vietmap-gl-js";
-import { useVietMap } from "@/lib/MapProvider";
+import { useVietMap } from "@/lib/useVietMap";
 import { rescueTeamService } from "@/services/Rescue/rescueTeamService";
 import type { RescueRequest } from "@/types/rescue";
 

@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import vietmapgl from "@vietmap/vietmap-gl-js";
-import { useVietMap } from "@/lib/MapProvider";
+import { useVietMap } from "@/lib/useVietMap";
 import { useAuthStore } from "@/store/authStore";
 import { rescueTeamService } from "@/services/Rescue/rescueTeamService";
 

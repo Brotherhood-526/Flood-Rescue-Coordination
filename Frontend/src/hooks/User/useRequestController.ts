@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation } from "react-router-dom";
 import vietmapgl from "@vietmap/vietmap-gl-js";
-import { useVietMap } from "@/lib/MapProvider";
+import { useVietMap } from "@/lib/useVietMap";
 import { requestService } from "@/services/User/requestService";
 import { vietmapService } from "@/services/User/vietmapService";
 import {
