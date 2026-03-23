@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
-import apiClient from "@/services/axiosClient";
+import { coordinatorService } from "@/services/Coordinator/coordinatorService";
 import { PAGE_SIZE } from "@/constants/coordinatorConfig";
 import { toTimestamp } from "@/utils/parseDate";
-import type { CoordinatorRequest, TakePageResponse } from "@/types/coordinator";
+import type { CoordinatorRequest } from "@/types/coordinator";
 
 export const useRequestList = (
   status: string,

@@ -134,7 +134,7 @@ function Requests({
   const navigate = useNavigate();
 
   const handleOpenRequest = (request: CoordinatorRequest) => {
-    navigate(ROUTES.COORDINATE_DETAIL.replace(":id", request.requestID), {
+    navigate(ROUTES.COORDINATE_DETAIL.replace(":id", request.id), {
       state: request,
     });
   };
@@ -183,7 +183,7 @@ function Requests({
               className="hover:bg-gray-100 cursor-pointer border-b border-gray-200 transition-colors"
             >
               <TableCell className="font-mono text-gray-500 font-medium">
-                #{r.requestID.substring(0, 8).toUpperCase()}
+                #{r.id.substring(0, 8).toUpperCase()}
               </TableCell>
               <TableCell className="font-bold text-gray-800">
                 {r.phone}

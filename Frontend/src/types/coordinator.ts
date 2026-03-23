@@ -6,9 +6,9 @@ export type CoordinatorRequestStatus =
   | "đã hủy";
 
 export interface CoordinatorRequest {
-  requestID: string;
+  id: string;
+  citizenName: string;
   phone: string;
-  name: string;
   status: CoordinatorRequestStatus;
   createdAt: string;
 }

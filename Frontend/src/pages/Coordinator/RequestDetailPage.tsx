@@ -160,7 +160,7 @@ function Information() {
             <Phone className="h-5! w-5!" /> Người yêu cầu
           </div>
           <span className="pl-[1.8vw] text-lg font-semibold">
-            {request?.name}
+            {request?.citizenName}
           </span>
         </div>
 
