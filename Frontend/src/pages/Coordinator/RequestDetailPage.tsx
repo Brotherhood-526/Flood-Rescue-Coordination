@@ -108,7 +108,7 @@ function Information() {
   const request = location.state as CoordinatorRequest;
 
   const { requestDetail } = useRequestDetail(id!);
-  const { vehicleList } = useVehicleList(vehicle);
+  const { vehicleList } = useVehicleList(id, vehicle);
 
   const displayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const displayUrgency = urgency ?? requestDetail?.urgency ?? null;
