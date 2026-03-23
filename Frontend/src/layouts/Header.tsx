@@ -130,18 +130,6 @@ export function RescueHeader() {
         </div>
 
         <div className="flex items-center gap-6">
-          <button className="relative flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-black transition-colors bg-[#e5e7eb] rounded hover:bg-[#d1d5db] cursor-pointer">
-            <Bell size={18} className="fill-black" />
-            <span>Thông báo</span>
-
-            {noty && (
-              <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5">
-                <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-red-500"></span>
-                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-600 border border-[#141e2e]"></span>
-              </span>
-            )}
-          </button>
-
           <div className="flex items-center gap-3 cursor-pointer">
             <div className="flex items-center justify-center w-8 h-8 bg-gray-300 rounded-full">
               <User size={18} className="text-black fill-black" />
