@@ -1,69 +1,100 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowBigLeft } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { useVietMap } from "@/lib/useVietMap";
 import vietmapgl from "@vietmap/vietmap-gl-js";
 
+interface FullMapState {
+  userLat: number;
+  userLng: number;
+  userName: string;
+  teamLat: number;
+  teamLng: number;
+  teamName: string;
+}
+
 const DEFAULT_CENTER: [number, number] = [106.7009, 10.7769];
 
-//  thay bằng data thật từ API
-const USER_LOCATIONS: [number, number][] = [
-  [106.6297, 10.8231],
-  [106.6577, 10.8453],
-  [106.6936, 10.7314],
-  [106.7143, 10.8012],
-  [106.6723, 10.756],
-  [106.743, 10.8655],
-];
-
-// thay bằng data thật từ API
-const TEAM_LOCATIONS: [number, number][] = [
-  [106.7009, 10.7769],
-  [106.667, 10.838],
-  [106.635, 10.7904],
-  [106.6298, 10.7432],
-  [106.803, 10.87],
-];
-
 export default function FullMapCoordinatorPage() {
-  const navigate = useNavigate(); // ✅ lên trên cùng
+  const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as FullMapState | null;
+
   const mapContainer = useRef<HTMLDivElement | null>(null);
-  const { map, mount } = useVietMap();
+  const { map, mount, unmount, mapLoaded } = useVietMap();
 
   useEffect(() => {
     if (!mapContainer.current) return;
     mount(mapContainer.current);
-  }, [mount]);
+    return () => unmount();
+  }, [mount, unmount]);
 
   useEffect(() => {
-    if (!map) return;
-    map.flyTo({ center: DEFAULT_CENTER, zoom: 13 });
+    if (!map || !mapLoaded) return;
 
-    TEAM_LOCATIONS.forEach((position) => {
-      const el = document.createElement("div");
-      el.className = "w-4 h-4 bg-blue-600 rounded-full border-2 border-white";
-      new vietmapgl.Marker({ element: el }).setLngLat(position).addTo(map);
-    });
+    if (!state?.userLat || !state?.teamLat) {
+      map.flyTo({ center: DEFAULT_CENTER, zoom: 13 });
+      return;
+    }
 
-    USER_LOCATIONS.forEach((position) => {
-      const el = document.createElement("div");
-      el.className = "w-4 h-4 bg-red-600 rounded-full border-2 border-white";
-      new vietmapgl.Marker({ element: el }).setLngLat(position).addTo(map);
-    });
-  }, [map]);
+    const userLngLat: [number, number] = [state.userLng, state.userLat];
+    const teamLngLat: [number, number] = [state.teamLng, state.teamLat];
+
+    // Marker người yêu cầu
+    new vietmapgl.Marker({ color: "#ef4444" })
+      .setLngLat(userLngLat)
+      .setPopup(
+        new vietmapgl.Popup({ offset: 25, closeButton: false }).setHTML(`
+          <div style="font-family:sans-serif;padding:4px 2px;min-width:140px; text-align:center;">
+            <p style="font-weight:700;font-size:13px;margin:0 0 2px;color:#dc2626">
+              Người yêu cầu
+            </p>
+            <p style="font-size:12px;color:#111;margin:0;font-weight:600">
+              ${state.userName}
+            </p>
+          </div>
+        `),
+      )
+      .addTo(map)
+      .togglePopup();
+
+    //Marker đội cứu hộ
+    new vietmapgl.Marker({ color: "#2563eb" })
+      .setLngLat(teamLngLat)
+      .setPopup(
+        new vietmapgl.Popup({ offset: 25, closeButton: false }).setHTML(`
+          <div style="font-family:sans-serif;padding:4px 2px;min-width:140px; text-align:center;">
+            <p style="font-weight:700;font-size:13px;margin:0 0 2px;color:#2563eb">
+              Đội cứu hộ
+            </p>
+            <p style="font-size:12px;color:#111;margin:0;font-weight:600">
+              ${state.teamName}
+            </p>
+          </div>
+        `),
+      )
+      .addTo(map)
+      .togglePopup();
+
+    // Fit bounds để thấy cả 2 marker
+    const bounds = new vietmapgl.LngLatBounds(userLngLat, userLngLat);
+    bounds.extend(teamLngLat);
+    map.fitBounds(bounds, { padding: 120, duration: 1500, maxZoom: 15 });
+  }, [map, mapLoaded, state]);
 
   return (
     <>
       <div className="w-screen h-screen">
         <div ref={mapContainer} className="h-full w-full" />
       </div>
-      <ArrowBigLeft
-        className="fixed top-[11vh] left-[0.5vw] z-999 w-10 h-10 p-2 rounded-full
-          bg-white border border-black/20 transition-all duration-200
-          hover:bg-gray-100 hover:border-2 hover:border-gray-400 cursor-pointer"
-        strokeWidth={1.5}
+
+      <button
         onClick={() => navigate(-1)}
-      />
+        className="absolute top-6 left-6 z-10 flex items-center gap-2 px-5 py-3 bg-white hover:bg-gray-300 text-black rounded-lg font-bold transition-all cursor-pointer"
+      >
+        <ArrowLeft size={20} />
+        Quay lại chi tiết
+      </button>
     </>
   );
 }

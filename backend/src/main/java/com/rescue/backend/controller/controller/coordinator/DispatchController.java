@@ -114,10 +114,11 @@ public class DispatchController {
     @GetMapping("/requests")
     public ResponseEntity<ResponseObject> getRequests(
             @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
         try {
-            Page<RequestListResponse> result = dispatchService.getRequests(status, page);
+            Page<RequestListResponse> result = dispatchService.getRequests(status, page, size);
             return ResponseEntity.ok(new ResponseObject(200, "Success", result));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
