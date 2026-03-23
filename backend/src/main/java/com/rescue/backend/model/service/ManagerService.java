@@ -260,6 +260,7 @@ public class ManagerService {
         }
 
         vehicle.setType(createVehicleRequest.type());
+        vehicle.setState(state);
         vehicle.setStaff(staff);
 
         Vehicle saved = vehicleDAO.save(vehicle);
