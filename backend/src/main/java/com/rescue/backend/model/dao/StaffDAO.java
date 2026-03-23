@@ -73,7 +73,7 @@ public interface StaffDAO extends JpaRepository<Staff, UUID> {
                GROUP BY s.id, s.team_name, s.geo_location
              ORDER BY ST_Distance_Sphere(
                  s.geo_location,
-                 ST_GeomFromText(CONCAT('POINT(', :longitude, ' ', :latitude, ')'), 4326)
+                 ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)
              ) ASC
              LIMIT 4
             \s""", nativeQuery = true)
