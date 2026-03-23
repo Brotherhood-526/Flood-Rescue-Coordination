@@ -1,30 +1,34 @@
 import { useEffect, useState } from "react";
-import apiClient from "@/services/axiosClient";
+import { coordinatorService } from "@/services/Coordinator/coordinatorService";
 import type { VehicleAndRescueTeamInfo } from "@/types/coordinator";
 
-export const useVehicleList = (type: string | null) => {
+export const useVehicleList = (
+  requestId: string | undefined,
+  vehicleType: string | null,
+) => {
   const [vehicleList, setVehicleList] = useState<VehicleAndRescueTeamInfo[]>(
     [],
   );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!type) return;
+    if (!requestId || !vehicleType) return;
     const fetch = async () => {
       try {
         setLoading(true);
-        const data = (await apiClient.post("/coordinator/filterVehicle", {
-          vehicle_type: type,
-        })) as unknown as VehicleAndRescueTeamInfo[];
+        const data = await coordinatorService.getNearbyTeams(
+          requestId,
+          vehicleType,
+        );
         setVehicleList(data);
       } catch (err) {
-        console.error("Fetch vehicle failed:", err);
+        console.error("Fetch nearby teams failed:", err);
       } finally {
         setLoading(false);
       }
     };
     fetch();
-  }, [type]);
+  }, [requestId, vehicleType]);
 
   return { vehicleList, loading };
 };

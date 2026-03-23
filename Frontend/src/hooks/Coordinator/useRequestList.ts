@@ -20,11 +20,7 @@ export const useRequestList = (
   const fetchRequestList = useCallback(async () => {
     try {
       setLoading(true);
-      const data = (await apiClient.post("/coordinator/takeListRequest", {
-        pageNumber,
-        pageSize: PAGE_SIZE,
-        status,
-      })) as unknown as TakePageResponse;
+      const data = await coordinatorService.getRequests(status, pageNumber);
       setRequestList(data.list);
       setTotalPage(data.totalPage);
     } catch (err) {

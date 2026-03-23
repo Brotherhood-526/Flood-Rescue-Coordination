@@ -54,4 +54,32 @@ public interface StaffDAO extends JpaRepository<Staff, UUID> {
             @Param("role") String role,
             @Param("keyword") String keyword
     );
+
+    long countByStaffState(String staffState);
+
+    long countBy();
+
+    @Query(value = """
+             SELECT
+                 s.id,
+                 s.team_name
+             FROM staff s
+             INNER JOIN vehicle v ON v.rescue_team_id = s.id
+             WHERE s.role        = 'cứu hộ'
+               AND s.staff_state = 'hoạt động'
+               AND v.type        = :vehicleType
+               AND v.state       = 'không hoạt động'
+               AND s.geo_location IS NOT NULL
+               GROUP BY s.id, s.team_name, s.geo_location
+             ORDER BY ST_Distance_Sphere(
+                 s.geo_location,
+                 ST_GeomFromText(CONCAT('POINT(', :longitude, ' ', :latitude, ')'), 4326)
+             ) ASC
+             LIMIT 4
+            \s""", nativeQuery = true)
+    List<Object[]> findTop4NearbyTeams(
+            @Param("latitude")    double latitude,
+            @Param("longitude")   double longitude,
+            @Param("vehicleType") String vehicleType
+    );
 }
