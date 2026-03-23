@@ -1,12 +1,16 @@
 package com.rescue.backend.model.service;
 
 
+import com.rescue.backend.model.bean.Message;
 import com.rescue.backend.model.bean.Request;
 import com.rescue.backend.model.bean.Staff;
 import com.rescue.backend.model.bean.Vehicle;
+import com.rescue.backend.model.dao.MessageDAO;
 import com.rescue.backend.model.dao.RequestDAO;
 import com.rescue.backend.model.dao.StaffDAO;
 import com.rescue.backend.model.dao.VehicleDAO;
+import com.rescue.backend.view.dto.chat.request.SendMessageRequest;
+import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import com.rescue.backend.view.dto.coordinator.request.TakeListRequest;
 import com.rescue.backend.view.dto.coordinator.request.UpdateRequest;
 import com.rescue.backend.view.dto.coordinator.response.*;
@@ -19,8 +23,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +42,12 @@ public class DispatchService {
 
     @Autowired
     private StaffDAO staffDAO;
+
+    @Autowired
+    private MessageDAO messageDAO;
+
+    @Autowired
+    private ChatService chatService;
 
     private static final int PAGE_SIZE = 1000;
     private static final List<String> VALID_VEHICLE_TYPES =
@@ -251,5 +263,31 @@ public class DispatchService {
         requestDAO.save(request);
         vehicleDAO.save(vehicle);
         return getRequestDetail(request.getId());
+    }
+
+    @Transactional
+    public int sendMessage(SendMessageRequest request) {
+
+        Message message = new Message();
+
+        message.setSenderRole(request.senderRole());
+        message.setContent(request.content());
+        message.setSenderId(request.senderId());
+
+        message.setSendAt(
+                request.sendAt() != null ? request.sendAt() : LocalDateTime.now()
+        );
+
+        Request req = new Request();
+        req.setId(request.requestId());
+        message.setRequest(req);
+
+        messageDAO.save(message);
+
+        return 1;
+    }
+
+    public List<MessageResponse> takeAllMessageOfRequest(UUID requestId){
+        return chatService.takeAllMessageOfRequest(requestId);
     }
 }

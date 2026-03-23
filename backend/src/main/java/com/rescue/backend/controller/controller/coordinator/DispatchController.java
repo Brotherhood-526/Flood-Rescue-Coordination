@@ -1,6 +1,7 @@
 package com.rescue.backend.controller.controller.coordinator;
 
 import com.rescue.backend.model.service.DispatchService;
+import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import com.rescue.backend.view.dto.common.ResponseObject;
 
 import com.rescue.backend.view.dto.coordinator.request.UpdateRequest;
@@ -179,6 +180,17 @@ public class DispatchController {
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseObject(400, e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/messages/{requestId}")
+    public ResponseEntity<ResponseObject> getAllMessages(@PathVariable UUID requestId) {
+        try {
+            List<MessageResponse> result = dispatchService.takeAllMessageOfRequest(requestId);
+            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseObject(404, e.getMessage(), null));
         }
     }
 }
