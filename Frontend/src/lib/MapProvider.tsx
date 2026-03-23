@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import vietmapgl from "@vietmap/vietmap-gl-js";
 import { MapContext } from "@/lib/MapContext";
 
+// ── Provider
 // ── Provider ──────────────────────────────────────────────
 export const MapProvider = ({ children }: { children: React.ReactNode }) => {
   const mapRef = useRef<vietmapgl.Map | null>(null);
