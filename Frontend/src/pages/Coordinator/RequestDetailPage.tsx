@@ -27,7 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useVietMap } from "@/lib/MapProvider";
+import { useVietMap } from "@/lib/useVietMap";
 import vietmapgl from "@vietmap/vietmap-gl-js";
 import { ROUTES } from "@/router/routes";
 import { useRequestDetail } from "@/hooks/Coordinator/useRequestDetail";

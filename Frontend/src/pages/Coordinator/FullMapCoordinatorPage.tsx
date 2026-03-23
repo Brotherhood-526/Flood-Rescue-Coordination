@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowBigLeft } from "lucide-react";
-import { useVietMap } from "@/lib/MapProvider";
+import { useVietMap } from "@/lib/useVietMap";
 import vietmapgl from "@vietmap/vietmap-gl-js";
 
 const DEFAULT_CENTER: [number, number] = [106.7009, 10.7769];
