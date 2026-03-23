@@ -191,6 +191,9 @@ public class DispatchController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new ResponseObject(404, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Không thể tải lịch sử chat", e.getMessage()));
         }
     }
 }

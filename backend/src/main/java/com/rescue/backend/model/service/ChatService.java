@@ -7,6 +7,8 @@ import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,13 +53,36 @@ public class ChatService {
 
         return rows.stream()
                 .map(r -> new MessageResponse(
-                        (UUID) r[0],                         // id
-                        (UUID) r[1],                         // senderId
+                        toUuid(r[0]),                        // id
+                        toUuid(r[1]),                        // senderId
                         (String) r[2],                       // senderName
                         (String) r[3],                       // senderRole
                         (String) r[4],                       // content
-                        ((java.sql.Timestamp) r[5]).toLocalDateTime() // sendAt
+                        toLocalDateTime(r[5])                // sendAt
                 ))
                 .toList();
+    }
+
+    private UUID toUuid(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof UUID uuid) {
+            return uuid;
+        }
+        return UUID.fromString(value.toString());
+    }
+
+    private LocalDateTime toLocalDateTime(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalDateTime localDateTime) {
+            return localDateTime;
+        }
+        if (value instanceof Timestamp timestamp) {
+            return timestamp.toLocalDateTime();
+        }
+        throw new IllegalArgumentException("Unsupported send_at type: " + value.getClass().getName());
     }
 }
