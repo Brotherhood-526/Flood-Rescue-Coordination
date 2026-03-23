@@ -30,6 +30,7 @@ public class WebSecurityConfig {
                             .requestMatchers("/citizen/**").permitAll()
                             .requestMatchers("/swagger-ui/**").permitAll()
                             .requestMatchers("/coordinator/**").permitAll()
+                            .requestMatchers("/error").permitAll()
                             .requestMatchers("/swagger-ui.html").permitAll()
                             .requestMatchers("/v3/api-docs/**").permitAll()
                             .requestMatchers("/webjars/**").permitAll()
