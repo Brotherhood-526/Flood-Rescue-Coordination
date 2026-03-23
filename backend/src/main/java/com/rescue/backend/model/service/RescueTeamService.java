@@ -78,8 +78,8 @@ public class RescueTeamService {
                 assignment.getLongitude().doubleValue(),
                 assignment.getVehicle().getType(), // vehicleType
                 assignment.getDescription(),
-                assignment.getCoordinator() != null ? assignment.getCoordinator().getName() : "Hệ thống tự động",
-                assignment.getCreatedAt() != null ? assignment.getCreatedAt().toString() : "",
+                assignment.getCoordinator().getName(),
+                assignment.getCreatedAt().toString(),
                 assignment.getStatus(),
                 imageResponses
         );
@@ -90,22 +90,22 @@ public class RescueTeamService {
         Request assignment = requestDAO.findById(assignmentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bản ghi phân công"));
 
-        assignment.setStatus(updateTaskRequest.status().toLowerCase());
         assignment.setReport(updateTaskRequest.report());
 
         String status = updateTaskRequest.status().toLowerCase();
         switch (status) {
             case "hoàn thành", "completed":
-                assignment.setStatus("completed");
+                assignment.setStatus("hoàn thành");
                 break;
             case "tạm hoãn", "delayed":
-                assignment.setStatus("delayed");
+                assignment.setStatus("tạm hoãn");
                 break;
             default:
+                throw new IllegalArgumentException("Trạng thái không hợp lệ");
         }
 
         requestDAO.save(assignment);
 
-        return (status.equalsIgnoreCase("hoàn thành")) ? "Nhiệm vụ hoàn thành" : "Nhiệm vụ đã được tạm hoãn";
+        return (assignment.getStatus().equalsIgnoreCase("hoàn thành")) ? "Nhiệm vụ hoàn thành" : "Nhiệm vụ đã được tạm hoãn";
     }
 }

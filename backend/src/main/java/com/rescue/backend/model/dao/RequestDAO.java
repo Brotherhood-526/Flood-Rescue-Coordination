@@ -5,13 +5,13 @@ import com.rescue.backend.model.bean.Request;
 import com.rescue.backend.view.dto.coordinator.response.SpecificResponse;
 import com.rescue.backend.view.dto.coordinator.response.TakeListResponse;
 
-import jakarta.annotation.Nonnull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -23,8 +23,6 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
     Optional<Request> findTopByStatusInAndCitizen_PhoneOrderByCreatedAtDesc(
             List<String> status, String citizenPhone
     );
-
-    Optional<Request> findById(@Nonnull UUID requestId);
 
     @Query("""
     SELECT new com.rescue.backend.view.dto.coordinator.response.TakeListResponse(
@@ -91,4 +89,12 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
     Optional<Request> findByRescueTeamIdAndId(UUID rescueTeamId, UUID id);
 
     Optional<Request> findByRescueTeamId(UUID rescueTeamId);
+
+    @Query("""
+                SELECT r.rescueTeam.id, COUNT(r)
+                FROM Request r
+                WHERE r.rescueTeam.id IN :ids
+                GROUP BY r.rescueTeam.id
+            """)
+    List<Object[]> countRequestsByRescueTeamIds(@Param("ids") List<UUID> ids);
 }
