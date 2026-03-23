@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
 import { coordinatorService } from "@/services/Coordinator/coordinatorService";
-import type { VehicleAndRescueTeamInfo } from "@/types/coordinator";
+import type { NearbyTeamOption } from "@/types/coordinator";
 
 export const useVehicleList = (
   requestId: string | undefined,
   vehicleType: string | null,
 ) => {
-  const [vehicleList, setVehicleList] = useState<VehicleAndRescueTeamInfo[]>(
-    [],
-  );
+  const [vehicleList, setVehicleList] = useState<NearbyTeamOption[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

@@ -241,25 +241,18 @@ function Information() {
                 <div className={miniDiv}>
                     Phân công đội cứu hộ phù hợp
                     <Select
-                        value={displayRescueTeam ?? undefined}
+                        value={rescueTeam ?? undefined}
                         onValueChange={setRescueTeam}
                     >
                         <SelectTrigger className="h-[5vh]! w-[80%] text-[2vh]! bg-transparent!">
-                            <SelectValue placeholder="Chọn đội cứu hộ" />
+                            <SelectValue placeholder={displayRescueTeam ?? "Chọn đội cứu hộ"} />
                         </SelectTrigger>
                         <SelectContent>
-                            {vehicleList.map(
-                                (
-                                    team, // đổi rescueTeams → vehicleList
-                                ) => (
-                                    <SelectItem
-                                        key={team.rescueTeamId}
-                                        value={team.rescueTeamName}
-                                    >
-                                        {team.rescueTeamName}
-                                    </SelectItem>
-                                ),
-                            )}
+                            {vehicleList.map((team) => (
+                                <SelectItem key={team.id} value={team.id}>
+                                    {team.teamName}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>

@@ -41,3 +41,8 @@ export interface VehicleAndRescueTeamInfo {
   rescueTeamId: string;
   rescueTeamName: string;
 }
+
+export interface NearbyTeamOption {
+  id: string;
+  teamName: string;
+}
