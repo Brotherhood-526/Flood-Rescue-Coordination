@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Image as ImageIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 
 export interface ChatMessage {
   id: number;
@@ -77,9 +77,7 @@ export default function ChatBoxDialog({
             <button
               type="button"
               className="p-2 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ImageIcon className="w-6 h-6" />
-            </button>
+            ></button>
             <button
               type="submit"
               disabled={!chatInput.trim()}

@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Image as ImageIcon, Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { rescueTeamService } from "@/services/Rescue/rescueTeamService";
 import type { RescueRequest } from "@/types/rescue";
@@ -10,39 +10,19 @@ interface ChatMessage {
   senderRole: string;
   content: string;
   time: string;
-  imageUrl?: string;
 }
 
 export default function RescueChatBox() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const requestId = searchParams.get("id");
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const staff = useAuthStore((state) => state.staff);
   const [detail, setDetail] = useState<RescueRequest | null>(null);
   const [message, setMessage] = useState("");
   const isCompleted =
     detail?.status?.toLowerCase().includes("hoàn thành") ?? false;
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      sender: "Điều phối viên",
-      senderRole: "coordinator",
-      content:
-        "Yêu cầu cứu hộ đã được tiếp nhận. Chúng tôi đang xử lý và sẽ phản hồi sớm nhất.",
-      time: "14:30",
-    },
-    {
-      id: 2,
-      sender: "Đội cứu hộ",
-      senderRole: "rescue",
-      content:
-        "Đội cứu hộ đã nhận nhiệm vụ. Chúng tôi sẽ đến trong vòng 15-20 phút.",
-      time: "14:32",
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch task detail để lấy vehicleType
@@ -58,11 +38,6 @@ export default function RescueChatBox() {
     };
     fetch();
   }, [requestId]);
-
-  useEffect(() => {
-    if (detail)
-      console.log(">>> status thực tế:", JSON.stringify(detail.status));
-  }, [detail]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -87,24 +62,6 @@ export default function RescueChatBox() {
       },
     ]);
     setMessage("");
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const imageUrl = URL.createObjectURL(file);
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        sender: staff?.name ?? "Đội cứu hộ",
-        senderRole: "rescue",
-        content: "",
-        time: getNow(),
-        imageUrl,
-      },
-    ]);
-    e.target.value = "";
   };
 
   return (
@@ -136,26 +93,16 @@ export default function RescueChatBox() {
                   <span>{msg.sender}</span>
                   <span className="text-gray-500 font-normal">{msg.time}</span>
                 </div>
-                {msg.imageUrl ? (
-                  <>
-                    <img
-                      src={msg.imageUrl}
-                      alt="Ảnh gửi"
-                      onClick={() => setLightboxUrl(msg.imageUrl!)}
-                      className="max-w-[85%] max-h-60 rounded-2xl border border-gray-200 shadow-sm object-cover cursor-zoom-in"
-                    />
-                  </>
-                ) : (
-                  <div
-                    className={`p-4 rounded-2xl w-[85%] text-left text-[15px] leading-relaxed shadow-sm text-white ${
-                      msg.senderRole === "rescue"
-                        ? "bg-[#6366f1] rounded-tr-sm"
-                        : "bg-[#3b82f6] rounded-tl-sm"
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
-                )}
+
+                <div
+                  className={`p-4 rounded-2xl w-[85%] text-left text-[15px] leading-relaxed shadow-sm text-white ${
+                    msg.senderRole === "rescue"
+                      ? "bg-[#6366f1] rounded-tr-sm"
+                      : "bg-[#3b82f6] rounded-tl-sm"
+                  }`}
+                >
+                  {msg.content}
+                </div>
               </div>
             ))}
             <div ref={messagesEndRef} />
@@ -179,22 +126,6 @@ export default function RescueChatBox() {
                 if (e.key === "Enter") handleSend();
               }}
             />
-
-            {/* Nút upload ảnh */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageUpload}
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isCompleted}
-              className="p-2 text-gray-600 hover:text-black transition-colors"
-            >
-              <ImageIcon size={26} strokeWidth={2} />
-            </button>
 
             <button
               onClick={handleSend}
@@ -239,18 +170,6 @@ export default function RescueChatBox() {
           </div>
         </div>
       </div>
-      {lightboxUrl && (
-        <div
-          onClick={() => setLightboxUrl(null)}
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center cursor-zoom-out"
-        >
-          <img
-            src={lightboxUrl}
-            alt="Xem ảnh"
-            className="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl object-contain"
-          />
-        </div>
-      )}
     </div>
   );
 }
