@@ -3,7 +3,6 @@ import {
   RotateCw,
   MessageSquareWarning,
   CheckSquare,
-  Loader2,
   ArrowDownNarrowWide,
   ArrowUpNarrowWide,
   ChevronsLeft,
@@ -24,14 +23,10 @@ export default function ListRescuePage() {
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const navigate = useNavigate();
 
-  const {
-    pagedData,
-    isLoading,
-    error,
-    pageNumber,
-    totalPage,
-    handlePageChange,
-  } = useRescueTeam(activeFilter, sortOrder);
+  const { pagedData, pageNumber, totalPage, handlePageChange } = useRescueTeam(
+    activeFilter,
+    sortOrder,
+  );
 
   const renderStatusBadge = (status: string) => {
     const s = (status || "").toLowerCase();
@@ -152,46 +147,31 @@ export default function ListRescuePage() {
           </button>
         </div>
 
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 text-[#25a863] gap-3">
-            <Loader2 className="animate-spin" size={36} />
-            <p className="text-gray-500 font-medium">
-              Đang tải danh sách yêu cầu
-            </p>
-          </div>
-        ) : error ? (
-          <p className="text-center text-red-500 py-16 text-lg font-semibold">
-            {error}
-          </p>
-        ) : (
-          <CommonTable<RescueRequest>
-            columns={columns}
-            data={pagedData}
-            renderRow={(row, idx) => {
-              const shortId = row.id ? row.id : "N/A";
-              return (
-                <TableRow
-                  key={idx}
-                  onClick={() =>
-                    navigate(`${ROUTES.RESCUE_DETAIL}?id=${row.id}`)
-                  }
-                  className="hover:bg-gray-100 cursor-pointer border-b border-gray-200 transition-colors"
-                >
-                  <TableCell className="font-mono text-gray-500 font-medium">
-                    #{shortId}
-                  </TableCell>
-                  <TableCell className="font-bold text-gray-800">
-                    {row.citizenPhone}
-                  </TableCell>
-                  <TableCell>{renderStatusBadge(row.status)}</TableCell>
-                  <TableCell className="text-gray-600 font-medium">
-                    {formatDateVN(row.createdAt)}
-                  </TableCell>
-                </TableRow>
-              );
-            }}
-          />
-        )}
+        <CommonTable<RescueRequest>
+          columns={columns}
+          data={pagedData}
+          renderRow={(row, idx) => {
+            const shortId = row.id ? row.id : "N/A";
+            return (
+              <TableRow
+                key={idx}
+                onClick={() => navigate(`${ROUTES.RESCUE_DETAIL}?id=${row.id}`)}
+                className="hover:bg-gray-100 cursor-pointer border-b border-gray-200 transition-colors"
+              >
+                <TableCell className="font-mono text-gray-500 font-medium">
+                  #{shortId}
+                </TableCell>
+                <TableCell className="font-bold text-gray-800">
+                  {row.citizenPhone}
+                </TableCell>
+                <TableCell>{renderStatusBadge(row.status)}</TableCell>
+                <TableCell className="text-gray-600 font-medium">
+                  {formatDateVN(row.createdAt)}
+                </TableCell>
+              </TableRow>
+            );
+          }}
+        />
       </div>
 
       {/* Paging */}
