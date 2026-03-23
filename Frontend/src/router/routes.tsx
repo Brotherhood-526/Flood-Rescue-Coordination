@@ -10,7 +10,9 @@ export const ROUTES = {
   COORDINATE: "/coordinate",
   COORDINATE_DETAIL: "/coordinate/detail/:id",
   COORDINATE_MAP: "/coordinate/map",
-  COORDINATE_CHAT: "/coordinate/chat",
+  COORDINATE_CHAT_BOX: "/coordinate/chatbox/:requestId",
+  COORDINATE_CHAT: "/testchatbox",
+  FULLMAP: "/coordinate/map",
 
   // Nhóm Rescue
   RESCUE: "/rescue",

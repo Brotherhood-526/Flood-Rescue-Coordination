@@ -28,6 +28,7 @@ import ListRequestPage from "@/pages/Coordinator/ListRequestPage";
 import RequestDetailPage from "@/pages/Coordinator/RequestDetailPage";
 import FullMapCoordinatorPage from "@/pages/Coordinator/FullMapCoordinatorPage";
 import TestChatBox from "@/pages/Coordinator/TestChatBox";
+import CoordinatorChatBox from "@/pages/Coordinator/CoordinatorChatBox.tsx";
 
 export const router = createBrowserRouter([
   { path: ROUTES.LOGIN, element: <Login /> },
@@ -47,7 +48,7 @@ export const router = createBrowserRouter([
 
   // NHÓM ĐIỀU PHỐI VIÊN
   {
-    element: <ProtectedRoute allowedRoles={["điều phối viên"]} />,
+    element: <ProtectedRoute allowedRoles={["điều phối viên", "rescue coordinator"]} />,
     children: [
       {
         path: ROUTES.COORDINATE,
@@ -58,6 +59,11 @@ export const router = createBrowserRouter([
         path: ROUTES.COORDINATE_DETAIL,
         element: <MainLayout role={4} />,
         children: [{ index: true, element: <RequestDetailPage /> }],
+      },
+      {
+        path: ROUTES.COORDINATE_CHAT_BOX,
+        element: <MainLayout role={4} />,
+        children: [{ index: true, element: <CoordinatorChatBox /> }],
       },
       { path: ROUTES.COORDINATE_MAP, element: <FullMapCoordinatorPage /> },
       { path: ROUTES.COORDINATE_CHAT, element: <TestChatBox /> },

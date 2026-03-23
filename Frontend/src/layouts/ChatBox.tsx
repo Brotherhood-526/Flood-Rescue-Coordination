@@ -2,16 +2,21 @@ import { ImageUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {useState, useEffect, useRef} from "react";
 import {Textarea} from "@/components/ui/textarea.tsx";
+import{useChatbox} from "@/hooks/useChatbox.ts";
 
 export type MessageComponent = {
     content?: string;
     time: string;
+    senderId: string;
     name: string;
 };
 
 type TestChatBoxProps = {
     title: string;
     senderName: string;
+    senderId: string;
+    requestId: string;
+    senderRole: string;
     messages: MessageComponent[];
     setMessages: React.Dispatch<React.SetStateAction<MessageComponent[]>>;
     className?: string;
@@ -20,7 +25,7 @@ type TestChatBoxProps = {
 
 type MessageProps = {
     message: MessageComponent;
-    senderName: string;
+    senderId: string;
     className?: string;
 };
 
@@ -30,18 +35,31 @@ type ChatInputProps = {
 
 /* ---------------- MAIN COMPONENT ----------------*/
 
-export default function ChatBox({ title, senderName, messages, setMessages, className, messageClassName }: TestChatBoxProps) {
+export default function ChatBox({ title, senderName, senderId, requestId, senderRole, messages, setMessages, className, messageClassName }: TestChatBoxProps) {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const {sendMessage} = useChatbox();
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    const handleSend = (content: string) => {
+    const handleSend = async (content: string) => {
+
+        await sendMessage(
+            requestId,
+            senderId,
+            senderRole,
+            content
+        );
+
         const newMessage: MessageComponent = {
             content,
-            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-            name: senderName,
+            time: new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            }),
+            senderId,
+            name: senderName
         };
 
         setMessages([...messages, newMessage]);
@@ -58,7 +76,7 @@ export default function ChatBox({ title, senderName, messages, setMessages, clas
             {/* Messages */}
             <div className="flex-1 flex flex-col overflow-y-auto px-[1em] py-[0.8em] gap-[0.6em]">
                 {messages.map((msg, index) => (
-                    <Message key={index} message={msg} senderName={senderName} className={messageClassName} />
+                    <Message key={index} message={msg} senderId={senderId} className={messageClassName} />
                 ))}
                 <div ref={messagesEndRef} />
             </div>
@@ -72,8 +90,8 @@ export default function ChatBox({ title, senderName, messages, setMessages, clas
 
 /* ---------------- MESSAGE ---------------- */
 
-function Message({ message, senderName, className }: MessageProps) {
-    const isSender = message.name === senderName;
+function Message({ message, senderId, className }: MessageProps) {
+    const isSender = message.senderId === senderId;
 
     return (
         <div className={`flex flex-col w-full ${isSender? "items-end" : "items-start"}`}>

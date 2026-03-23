@@ -15,22 +15,26 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card.tsx";
+
+import {useState, useEffect, useRef, useMemo} from "react";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
+import {ROUTES} from "@/router/routes.tsx";
+import { useVietMap } from "@/lib/MapProvider.tsx";
+import vietmapgl from "@vietmap/vietmap-gl-js";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useVietMap } from "@/lib/MapProvider";
-import vietmapgl from "@vietmap/vietmap-gl-js";
-import { ROUTES } from "@/router/routes";
+} from "@/components/ui/select.tsx";
+import { Textarea } from "@/components/ui/textarea.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import {useRequestUpdate} from "@/hooks/useRequestUpdate.ts";
+import {useRequestReject} from "@/hooks/useRequestReject.ts";
 import { useRequestDetail } from "@/hooks/Coordinator/useRequestDetail";
+import type { RescueRequest } from "@/pages/Coordinator/ListRequestPage.tsx";
 import { useVehicleList } from "@/hooks/Coordinator/useVehicle";
 import { timeAgo } from "@/utils/timeAgo";
 import { getRequestTypeLabel } from "@/utils/requestHelpers";
@@ -57,94 +61,231 @@ const TEAM_LOCATIONS: [number, number][] = [
   [106.803, 10.87],
 ];
 
+export type RequestDetail = {
+    id: string;
+    type: string;
+    description: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    additionalLink: string;
+    status: string;
+    createdAt: string;
+    urgency: string | null;
+    rescueTeamId: string | null;
+    rescueTeamName: string | null;
+    vehicleId: string | null;
+    vehicleType: string | null;
+};
+
+export type UpdateRequest = {
+    id: string;
+    status?: string;
+    urgency?: string;
+    rescueTeamId?: string | null;
+    vehicleType?: string | null;
+    vehicleIdPrevious?: string | null;
+    vehicleState?: string;
+};
+
+export type RejectRequest = {
+    id: string;
+};
+
 export default function RequestDetailPage() {
-  const navigate = useNavigate();
+  const topButoons = "!bg-gray-300 !text-black !font-bold";
 
-  return (
-    <div className="flex flex-col w-full h-full">
-      <div className="flex flex-col flex-1 w-full bg-white pt-[6vh]">
-        <div className="flex flex-row flex-[0.5] justify-between items-center px-[2vw] mb-[2vh]">
-          <div className="flex flex-row gap-[1vw]">
-            <Button
-              className="bg-gray-300!text-black! font-bold!"
-              onClick={() => navigate(-1)}
-            >
-              <Undo2 className="w-5! h-5!" strokeWidth={2.5} />
-              Quay Lại
-            </Button>
-            <Button className="bg-gray-300! text-black! font-bold!">
-              Hộp thoại
-            </Button>
-          </div>
-          <Button
-            className="bg-gray-300! text-black! font-bold!"
-            onClick={() => navigate(ROUTES.COORDINATE_MAP)}
-          >
-            Toàn bản đồ
-          </Button>
+    const navigate = useNavigate();
+    const { id } = useParams();
+
+    const requestDetail = useRequestDetail({ id: id! });
+
+  const handleFullMap = () => {
+    navigate(ROUTES.FULLMAP);
+  };
+
+    const handleBack = () => {
+        navigate(-1);
+    };
+
+    const handleChatBox = () => {
+        navigate(`/coordinate/chatbox/${requestDetail?.id}`);
+    };
+
+    return (
+        <div className="flex flex-col w-full h-full">
+            <div className="flex flex-col flex-1 w-full bg-white pt-[4vh]">
+                <div className="flex flex-row flex-[0.5] justify-between items-center
+            px-[2vw] mb-[2vh]">
+                    <div className="flex flex-row gap-[1vw]">
+                        <Button className={topButoons}
+                        onClick={handleBack}>
+                            <Undo2 className="!w-5 !h-5" strokeWidth={2.5} />
+                            Quay Lại
+                        </Button>
+                        <Button className={topButoons}
+                        onClick={handleChatBox}>
+                            Hộp thoại
+                        </Button>
+                    </div>
+                    <Button className="!bg-gray-300 !text-black !font-bold"
+                    onClick={handleFullMap}>
+                        Toàn bản đồ
+                    </Button>
+                </div>
+                <Solving requestDetail={requestDetail}/>
+            </div>
+    </div>
+  );
+}
+
+export function Solving({ requestDetail }: { requestDetail: RequestDetail | null }){
+    return (
+        <div className="w-full flex-[9.5] bg-white pt-[1vh]
+        flex flex-row justify-between items-start px-[2vw]">
+            <Information requestDetail={requestDetail} />
+            <MiniMap/>
         </div>
-        <Solving />
-      </div>
-    </div>
-  );
+    );
 }
 
-function Solving() {
-  return (
-    <div className="w-full flex-[9.5] bg-white pt-[1vh] flex flex-row justify-between items-start px-[2vw]">
-      <Information />
-      <MiniMap />
-    </div>
-  );
-}
+export function Information({ requestDetail }: { requestDetail: RequestDetail | null }){
+    const [vehicle, setVehicle] = useState<string | null >(null);
+    const [urgency, setUrgency] = useState<string | null>(null);
+    const [rescueTeam, setRescueTeam] = useState<string | null>(null);
 
-function Information() {
-  const [vehicle, setVehicle] = useState<string | null>(null);
-  const [urgency, setUrgency] = useState<string | null>(null);
-  const [rescueTeam, setRescueTeam] = useState<string | null>(null);
+    const navigate = useNavigate();
+    const {rejectRequest} = useRequestReject();
+    const { updateRequest } = useRequestUpdate();
 
-  const { id } = useParams();
-  const location = useLocation();
-  const request = location.state as CoordinatorRequest;
+    const rescueTeams = useVehicleList({ type: vehicle });
+    const rescueTeamsWithCurrent = useMemo(() => {
+        if (!requestDetail || requestDetail?.vehicleType != vehicle) return rescueTeams;
 
-  const { requestDetail } = useRequestDetail(id!);
-  const { vehicleList } = useVehicleList(vehicle);
+        const exist = rescueTeams.some(
+            (t) => t.rescueTeamId === requestDetail.rescueTeamId
+        );
 
-  const displayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
-  const displayUrgency = urgency ?? requestDetail?.urgency ?? null;
-  const displayRescueTeam = rescueTeam ?? requestDetail?.rescueTeamName ?? null;
+        if (!exist && requestDetail.rescueTeamId) {
+            return [
+                ...rescueTeams,
+                {
+                    id: requestDetail.vehicleId ?? "current",
+                    type: requestDetail.vehicleType ?? "",
+                    rescueTeamId: requestDetail.rescueTeamId,
+                    rescueTeamName: requestDetail.rescueTeamName ?? "Current Team"
+                }
+            ];
+        }
 
-  const activeStyle = "!bg-gray-100";
-  const normalStyle = "!bg-transparent";
+        return rescueTeams;
+
+    }, [rescueTeams, requestDetail]);
+
+    const activeStyle = "!bg-gray-200";
+
+    const location = useLocation();
+    const request = location.state as RescueRequest;
+
+    const normalStyle = "!bg-transparent";
+    const fakeImgLink = "";
+
+    useEffect(() => {
+        if (!rescueTeam && requestDetail?.rescueTeamId && rescueTeams.length > 0) {
+            setRescueTeam(requestDetail.rescueTeamId);
+        }
+    }, [requestDetail, rescueTeams]);
+
+    console.log(requestDetail);
   const vehiclesButton =
     "flex flex-col gap-0 !w-[6vw] !h-[8vh] !border-gray-300 !text-black";
   const miniDiv = "flex flex-col gap-1";
 
-  return (
-    <Card className="bg-white w-[54vw] h-[75vh] py-[2vh]! overflow-y-auto hide-scrollbar">
-      <CardHeader>
-        <CardTitle className="text-lg font-bold mb-[-1vh]">
-          Yêu cầu loại {getRequestTypeLabel(requestDetail?.type)}{" "}
-          {/* dùng util */}
-        </CardTitle>
-        <CardDescription className="flex flex-row justify-between items-start text-black">
-          <div>
-            <span className="text-base font-semibold">
-              {requestDetail?.status === "processing" ? "yêu cầu mới" : ""}
-            </span>
-            <br />
-            <span>
-              {request?.createdAt ? timeAgo(request.createdAt) : ""}
-            </span>{" "}
-            {/* dùng util */}
-          </div>
-          <Select
-            value={displayUrgency ?? undefined}
-            onValueChange={setUrgency}
-          >
-            <SelectTrigger className="h-[3vh]! w-full max-w-[17vw] rounded-full! text-[2vh]! bg-transparent!">
-              <SelectValue placeholder="Hãy chọn mức độ khẩn cấp" />
-            </SelectTrigger>
+  function timeAgo(createdAt: string) {
+    const createdTime = new Date(createdAt.replace(" ", "T"));
+    const now = new Date();
+
+    // @ts-expect-error Date subtraction returns number in JS, but TS may complain about types
+    const diffMs = now - createdTime;
+
+    const seconds = Math.floor(diffMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) return `${seconds} giây trước`;
+    if (minutes < 60) return `${minutes} phút trước`;
+    if (hours < 24) return `${hours} giờ trước`;
+    return `${days} ngày trước`;
+  }
+
+  function requestType(type?: string) {
+    switch (type) {
+      case "goods":
+        return "cung cấp như yếu phẩm";
+      case "rescue":
+        return "cứu hộ";
+      default:
+        return "khác";
+    }
+  }
+
+    const getStatusText = (status?: string) => {
+        switch (status) {
+            case "accept":
+                return "Chấp nhận";
+            case "processing":
+                return "Đang xử lý";
+            case "completed":
+                return "Hoàn thành";
+            case "reject":
+                return "từ chối";
+            case "delayed":
+                return "tạm hoãn";
+            default:
+                return "Không xác định";
+        }
+    };
+
+    const handleSubmit = async () =>{
+        const ok = await updateRequest({
+            id: requestDetail!.id,
+            status: "accept",
+            urgency: urgency!,
+            rescueTeamId: rescueTeam,
+            vehicleType: vehicle,
+            vehicleIdPrevious: requestDetail?.vehicleId,
+            vehicleState: "using"
+        });
+
+        if (ok) {
+            navigate(-1);
+        }
+    }
+
+    const handleReject = async () =>{
+        const ok = await rejectRequest({id: requestDetail!.id});
+
+        if (ok) {navigate(-1);}
+    }
+
+    return (
+       <Card className="bg-white w-[54vw] h-[75vh] !py-[2vh]
+        overflow-y-auto hide-scrollbar">
+            <CardHeader>
+
+                <CardTitle className="text-lg font-bold mb-[-1vh]">Yêu cầu về {requestType(requestDetail?.type)}</CardTitle>
+                <CardDescription className="flex flex-row justify-between items-start text-black">
+                    <div>
+                        <span className="text-base font-semibold">{getStatusText(requestDetail?.status)}</span>
+                        <br/>
+                        <span>{timeAgo(request.createdAt)}</span>
+                    </div>
+                    <Select value={urgency ?? undefined} onValueChange={setUrgency}>
+                        <SelectTrigger className="!h-[3vh] w-full max-w-[17vw] !rounded-full !text-[2vh]
+                        !bg-transparent ">
+                            <SelectValue placeholder="Hãy chọn mức độ khẩn cấp"/>
+                        </SelectTrigger>
             <SelectContent>
               <SelectItem value="high">Cao</SelectItem>
               <SelectItem value="medium">Trung bình</SelectItem>
@@ -163,7 +304,6 @@ function Information() {
             {request?.name}
           </span>
         </div>
-
         <div className={miniDiv}>
           <div className="flex flex-row gap-[1vh]">
             <MapPin className="h-5! w-5!" /> Vị trí
@@ -194,74 +334,73 @@ function Information() {
         <div className={miniDiv}>
           Phân loại phương tiện phù hợp
           <div className="flex flex-row gap-[2vw]">
-            {[
-              {
-                value: "Rescue Vehicle",
-                label: "Xe cứu hộ",
-                icon: <Van className="h-7! w-7!" />,
-              },
-              {
-                value: "boat",
-                label: "Xuồng",
-                icon: <Ship className="h-7! w-7!" />,
-              },
-              {
-                value: "helicopter",
-                label: "Trực thăng",
-                icon: <Helicopter className="h-7! w-7!" />,
-              },
-            ].map((v) => (
-              <Button
-                key={v.value}
-                className={`${vehiclesButton} ${displayVehicle === v.value ? activeStyle : normalStyle}`}
-                onClick={() => setVehicle(v.value)}
-              >
-                {v.icon}
-                {v.label}
-              </Button>
-            ))}
+            <Button
+              className={`${vehiclesButton} ${
+                vehicle === "Rescue Vehicle" ? activeStyle : normalStyle
+              }`}
+              onClick={() => setVehicle("Rescue Vehicle")}
+            >
+              <Van className="h-7! w-7!" />
+              Xe cứu hộ
+            </Button>
+
+            <Button
+              className={`${vehiclesButton} ${
+                vehicle === "Boat" ? activeStyle : normalStyle
+              }`}
+              onClick={() => setVehicle("Boat")}
+            >
+              <Ship className="h-7! w-7!" />
+              Xuồng
+            </Button>
+
+            <Button
+              className={`${vehiclesButton} ${
+                vehicle === "Helicopter" ? activeStyle : normalStyle
+              }`}
+              onClick={() => setVehicle("Helicopter")}
+            >
+              <Helicopter className="h-7! w-7!" />
+              Trực thăng
+            </Button>
           </div>
         </div>
 
-        <div className={miniDiv}>
-          Phân công đội cứu hộ phù hợp
-          <Select
-            value={displayRescueTeam ?? undefined}
-            onValueChange={setRescueTeam}
-          >
-            <SelectTrigger className="h-[5vh]! w-[80%] text-[2vh]! bg-transparent!">
-              <SelectValue placeholder="Chọn đội cứu hộ" />
-            </SelectTrigger>
-            <SelectContent>
-              {vehicleList.map(
-                (
-                  team, // đổi rescueTeams → vehicleList
-                ) => (
-                  <SelectItem
-                    key={team.rescueTeamId}
-                    value={team.rescueTeamName}
-                  >
-                    {team.rescueTeamName}
-                  </SelectItem>
-                ),
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-      </CardContent>
+                <div className={miniDiv}>
+                    Phân công đội cứu hộ phù hợp
+                    <Select value={rescueTeam ?? undefined} onValueChange={setRescueTeam}>
+                        <SelectTrigger className="!h-[5vh] w-[80%] !text-[2vh]
+                        !bg-transparent ">
+                            <SelectValue placeholder="Chọn đội cứu hộ"/>
+                        </SelectTrigger>
 
-      {requestDetail?.status !== "completed" && (
-        <CardFooter className="flex flex-row items-center justify-center px-[2vw] gap-[3vw]">
-          <Button className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-red-600!">
-            Từ chối
-          </Button>
-          <Button className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-indigo-600!">
-            {requestDetail?.status === "processing" ? "Chấp nhận" : "Cập Nhật"}
-          </Button>
-        </CardFooter>
-      )}
-    </Card>
-  );
+                        <SelectContent>
+                            {rescueTeamsWithCurrent.map((team) => (
+                                <SelectItem key={team.rescueTeamId} value={team.rescueTeamId}>
+                                    {team.rescueTeamName}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            </CardContent>
+
+           {requestDetail?.status !== "completed" && (
+               <CardFooter className="flex flex-row items-center justify-center px-[2vw] gap-[3vw]">
+                   <Button className="!h-[5vh] !w-[8vw]
+                !text-white !font-bold !bg-red-600"
+                   onClick={handleReject}>
+                       Từ chối
+                   </Button>
+                   <Button className="!h-[5vh] !w-[8vw]
+                !text-white !font-bold !bg-indigo-600"
+                   onClick={handleSubmit}>
+                       {requestDetail?.status === "processing" ? "Chấp nhận"  : "Cập Nhật"}
+                   </Button>
+               </CardFooter>
+           )}
+        </Card>
+    );
 }
 
 function MiniMap() {

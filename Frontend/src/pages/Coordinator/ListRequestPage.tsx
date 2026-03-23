@@ -10,16 +10,19 @@ import {
   SquareCheck,
   CircleX,
   SlidersVertical,
-  ChevronsLeft,
-  ChevronsRight,
+  // ChevronsLeft,
+  // ChevronsRight,
 } from "lucide-react";
 import { useRequestList } from "@/hooks/Coordinator/useRequestList";
-import { COORDINATOR_STATUS } from "@/constants/coordinatorStatus";
-import { ROUTES } from "@/router/routes";
-import type {
-  CoordinatorRequest,
-  CoordinatorRequestStatus,
-} from "@/types/coordinator";
+import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
+
+export type RescueRequest = {
+  requestID: string;
+  phone: string;
+  name: string;
+  status: "accept" | "reject" | "delayed" | "processing";
+  createdAt: string;
+};
 
 export default function ListRequestPage() {
   const [filter, setFilter] = useState("");
@@ -101,8 +104,8 @@ function Filters({
   );
 }
 
-function Requests({ filter }: { filter: string }) {
-  const { pageNumber, pageSize, totalPage, requestList, handlePageChange } =
+export function Requests({ filter }: { filter: string }) {
+  const {requestList } =
     useRequestList(filter);
   const navigate = useNavigate();
 
@@ -130,11 +133,11 @@ function Requests({ filter }: { filter: string }) {
         data={requestList}
         renderRow={(r, idx) => (
           <TableRow
-            key={pageNumber * pageSize + idx + 1}
+            key={idx}
             onClick={() => handleOpenRequest(r)}
           >
             <TableCell className="font-semibold">
-              0{pageNumber * pageSize + idx + 1}
+              0{idx + 1}
             </TableCell>
             <TableCell>{r.phone}</TableCell>
             <TableCell>{r.name}</TableCell>
@@ -145,23 +148,23 @@ function Requests({ filter }: { filter: string }) {
           </TableRow>
         )}
       />
-      <div className="mt-[1vh]">
-        <Button
-          className="rounded-full bg-gray-100 hover:bg-gray-300 p-2 mr-[0.5vw]"
-          variant="ghost"
-          onClick={() => handlePageChange(true)}
-        >
-          <ChevronsLeft className="w-3 h-3" />
-        </Button>
-        {pageNumber + 1}/{totalPage}
-        <Button
-          className="rounded-full bg-gray-100 hover:bg-gray-300 p-2 ml-[0.5vw]"
-          variant="ghost"
-          onClick={() => handlePageChange(false)}
-        >
-          <ChevronsRight className="w-3 h-3" />
-        </Button>
-      </div>
+      {/*<div className="mt-[1vh]">*/}
+      {/*  <Button*/}
+      {/*    className="rounded-full bg-gray-100 hover:bg-gray-300 p-2 mr-[0.5vw]"*/}
+      {/*    variant="ghost"*/}
+      {/*    onClick={() => handlePageChange(true)}*/}
+      {/*  >*/}
+      {/*    <ChevronsLeft className="w-3 h-3" />*/}
+      {/*  </Button>*/}
+      {/*  {pageNumber + 1}/{totalPage}*/}
+      {/*  <Button*/}
+      {/*    className="rounded-full bg-gray-100 hover:bg-gray-300 p-2 ml-[0.5vw]"*/}
+      {/*    variant="ghost"*/}
+      {/*    onClick={() => handlePageChange(false)}*/}
+      {/*  >*/}
+      {/*    <ChevronsRight className="w-3 h-3" />*/}
+      {/*  </Button>*/}
+      {/*</div>*/}
     </div>
   );
 }

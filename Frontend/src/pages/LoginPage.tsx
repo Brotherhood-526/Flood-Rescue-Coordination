@@ -46,6 +46,7 @@ export default function Login() {
       }
 
       const role = staff.role?.trim().toLowerCase();
+      let navigateDirect = "/";
       if (role === "quản lý") {
         navigate(ROUTES.MANAGER, { replace: true });
       } else if (role === "cứu hộ") {
@@ -55,6 +56,10 @@ export default function Login() {
       } else {
         navigate("/", { replace: true });
       }
+
+      console.log(navigateDirect);
+      navigate(navigateDirect);
+
     } catch (error) {
       console.error("Login failed:", error);
       setErrorMsg("Tài khoản không tồn tại hoặc sai mật khẩu.");

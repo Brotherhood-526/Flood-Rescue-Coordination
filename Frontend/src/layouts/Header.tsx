@@ -174,17 +174,20 @@ export function CoordinatorHeader() {
         </div>
 
         <div className="flex gap-4 items-center">
+            <div className="flex gap-1 items-center">
+                <CircleUserRound size={30} />
+                <span className={logoutStyle}>{staff?.name}</span>
+            </div>
+
           <Button
             onClick={() => setIsLogoutOpen(true)}
             className="bg-gray-200! text-black! relative"
           >
             Đăng xuất
+            {noty && (
+              <div className="absolute top-0 right-0 w-3 h-3 bg-rose-500 rounded-full"></div>
+            )}
           </Button>
-
-          <div className="flex gap-1 items-center">
-            <CircleUserRound size={30} />
-            <span className={logoutStyle}>{staff?.name}</span>
-          </div>
         </div>
       </div>
       <ConfirmDialog

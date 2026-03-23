@@ -28,6 +28,4 @@ public class Citizen {
     @OneToMany(mappedBy = "citizen")
     private List<Request> requests;
 
-    @OneToMany(mappedBy = "senderUser")
-    private List<Message> messages;
 }

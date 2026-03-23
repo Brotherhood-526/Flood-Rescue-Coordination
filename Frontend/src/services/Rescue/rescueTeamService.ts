@@ -1,7 +1,49 @@
 import apiClient from "@/services/axiosClient";
-import { mapRescueTask } from "@/utils/mappers/rescueMapper";
-import type { RescueRequest } from "@/types/rescue";
-import type { PaginatedResponse, RawRescueTask } from "@/types/apiRescue";
+export interface RescueTeamInfo {
+  teamId: string;
+  memberCount: number;
+}
+
+export interface RescueRequest {
+  id: string;
+  userId?: string | null;
+  citizenPhone?: string;
+  citizenName?: string;
+  status: string;
+  createdAt: string;
+  urgency?: string;
+  address?: string;
+  geo_location?: string;
+  description?: string;
+  additional_link?: string;
+  images?: string[];
+  vehicleType?: string;
+  coordinatorName?: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapTaskDetail(raw: any): RescueRequest {
+  return {
+    id: raw.requestId ?? raw.id ?? "",
+    userId: raw.citizenId ?? null,
+    citizenPhone: raw.citizenPhone,
+    citizenName: raw.citizenName,
+    status: raw.status ?? "",
+    createdAt: raw.createdAt ?? "",
+    urgency: raw.urgency,
+    address: raw.address,
+    geo_location:
+      raw.latitude != null && raw.longitude != null
+        ? `${raw.latitude},${raw.longitude}`
+        : raw.geo_location,
+    description: raw.description,
+    additional_link: raw.images?.[0]?.imageUrl ?? raw.additional_link ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    images: raw.images?.map((img: any) => img.imageUrl) ?? [],
+    vehicleType: raw.vehicleType ?? null,
+    coordinatorName: raw.coordinatorName ?? null,
+  };
+}
 
 export const rescueTeamService = {
   getRequests: async (): Promise<RescueRequest[]> => {

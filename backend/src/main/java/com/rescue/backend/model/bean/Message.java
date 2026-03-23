@@ -25,13 +25,9 @@ public class Message {
     @JoinColumn(name = "request_id", nullable = false)
     private Request request;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_user_id")
-    private Citizen senderUser;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_staff_id")
-    private Staff senderStaff;
+    @Column(name = "sender_id")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    private UUID senderId;
 
     @Column(name = "sender_role", nullable = false, length = 20)
     private String senderRole; // user, coordinator, rescue team

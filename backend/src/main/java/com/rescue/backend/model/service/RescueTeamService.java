@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,10 +63,11 @@ public class RescueTeamService {
         Request assignment = requestDAO.findByRescueTeamIdAndId(teamId, assignmentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nhiệm vụ"));
 
-
-        List<LookupImageResponse> imageResponses = assignment.getImages().stream()
+        List<LookupImageResponse> imageResponses = (assignment.getImages() != null)
+                ? assignment.getImages().stream()
                 .map(img -> new LookupImageResponse(img.getId(), img.getImageUrl()))
-                .toList();
+                .toList()
+                : Collections.emptyList();
 
         return new TaskDetailResponse(
                 assignment.getId(),
@@ -74,9 +76,9 @@ public class RescueTeamService {
                 assignment.getCitizen().getPhone(),
                 assignment.getUrgency(),
                 assignment.getAddress(),
-                assignment.getLatitude().doubleValue(),
-                assignment.getLongitude().doubleValue(),
-                assignment.getVehicle().getType(), // vehicleType
+                assignment.getLatitude() != null ? assignment.getLatitude().doubleValue() : 0.0,
+                assignment.getLongitude() != null ? assignment.getLongitude().doubleValue() : 0.0,
+                assignment.getVehicle() != null ? assignment.getVehicle().getType() : "Chưa điều xe",
                 assignment.getDescription(),
                 assignment.getCoordinator().getName(),
                 assignment.getCreatedAt().toString(),
@@ -94,8 +96,8 @@ public class RescueTeamService {
 
         String status = updateTaskRequest.status().toLowerCase();
         switch (status) {
-            case "hoàn thành", "completed":
-                assignment.setStatus("hoàn thành");
+            case "đã hoàn thành", "completed":
+                assignment.setStatus("đã hoàn thành");
                 break;
             case "tạm hoãn", "delayed":
                 assignment.setStatus("tạm hoãn");
@@ -106,6 +108,6 @@ public class RescueTeamService {
 
         requestDAO.save(assignment);
 
-        return (assignment.getStatus().equalsIgnoreCase("hoàn thành")) ? "Nhiệm vụ hoàn thành" : "Nhiệm vụ đã được tạm hoãn";
+        return (status.equalsIgnoreCase("đã hoàn thành")) ? "Nhiệm vụ hoàn thành" : "Nhiệm vụ đã được tạm hoãn";
     }
 }

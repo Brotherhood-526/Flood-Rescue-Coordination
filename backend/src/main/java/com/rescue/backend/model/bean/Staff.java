@@ -66,7 +66,4 @@ public class Staff {
 
     @OneToMany(mappedBy = "rescueTeam")
     private List<Request> assignedTasks;
-
-    @OneToMany(mappedBy = "senderStaff")
-    private List<Message> messages;
 }

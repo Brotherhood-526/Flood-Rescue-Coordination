@@ -1,6 +1,8 @@
 package com.rescue.backend.model.dao;
 
 import com.rescue.backend.model.bean.Request;
+import com.rescue.backend.view.dto.coordinator.response.SpecificResponse;
+import com.rescue.backend.view.dto.coordinator.response.TakeListResponse;
 
 import com.rescue.backend.view.dto.coordinator.response.SpecificResponse;
 import com.rescue.backend.view.dto.coordinator.response.TakeListResponse;
@@ -8,6 +10,9 @@ import com.rescue.backend.view.dto.coordinator.response.TakeListResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -37,7 +42,7 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
     WHERE (:status IS NULL OR :status = '' OR r.status = :status)
     ORDER BY r.createdAt DESC
 """)
-    Page<TakeListResponse> getRequestCitizen(String status, Pageable pageable);
+    List<TakeListResponse> getRequestCitizen(String status);
 
     @Query("""
     SELECT new com.rescue.backend.view.dto.coordinator.response.SpecificResponse(
@@ -81,6 +86,18 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
             UUID rescueTeamId,
             UUID vehicleId
     );
+
+    @Modifying
+    @Transactional
+    @Query("""
+        UPDATE Request r
+        SET r.status = 'reject'
+        WHERE r.id = :requestId
+        AND r.status = 'processing'
+        """)
+    int rejectRequest(UUID requestId);
+
+    List<Request> findByRescueTeam_Id(UUID teamId);
 
     Page<Request> findByRescueTeamId(UUID teamId, Pageable pageable);
 
