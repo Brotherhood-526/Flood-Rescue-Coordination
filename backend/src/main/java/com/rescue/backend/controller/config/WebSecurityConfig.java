@@ -29,6 +29,7 @@ public class WebSecurityConfig {
                             .requestMatchers("/auth/**").permitAll()
                             .requestMatchers("/citizen/**").permitAll()
                             .requestMatchers("/swagger-ui/**").permitAll()
+                            .requestMatchers("/coordinator/**").permitAll()
                             .requestMatchers("/swagger-ui.html").permitAll()
                             .requestMatchers("/v3/api-docs/**").permitAll()
                             .requestMatchers("/webjars/**").permitAll()
