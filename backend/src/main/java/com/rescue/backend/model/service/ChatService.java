@@ -46,6 +46,18 @@ public class ChatService {
 //    }
 
     public List<MessageResponse> takeAllMessageOfRequest(UUID requestId){
-        return messageDAO.findAllMessageOfRequestId(requestId);
+
+        List<Object[]> rows = messageDAO.findAllMessageRaw(requestId);
+
+        return rows.stream()
+                .map(r -> new MessageResponse(
+                        (UUID) r[0],                         // id
+                        (UUID) r[1],                         // senderId
+                        (String) r[2],                       // senderName
+                        (String) r[3],                       // senderRole
+                        (String) r[4],                       // content
+                        ((java.sql.Timestamp) r[5]).toLocalDateTime() // sendAt
+                ))
+                .toList();
     }
 }
