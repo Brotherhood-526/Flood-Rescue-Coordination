@@ -29,7 +29,7 @@ public class MissionController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) UUID testAccountId,
             HttpSession session
-    ){
+    ) {
         UUID teamId = (testAccountId != null) ? testAccountId : (UUID) session.getAttribute("STAFF_ID");
 
         // Kiểm tra cuối cùng nếu cả 2 đều null
@@ -43,11 +43,11 @@ public class MissionController {
             Page<TeamAssignmentResponse> tasks = rescueTeamService.getTaskByFilter(teamId, filter, page);
 
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject(200,"Trả về tasks cho đội cứu hộ",tasks)
+                    new ResponseObject(200, "Trả về tasks cho đội cứu hộ", tasks)
             );
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject(404,e.getMessage(), null)
+                    new ResponseObject(404, e.getMessage(), null)
             );
         }
 
@@ -58,9 +58,9 @@ public class MissionController {
             @RequestParam(required = false) UUID testAccountId,
             @PathVariable UUID id,
             HttpSession session
-    ){
+    ) {
         UUID teamId = (testAccountId != null) ? testAccountId : (UUID) session.getAttribute("STAFF_ID");
-if (teamId == null) {
+        if (teamId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     new ResponseObject(401, "Lỗi: Vui lòng truyền testAccountId trên Swagger hoặc đăng nhập", null)
             );
@@ -68,7 +68,7 @@ if (teamId == null) {
         try {
             TaskDetailResponse detailResponse = rescueTeamService.getAssignmentDetail(id, teamId);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject(200,"Danh sách yêu cầu tải thành công",detailResponse)
+                    new ResponseObject(200, "Danh sách yêu cầu tải thành công", detailResponse)
             );
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -86,11 +86,15 @@ if (teamId == null) {
     public ResponseEntity<ResponseObject> updateTaskStatus(
             @PathVariable UUID id,
             @RequestBody UpdateTaskRequest updateRequest
-    ){
+    ) {
         try {
             String result = rescueTeamService.updateAssignment(id, updateRequest);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject(201,"Tự động chuyển về trang task",result)
+                    new ResponseObject(201, "Tự động chuyển về trang task", result)
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(200, e.getMessage(), null)
             );
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(

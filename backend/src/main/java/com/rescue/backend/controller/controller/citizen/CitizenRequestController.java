@@ -91,11 +91,3 @@ public class CitizenRequestController {
     }
 }
 
-//    @PostMapping("/sendRequest")
-//    public ResponseEntity<ResponseObject> sendRequest(@RequestBody RescueRequest rescueRequest) {
-//        var savedRequest = citizenService.createRescueRequest(rescueRequest);
-//
-//        return ResponseEntity.status(HttpStatus.CREATED).body(
-//            new ResponseObject("success", "Yêu cầu cứu hộ đã được gửi thành công", savedRequest)
-//        );
-//    }

@@ -26,4 +26,4 @@ public record CitizenRescueResponse (
     String coordinatorName,
     String rescueLeaderName,
     String vehicleType
-){};
+){}

@@ -26,7 +26,7 @@ public class Vehicle {
     private String type;
 
     @Column(length = 20)
-    private String state = "free";
+    private String state = "không hoạt động";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rescue_team_id", nullable = false)
