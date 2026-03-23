@@ -19,10 +19,10 @@ public interface MessageDAO  extends JpaRepository<Message, UUID> {
             m.sender_role,
             m.content,
             m.send_at
-        FROM message m
-        LEFT JOIN citizen c 
+        FROM Message m
+        LEFT JOIN Citizen c 
             ON m.sender_id = c.id AND m.sender_role = 'người dân'
-        LEFT JOIN staff s 
+        LEFT JOIN Staff s 
             ON m.sender_id = s.id 
             AND m.sender_role IN ('điều phối viên cứu hộ', 'đội cứu hộ')
         WHERE m.request_id = :requestId
