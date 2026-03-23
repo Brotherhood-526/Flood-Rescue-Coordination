@@ -28,5 +28,5 @@ public interface MessageDAO  extends JpaRepository<Message, UUID> {
         WHERE m.request_id = :requestId
         ORDER BY m.send_at
     """, nativeQuery = true)
-    List<Object[]> findAllMessageRaw(UUID requestId);
+    List<Object[]> findAllMessageRaw(String requestId);
 }

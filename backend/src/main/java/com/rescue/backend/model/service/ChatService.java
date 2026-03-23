@@ -49,7 +49,7 @@ public class ChatService {
 
     public List<MessageResponse> takeAllMessageOfRequest(UUID requestId){
 
-        List<Object[]> rows = messageDAO.findAllMessageRaw(requestId);
+        List<Object[]> rows = messageDAO.findAllMessageRaw(requestId.toString());
 
         return rows.stream()
                 .map(r -> new MessageResponse(
