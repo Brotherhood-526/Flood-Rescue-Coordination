@@ -14,8 +14,7 @@ import type {
 export const managerService = {
   // GET /manager/dashboard
   getDashboard: async (): Promise<ManagerDashboard> => {
-    const res = await apiClient.get("/manager/dashboard");
-    return res as unknown as ManagerDashboard;
+    return apiClient.get<ManagerDashboard, ManagerDashboard>("/manager/dashboard");
   },
 
   // GET /manager/rescueteam/
@@ -27,11 +26,9 @@ export const managerService = {
     if (params?.search !== undefined) query.search = params.search;
     if (params?.page !== undefined) query.page = params.page;
 
-    const res = await apiClient.get("/manager/rescueteam/", {
+    return apiClient.get<PaginatedResponse<ManagerTeam>, PaginatedResponse<ManagerTeam>>("/manager/rescueteam/", {
       params: query,
     });
-
-    return res as unknown as PaginatedResponse<ManagerTeam>;
   },
 
   // GET /manager/staff
@@ -39,14 +36,12 @@ export const managerService = {
     search?: string;
     page?: number;
   }): Promise<PaginatedResponse<ManagerStaff>> => {
-    const res = await apiClient.get("/manager/staff", {
+    return apiClient.get<PaginatedResponse<ManagerStaff>, PaginatedResponse<ManagerStaff>>("/manager/staff", {
       params: {
         search: params?.search,
         page: params?.page ?? 0,
       },
     });
-
-    return res as unknown as PaginatedResponse<ManagerStaff>;
   },
 
   // POST /manager/staff
@@ -86,11 +81,9 @@ export const managerService = {
     if (params?.search !== undefined) query.search = params.search;
     if (params?.page !== undefined) query.page = params.page;
 
-    const res = await apiClient.get("/manager/vehicles", {
+    return apiClient.get<PaginatedResponse<ManagerVehicle>, PaginatedResponse<ManagerVehicle>>("/manager/vehicles", {
       params: query,
     });
-
-    return res as unknown as PaginatedResponse<ManagerVehicle>;
   },
 
   // DELETE /manager/vehicles/{id}

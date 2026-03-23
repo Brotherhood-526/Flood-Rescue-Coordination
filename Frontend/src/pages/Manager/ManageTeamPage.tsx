@@ -1,6 +1,5 @@
 import { useMemo, useState, type KeyboardEvent } from "react";
 import {
-  UserPlus,
   Search,
   ChevronsLeft,
   ChevronsRight,
@@ -11,11 +10,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { isAxiosError } from "axios";
+import { toast } from "react-toastify";
 
 import { useManagerRescueTeams } from "@/hooks/Manager/useManagerRescueTeams";
+import { managerService } from "@/services/Manager/managerService";
 
 type TeamRow = {
   id: string;
@@ -29,10 +30,7 @@ type TeamRow = {
 export const ManageTeamPage = () => {
   const [searchInput, setSearchInput] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
-  const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
   const [deletingTeamId, setDeletingTeamId] = useState<string | null>(null);
 
   const {
@@ -70,57 +68,27 @@ export const ManageTeamPage = () => {
     currentPageIndex * PAGE_SIZE + PAGE_SIZE,
   );
 
-  const [form, setForm] = useState({
-    teamName: "",
-    memberCount: "",
-    phone: "",
-  });
-
-  const resetForm = () => {
-    setForm({ teamName: "", memberCount: "", phone: "" });
-    setDialogMode("create");
-    setEditingTeamId(null);
-  };
-
-  const handleOpenCreate = () => {
-    resetForm();
-    setIsDialogOpen(true);
-  };
-
-  const handleCreateTeam = () => {
-    if (!form.teamName.trim() || !form.memberCount.trim() || !form.phone.trim()) {
-      return;
-    }
-
-    const count = Number(form.memberCount);
-    if (Number.isNaN(count) || count <= 0) {
-      return;
-    }
-
-    // TODO: connect BE endpoint for create/update rescue teams.
-    // Currently the list is read-only (coming from API).
-    alert(
-      `Chưa có API create/update đội cứu hộ. Payload dự kiến: ${
-        dialogMode === "edit" && editingTeamId
-          ? `update(id=${editingTeamId})`
-          : "create"
-      } -> ${JSON.stringify({
-        leaderName: form.teamName.trim(),
-        teamSize: count,
-        phone: form.phone.trim(),
-      })}`,
-    );
-    resetForm();
-    setIsDialogOpen(false);
-  };
-
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deletingTeamId === null) return;
-    // TODO: connect BE endpoint for delete rescue team.
-    alert(`Chưa có API xóa đội cứu hộ (id=${deletingTeamId}).`);
-    setDeletingTeamId(null);
-    setIsConfirmDeleteOpen(false);
-    void refetch();
+    try {
+      await managerService.deleteStaff(deletingTeamId, {
+        search: searchKeyword || undefined,
+      });
+      toast.success("Xóa đội cứu hộ thành công.");
+      await refetch();
+      setDeletingTeamId(null);
+      setIsConfirmDeleteOpen(false);
+    } catch (e) {
+      if (isAxiosError(e)) {
+        const message =
+          (e.response?.data as any)?.message ??
+          (e.response?.data as any)?.error ??
+          e.message;
+        toast.error(message || "Không thể xóa đội cứu hộ.");
+      } else {
+        toast.error("Không thể xóa đội cứu hộ.");
+      }
+    }
   };
 
   const handleSearch = () => {
@@ -161,96 +129,6 @@ export const ManageTeamPage = () => {
               Tìm kiếm
             </Button>
           </div>
-
-          <Dialog
-            open={isDialogOpen}
-            onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) resetForm();
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button
-                onClick={handleOpenCreate}
-                className="rounded-xl bg-indigo-600 px-4 py-2 text-base font-semibold text-white hover:bg-indigo-700"
-              >
-                <UserPlus className="mr-2 h-4 w-4" />
-                Thêm mới đội cứu hộ
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[700px]">
-              <DialogHeader>
-                <DialogTitle className="text-center text-xl font-bold">
-                  {dialogMode === "edit"
-                    ? "Chỉnh sửa thông tin của đội cứu hộ"
-                    : "Điền thông tin của đội cứu hộ"}
-                </DialogTitle>
-              </DialogHeader>
-
-              <div className="grid gap-6 py-3 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="team-name"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Tên của đội
-                  </label>
-                  <Input
-                    id="team-name"
-                    value={form.teamName}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, teamName: e.target.value }))
-                    }
-                    className="rounded-none border-0 border-b border-slate-400 px-0 shadow-none focus-visible:ring-0"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="team-member-count"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Số lượng thành viên
-                  </label>
-                  <Input
-                    id="team-member-count"
-                    type="number"
-                    value={form.memberCount}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, memberCount: e.target.value }))
-                    }
-                    className="rounded-none border-0 border-b border-slate-400 px-0 shadow-none focus-visible:ring-0"
-                  />
-                </div>
-
-                <div className="space-y-2 sm:col-span-2">
-                  <label
-                    htmlFor="team-phone"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Số điện thoại
-                  </label>
-                  <Input
-                    id="team-phone"
-                    value={form.phone}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, phone: e.target.value }))
-                    }
-                    className="rounded-none border-0 border-b border-slate-400 px-0 shadow-none focus-visible:ring-0"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-center">
-                <Button
-                  onClick={handleCreateTeam}
-                  className="rounded-xl bg-emerald-600 px-8 py-2 text-base font-semibold text-white hover:bg-emerald-700"
-                >
-                  Hoàn tất
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
 
         <table className="w-full table-fixed">
@@ -353,7 +231,7 @@ export const ManageTeamPage = () => {
               Quay lại
             </Button>
             <Button
-              onClick={handleConfirmDelete}
+              onClick={() => void handleConfirmDelete()}
               className="bg-red-600 text-white hover:bg-red-700"
             >
               Xóa

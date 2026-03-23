@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import { isAxiosError } from "axios";
 import { UserPlus, Pencil, Trash2, Search, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import {
@@ -136,14 +137,18 @@ export const ManageEmployeePage = () => {
   const [searchInput, setSearchInput] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
 
-  const { staffList, loading, error, refetch } = useManagerStaff(searchKeyword);
-
+  const {
+    staffList,
+    loading,
+    error,
+    refetch,
+  } = useManagerStaff(searchKeyword);
   const PAGE_SIZE = 10;
   const [pageIndex, setPageIndex] = useState(0);
 
   const employees = useMemo<Employee[]>(() => {
     return (staffList ?? []).map((s) => ({
-      id: s.id ?? s.accountId ?? crypto.randomUUID(),
+      id: s.id ?? s.accountId ?? "",
       fullName: s.name ?? "",
       phone: s.phone ?? "",
       role: normalizeRole(s.role),
@@ -350,6 +355,7 @@ export const ManageEmployeePage = () => {
           : {}),
       });
 
+      toast.success("Tạo nhân viên thành công.");
       resetForm();
       setIsDialogOpen(false);
       await refetch();
@@ -360,9 +366,9 @@ export const ManageEmployeePage = () => {
           (e.response?.data as any)?.message ??
           (e.response?.data as any)?.error ??
           e.message;
-        alert(message || "Không thể tạo nhân viên.");
+        toast.error(message || "Không thể tạo nhân viên.");
       } else {
-        alert("Không thể tạo nhân viên.");
+        toast.error("Không thể tạo nhân viên.");
       }
     }
   };
@@ -421,16 +427,29 @@ export const ManageEmployeePage = () => {
 
       await managerService.updateStaff(editingEmployeeId, payload);
 
+      toast.success("Cập nhật nhân viên thành công.");
       setIsDialogOpen(false);
       resetForm();
       await refetch();
     } catch (e) {
       console.error("Update staff failed:", e);
-      alert("Không thể cập nhật nhân viên.");
+      if (isAxiosError(e)) {
+        const message =
+          (e.response?.data as any)?.message ??
+          (e.response?.data as any)?.error ??
+          e.message;
+        toast.error(message || "Không thể cập nhật nhân viên.");
+      } else {
+        toast.error("Không thể cập nhật nhân viên.");
+      }
     }
   };
 
   const handleOpenDeleteConfirm = (employeeId: string) => {
+    if (!employeeId) {
+      alert("Không tìm thấy ID nhân viên để xóa.");
+      return;
+    }
     setDeletingEmployeeId(employeeId);
     setIsConfirmDeleteOpen(true);
   };
@@ -440,12 +459,21 @@ export const ManageEmployeePage = () => {
 
     try {
       await managerService.deleteStaff(deletingEmployeeId);
+      toast.success("Xóa nhân viên thành công.");
       setDeletingEmployeeId(null);
       setIsConfirmDeleteOpen(false);
       await refetch();
     } catch (e) {
       console.error("Delete staff failed:", e);
-      alert("Không thể xóa nhân viên.");
+      if (isAxiosError(e)) {
+        const message =
+          (e.response?.data as any)?.message ??
+          (e.response?.data as any)?.error ??
+          e.message;
+        toast.error(message || "Không thể xóa nhân viên.");
+      } else {
+        toast.error("Không thể xóa nhân viên.");
+      }
     }
   };
 
@@ -460,24 +488,12 @@ export const ManageEmployeePage = () => {
     }
   };
 
-  const normalizedSearchKeyword = searchKeyword.trim().toLowerCase();
-  const filteredEmployees = employees.filter((employee) => {
-    if (!normalizedSearchKeyword) {
-      return true;
-    }
-
-    return (
-      employee.fullName.toLowerCase().includes(normalizedSearchKeyword) ||
-      employee.phone.includes(normalizedSearchKeyword)
-    );
-  });
-
   useEffect(() => {
     setPageIndex(0);
   }, [searchKeyword, loading]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredEmployees.length / PAGE_SIZE));
-  const pagedEmployees = filteredEmployees.slice(
+  const totalPages = Math.max(1, Math.ceil(employees.length / PAGE_SIZE));
+  const pagedEmployees = employees.slice(
     pageIndex * PAGE_SIZE,
     pageIndex * PAGE_SIZE + PAGE_SIZE,
   );
@@ -841,7 +857,7 @@ export const ManageEmployeePage = () => {
                   </tr>
                 ))}
 
-              {!loading && !error && filteredEmployees.length === 0 && (
+              {!loading && !error && employees.length === 0 && (
                 <tr>
                   <td
                     colSpan={5}
@@ -856,7 +872,7 @@ export const ManageEmployeePage = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && !error && filteredEmployees.length > 0 && (
+        {!loading && !error && employees.length > 0 && totalPages > 1 && (
           <div className="mt-4 flex items-center justify-center gap-4">
             <Button
               variant="outline"

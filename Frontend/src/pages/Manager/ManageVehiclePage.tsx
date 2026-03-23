@@ -140,18 +140,20 @@ export const ManageVehiclePage = () => {
 
   const handleSubmitEdit = async () => {
     if (!editingVehicleId) return;
-    if (!form.type.trim() || !form.rescueTeamId.trim() || !form.state.trim()) {
-      alert("Vui lòng chọn đủ `type`, `rescueTeamId` và `state`.");
+    if (!form.type.trim() || !form.rescueTeamId.trim()) {
+      alert("Vui lòng chọn đủ `type` và `rescueTeamId`.");
       return;
     }
 
+    const nextType = form.type.trim();
+    const nextRescueTeamId = form.rescueTeamId.trim();
+    const nextState = form.state.trim();
+
     try {
       const payload = {
-        id: editingVehicleId,
-        type: form.type.trim(),
-        rescueTeamId: form.rescueTeamId.trim(),
-        rescue_team_id: form.rescueTeamId.trim(),
-        state: form.state.trim(),
+        type: nextType,
+        rescueTeamId: nextRescueTeamId,
+        state: nextState,
       };
       console.log("updateVehicle request:", {
         id: editingVehicleId,
@@ -217,26 +219,23 @@ export const ManageVehiclePage = () => {
     setIsCreateOpen(true);
   };
 
-  const handleSubmitCreate = async () => {
-    if (!form.type.trim() || !form.rescueTeamId.trim() || !form.state.trim()) {
-      alert("Vui lòng nhập đủ `type`, `rescueTeamId` và `state`.");
-      return;
+  const handleSubmitCreate = async (): Promise<boolean> => {
+    if (!form.type.trim() || !form.rescueTeamId.trim()) {
+      alert("Vui lòng nhập đủ `type` và `rescueTeamId`.");
+      return false;
     }
 
-    // Build payload synchronously so it's not affected by resetForm()
-    // happening immediately after button click.
     const payload = {
       type: form.type.trim(),
       rescueTeamId: form.rescueTeamId.trim(),
-      rescue_team_id: form.rescueTeamId.trim(),
-      state: form.state.trim(),
     };
 
     try {
       toast.info("Đang tạo phương tiện mới...", { autoClose: 1000 });
       await managerService.createVehicle(payload);
-      toast.success("Tạo phương tiện thành công.");
+      toast.success("Tạo phương tiện thành công. Trạng thái mặc định: Không hoạt động.");
       await refetch();
+      return true;
     } catch (e) {
       console.error("Create vehicle failed:", e);
       if (isAxiosError(e)) {
@@ -248,6 +247,7 @@ export const ManageVehiclePage = () => {
       } else {
         toast.error("Không thể tạo phương tiện.");
       }
+      return false;
     }
   };
 
@@ -368,34 +368,9 @@ export const ManageVehiclePage = () => {
                     </Select>
                 </div>
 
-                <div className="space-y-2 sm:col-span-2">
-                  <label
-                    htmlFor="vehicle-create-state"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Tình trạng
-                  </label>
-                    <Select
-                      value={form.state}
-                      onValueChange={(value) =>
-                        setForm((prev) => ({ ...prev, state: value }))
-                      }
-                    >
-                      <SelectTrigger
-                        id="vehicle-create-state"
-                        className="w-full rounded-none border-0 border-b border-slate-400 px-0 shadow-none focus:ring-0"
-                      >
-                        <SelectValue placeholder="Chọn tình trạng" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {stateOptions.map((o) => (
-                          <SelectItem key={o.value} value={o.value}>
-                            {o.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                </div>
+                <p className="sm:col-span-2 text-sm text-slate-500">
+                  Trạng thái mặc định khi thêm mới: <strong>Không hoạt động</strong>.
+                </p>
               </div>
 
               <div className="flex justify-center gap-3">
@@ -409,8 +384,9 @@ export const ManageVehiclePage = () => {
                   Hủy
                 </Button>
                 <Button
-                  onClick={() => {
-                    void handleSubmitCreate();
+                  onClick={async () => {
+                    const ok = await handleSubmitCreate();
+                    if (!ok) return;
                     setIsCreateOpen(false);
                     resetForm();
                   }}

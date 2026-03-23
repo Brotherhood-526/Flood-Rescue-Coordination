@@ -23,25 +23,12 @@ export interface ManagerVehicle {
 export interface CreateVehicleRequest {
   type: string;
   rescueTeamId: string;
-  rescue_team_id?: string;
-  state: string;
 }
 
 export interface UpdateVehicleRequest {
-  id?: string;
-  // Some BE implementations validate different id field names.
-  vehicleId?: string;
-  vehicle_id?: string;
-
   type: string;
-  // BE update schema: rescueTeamId
   rescueTeamId?: string;
-  rescue_team_id?: string;
-
-  // Backward/alternative field name (older UI used leaderName/team owner string)
-  team_owner?: string;
-
-  state: string;
+  state?: string;
 }
 
 export interface ManagerDashboardTopTeam {
@@ -56,7 +43,7 @@ export interface ManagerDashboardTopCity {
 
 export interface ManagerDashboard {
   totalRequests: number;
-  completionRate: number; // BE trả về dạng phần trăm (vd: 27.6)
+  completionRate: number; 
   activeStaff: number;
   totalStaff: number;
   availableVehicle: number;
@@ -91,7 +78,6 @@ export interface UpdateStaffRequest {
 
 // --- Staff response shape (best-effort; BE might use slightly different field names) ---
 export interface ManagerStaff {
-  // Some APIs may return UUID as `accountId` or `id`. Keep both optional.
   accountId?: string;
   id?: string;
 
@@ -99,10 +85,8 @@ export interface ManagerStaff {
   phone: string;
   role: ManagerStaffRole;
 
-  // BE trả về field `state` cho /manager/staff (ví dụ: "hoạt động").
   state?: ManagerStaffState;
 
-  // Một số nơi/cách gọi có thể trả về `staffState` (giữ để tương thích).
   staffState?: ManagerStaffState;
 
   teamName?: string;
