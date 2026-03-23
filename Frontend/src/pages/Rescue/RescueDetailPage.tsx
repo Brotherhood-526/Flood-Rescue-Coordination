@@ -65,15 +65,6 @@ export default function RescueDetailPage() {
       .setLngLat(lngLat)
       .addTo(map);
     map.flyTo({ center: lngLat, zoom: 16, duration: 2000 });
-
-    const onDblClick = () =>
-      detail?.id && navigate(`${ROUTES.RESCUE_MAP}?id=${detail.id}`);
-    map.doubleClickZoom.disable();
-    map.on("dblclick", onDblClick);
-    return () => {
-      map.off("dblclick", onDblClick);
-      map.doubleClickZoom.enable();
-    };
   }, [mapLoaded, map, detail, navigate]);
 
   const handleUpdateStatus = async (newStatus: string) => {
@@ -123,6 +114,12 @@ export default function RescueDetailPage() {
           >
             <MessageCircle size={18} /> Hội thoại
           </button>
+          <button
+            onClick={() => navigate(`${ROUTES.RESCUE_MAP}?id=${detail.id}`)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#e5e7eb] hover:bg-[#d1d5db] text-gray-800 rounded-full font-bold text-sm transition-colors"
+          >
+            <MapPin size={18} /> Toàn bản đồ
+          </button>
         </div>
 
         <div className="text-left md:text-center md:mr-64 lg:mr-78">
@@ -146,15 +143,17 @@ export default function RescueDetailPage() {
               Mã nhiệm vụ
             </h2>
             <p className="text-gray-500 text-sm font-mono font-medium">
-              #{detail.id?.substring(0, 8).toUpperCase()}
+              #{detail.id}
             </p>
           </div>
 
           {infoBlock(
             <User size={22} />,
             "Thông tin người yêu cầu",
-            <p className="font-semibold text-gray-800">
+            <p className="font-semibold text-black">
               Số điện thoại: {detail.citizenPhone || "Không có"}
+              <br />
+              Tên người cần cứu hộ: {detail.citizenName || "Không có"}
             </p>,
           )}
 
@@ -200,7 +199,10 @@ export default function RescueDetailPage() {
             <Car size={22} />,
             "Loại phương tiện",
             <p className="font-semibold text-gray-800">
-              {detail.vehicleType || "Chưa điều phương tiện"}
+              {detail.vehicleType
+                ? detail.vehicleType.charAt(0).toUpperCase() +
+                  detail.vehicleType.slice(1)
+                : "Chưa điều phương tiện"}
             </p>,
           )}
 
@@ -239,7 +241,7 @@ export default function RescueDetailPage() {
                     <img
                       src={url}
                       alt={`Ảnh hiện trường ${index + 1}`}
-                      className="w-full h-36 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+                      className="w-full h-50 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}
@@ -257,7 +259,7 @@ export default function RescueDetailPage() {
 
         {/* Cột phải — bản đồ */}
         <div className="lg:col-span-7 flex flex-col">
-          <div className="w-full h-137.5 border border-gray-300 rounded-xl bg-gray-100 shadow-sm flex items-center justify-center relative overflow-hidden">
+          <div className="w-full h-180 border border-gray-300 rounded-xl bg-gray-100 shadow-sm flex items-center justify-center relative overflow-hidden">
             {detail.geoLocation ? (
               <div
                 key={detail.id}
@@ -278,7 +280,7 @@ export default function RescueDetailPage() {
                   className="mb-3 opacity-50 animate-bounce text-red-500"
                 />
                 <p className="font-bold text-lg animate-pulse text-gray-700">
-                  Đang tải bản đồ VietMap...
+                  Đang tải bản đồ VietMap
                 </p>
               </div>
             )}

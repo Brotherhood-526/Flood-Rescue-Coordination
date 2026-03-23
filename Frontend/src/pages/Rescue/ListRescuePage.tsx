@@ -168,9 +168,7 @@ export default function ListRescuePage() {
             columns={columns}
             data={pagedData}
             renderRow={(row, idx) => {
-              const shortId = row.id
-                ? row.id.substring(0, 8).toUpperCase()
-                : "N/A";
+              const shortId = row.id ? row.id : "N/A";
               return (
                 <TableRow
                   key={idx}
