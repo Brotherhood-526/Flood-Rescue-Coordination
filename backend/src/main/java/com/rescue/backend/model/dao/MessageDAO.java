@@ -21,13 +21,13 @@ public interface MessageDAO  extends JpaRepository<Message, UUID> {
             m.sendAt
         )
         FROM Message m
-        LEFT JOIN Citizen c 
+        LEFT JOIN Citizen c\s
             ON m.senderId = c.id AND m.senderRole = 'người dân'
-        LEFT JOIN Staff s 
-            ON m.senderId = s.id 
-            AND m.senderRole IN ('điều phối viên cứu hộ', 'đội cứu hộ')
+        LEFT JOIN Staff s\s
+            ON m.senderId = s.id\s
+            AND m.senderRole IN ('điều phối viên', 'cứu hộ')
         WHERE m.request.id = :requestId
         ORDER BY m.sendAt
-    """)
+   \s""")
     List<MessageResponse> findAllMessageOfRequestId(UUID requestId);
 }
