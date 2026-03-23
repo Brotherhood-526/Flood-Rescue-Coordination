@@ -103,8 +103,7 @@ To make sure Frontend and Backend work well together, the Frontend's React archi
 | :--- | :--- | :--- |
 | Framework | Spring Boot | Main backend framework for building RESTful applications |
 | Web | Spring MVC | Handles HTTP requests and REST APIs |
-| Real-time | WebSocket (Spring) | Enables real-time communication (e.g., messaging) |
-| Security | Spring Security | Authentication and authorization (JWT, BCrypt) |
+| Security | Spring Security | Authentication with Sessions <br> Password encryption with BCrypt |
 | ORM | Spring Data JPA | Database abstraction layer |
 | ORM | Hibernate | JPA implementation and ORM provider |
 | Database | MySQL | Relational database for persistent storage |
@@ -117,9 +116,6 @@ To make sure Frontend and Backend work well together, the Frontend's React archi
 | Media Storage | Cloudinary | Handles image upload and storage |
 | API Docs | SpringDoc OpenAPI (Swagger) | API documentation and testing UI |
 | Data Format | JSON | Data exchange format between frontend and backend |
-| Dev Tools | Spring Boot DevTools | Hot reload during development |
-| Testing | Spring Boot Test | Backend testing framework |
-| Testing | Spring Security Test | Security-related testing utilities |
 ### 4.6.2 Frontend Technologies
 | Category | Technology | Purpose |
 | :--- | :--- | :--- |
