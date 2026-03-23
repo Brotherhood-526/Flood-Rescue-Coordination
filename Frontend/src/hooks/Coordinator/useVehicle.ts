@@ -1,39 +1,30 @@
-import {useEffect, useState} from "react";
-import apiClient from "@/services/axiosClient.ts";
+import { useEffect, useState } from "react";
+import apiClient from "@/services/axiosClient";
+import type { VehicleAndRescueTeamInfo } from "@/types/coordinator";
 
-type VehicleAndRescueTeamInfo = {
-    id: string;
-    type: string;
-    rescueTeamId: string;
-    rescueTeamName: string;
-}
+export const useVehicleList = (type: string | null) => {
+  const [vehicleList, setVehicleList] = useState<VehicleAndRescueTeamInfo[]>(
+    [],
+  );
+  const [loading, setLoading] = useState(false);
 
-export function useVehicleList({ type }: { type: string | null}) {
+  useEffect(() => {
+    if (!type) return;
+    const fetch = async () => {
+      try {
+        setLoading(true);
+        const data = (await apiClient.post("/coordinator/filterVehicle", {
+          vehicle_type: type,
+        })) as unknown as VehicleAndRescueTeamInfo[];
+        setVehicleList(data);
+      } catch (err) {
+        console.error("Fetch vehicle failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, [type]);
 
-    const [rescueTeams, setRescueTeams] = useState<VehicleAndRescueTeamInfo[]>([]);
-
-    useEffect(() => {
-
-        const fetchVehicle = async () => {
-            try {
-
-                const res = await apiClient.post("/coordinator/filterVehicle", {
-                    vehicle_type: type
-                });
-
-                const data = res as unknown as VehicleAndRescueTeamInfo[];
-                setRescueTeams(data);
-
-            } catch (error) {
-                console.error("Fetch vehicle failed:", error);
-            }
-        };
-
-        if (type) {
-            fetchVehicle();
-        }
-
-    }, [type]);
-
-    return rescueTeams;
-}
+  return { vehicleList, loading };
+};

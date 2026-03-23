@@ -1,69 +1,54 @@
-import {useEffect, useState} from "react";
-import type {RescueRequest} from "@/pages/Coordinator/ListRequestPage.tsx";
-import apiClient from "@/services/axiosClient.ts";
+import { useEffect, useState, useCallback } from "react";
+import apiClient from "@/services/axiosClient";
+import { PAGE_SIZE } from "@/constants/coordinatorConfig";
+import type { CoordinatorRequest, TakePageResponse } from "@/types/coordinator";
 
-type TakePageResponse = {
-    totalPage: number;
-    list: RescueRequest[];
-};
+export const useRequestList = (status: string) => {
+  const [pageNumber, setPageNumber] = useState(0);
+  const [requestList, setRequestList] = useState<CoordinatorRequest[]>([]);
+  const [totalPage, setTotalPage] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-export function useRequestList(status:string) {
+  // Reset page khi đổi status
+  useEffect(() => {
+    setPageNumber(0);
+  }, [status]);
 
-    const pageSize = 10;
-
-    const [pageNumber, setPageNumber] = useState(0);
-    const [requestList, setRequestList] = useState<RescueRequest[]>([]);
-    const [totalPage, setTotalPage] = useState(0);
-    const [loading, setLoading] = useState(false);
-
-    const handlePageChange = (left: boolean) => {
-        setPageNumber(prev => {
-            if (left) {
-                return prev > 0 ? prev - 1 : 0;
-            } else {
-                if (prev < totalPage - 1) {
-                    return prev + 1;
-                }
-                return prev;
-            }
-        });
-    };
-
-    const fetchRequestList = async () => {
-        try {
-
-            setLoading(true);
-
-            const res = await apiClient.post("/coordinator/takeListRequest", {
-                pageNumber,
-                pageSize,
-                status
-            });
-            console.log(res);
-            const data = res as unknown as TakePageResponse;
-            setRequestList(data.list);
-            setTotalPage(data.totalPage);
-        } catch (error) {
-            console.error("Fetch request list failed:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        setPageNumber(0);
-    }, [status]);
-
-    useEffect(() => {
-        fetchRequestList();
-    }, [pageNumber, pageSize, status]);
-
-    return {
+  const fetchRequestList = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = (await apiClient.post("/coordinator/takeListRequest", {
         pageNumber,
-        pageSize,
-        totalPage,
-        requestList,
-        handlePageChange,
-        loading
-    };
-}
+        pageSize: PAGE_SIZE,
+        status,
+      })) as unknown as TakePageResponse;
+      setRequestList(data.list);
+      setTotalPage(data.totalPage);
+    } catch (err) {
+      console.error("Fetch request list failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [pageNumber, status]);
+
+  useEffect(() => {
+    fetchRequestList();
+  }, [fetchRequestList]);
+
+  const handlePageChange = (left: boolean) => {
+    setPageNumber((prev) => {
+      if (left) return Math.max(0, prev - 1);
+      return Math.min(totalPage - 1, prev + 1);
+    });
+  };
+
+  return {
+    pageNumber,
+    pageSize: PAGE_SIZE,
+    totalPage,
+    requestList,
+    loading,
+    handlePageChange,
+    refetch: fetchRequestList,
+  };
+};

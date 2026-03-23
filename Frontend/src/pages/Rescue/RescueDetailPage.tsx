@@ -11,154 +11,101 @@ import {
   AlignLeft,
   Image as ImageIcon,
   CheckCircle2,
-  Loader2,
 } from "lucide-react";
 import { ROUTES } from "@/router/routes";
 import vietmapgl from "@vietmap/vietmap-gl-js";
-import { useVietMap } from "@/lib/MapProvider";
-import {
-  rescueTeamService,
-  type RescueRequest,
-} from "@/services/Rescue/rescueTeamService";
+import { useVietMap } from "@/lib/useVietMap";
+import { rescueTeamService } from "@/services/Rescue/rescueTeamService";
+import type { RescueRequest } from "@/types/rescue";
 
 export default function RescueDetailPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const requestId = searchParams.get("id");
 
-  // === QUẢN LÝ STATE DATA ===
   const [detail, setDetail] = useState<RescueRequest | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const { mount, unmount, map, mapLoaded } = useVietMap();
   const markerRef = useRef<vietmapgl.Marker | null>(null);
 
-  // === GỌI API LẤY CHI TIẾT ===
   useEffect(() => {
     if (!requestId) return;
-
-    const fetchDetail = async () => {
-      try {
-        setIsLoading(true);
-        const data = await rescueTeamService.getTaskDetail(requestId);
-        setDetail(data);
-      } catch (error) {
-        console.error("Lỗi fetch chi tiết:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchDetail();
+    rescueTeamService
+      .getTaskDetail(requestId)
+      .then(setDetail)
+      .catch(console.error);
   }, [requestId]);
 
-  //khởi tạo cái map
   useEffect(() => {
-    if (mapContainerRef.current && detail?.geo_location) {
+    if (mapContainerRef.current && detail?.geoLocation)
       mount(mapContainerRef.current);
-    }
     return () => unmount();
-  }, [detail?.geo_location, mount, unmount]);
+  }, [detail?.geoLocation, mount, unmount]);
 
-  // cắm cờ lên bản đồ nếu có data
   useEffect(() => {
-    const geoString = detail?.geo_location;
+    const geoString = detail?.geoLocation;
     if (
-      mapLoaded &&
-      map &&
-      typeof geoString === "string" &&
-      geoString.includes(",")
-    ) {
-      try {
-        const coords = geoString.split(",");
+      !mapLoaded ||
+      !map ||
+      typeof geoString !== "string" ||
+      !geoString.includes(",")
+    )
+      return;
 
-        if (coords.length === 2) {
-          const lat = Number(coords[0].trim());
-          const lng = Number(coords[1].trim());
+    const [rawLat, rawLng] = geoString.split(",");
+    const lat = Number(rawLat.trim());
+    const lng = Number(rawLng.trim());
+    if (isNaN(lat) || isNaN(lng)) return;
 
-          // Kiểm tra xem số có hợp lệ không
-          if (!isNaN(lat) && !isNaN(lng)) {
-            const lngLat: [number, number] = [lng, lat];
+    const lngLat: [number, number] = [lng, lat];
+    markerRef.current?.remove();
+    markerRef.current = new vietmapgl.Marker({ color: "#ef4444" })
+      .setLngLat(lngLat)
+      .addTo(map);
+    map.flyTo({ center: lngLat, zoom: 16, duration: 2000 });
 
-            if (markerRef.current) markerRef.current.remove();
-
-            markerRef.current = new vietmapgl.Marker({ color: "#ef4444" })
-              .setLngLat(lngLat)
-              .addTo(map);
-
-            map.flyTo({
-              center: lngLat,
-              zoom: 16,
-              duration: 2000,
-            });
-
-            const onMapDblClick = () => {
-              if (detail?.id) {
-                navigate(`${ROUTES.RESCUE_MAP}?id=${detail.id}`);
-              }
-            };
-
-            map.doubleClickZoom.disable();
-            map.on("dblclick", onMapDblClick);
-
-            return () => {
-              map.off("dblclick", onMapDblClick);
-              map.doubleClickZoom.enable();
-            };
-          }
-        }
-      } catch (e) {
-        console.log("Lỗi parse tọa độ:", e);
-      }
-    }
+    const onDblClick = () =>
+      detail?.id && navigate(`${ROUTES.RESCUE_MAP}?id=${detail.id}`);
+    map.doubleClickZoom.disable();
+    map.on("dblclick", onDblClick);
+    return () => {
+      map.off("dblclick", onDblClick);
+      map.doubleClickZoom.enable();
+    };
   }, [mapLoaded, map, detail, navigate]);
 
-  // === HÀM CẬP NHẬT TRẠNG THÁI ===
   const handleUpdateStatus = async (newStatus: string) => {
     if (!requestId) return;
     try {
       setIsUpdating(true);
       await rescueTeamService.updateTaskStatus(requestId, newStatus);
       alert(`Đã cập nhật trạng thái thành: ${newStatus}`);
-      // Thành công thì đá về trang List để Đội Trưởng nhận ca mới
       navigate(-1);
-    } catch (error) {
-      console.error(error);
-      alert("Lỗi khi cập nhật trạng thái! Vui lòng kiểm tra lại mạng.");
+    } catch {
+      alert("Lỗi khi cập nhật trạng thái");
     } finally {
       setIsUpdating(false);
     }
   };
 
-  // === GIAO DIỆN LOADING ===
-  if (isLoading) {
-    return (
-      <div className="w-full h-[80vh] flex flex-col items-center justify-center text-[#25a863]">
-        <Loader2 className="animate-spin mb-4" size={48} />
-        <h2 className="text-xl font-bold">Đang tải thông tin nhiệm vụ...</h2>
-      </div>
-    );
-  }
+  if (!detail) return null;
 
-  // === GIAO DIỆN LỖI/KHÔNG TÌM THẤY ===
-  if (!detail) {
-    return (
-      <div className="p-10 text-center flex flex-col items-center">
-        <h2 className="text-red-500 font-bold text-2xl mb-4">
-          Không tìm thấy nhiệm vụ!
-        </h2>
-        <button
-          onClick={() => navigate(-1)}
-          className="px-6 py-2 bg-gray-200 rounded-md font-bold hover:bg-gray-300"
-        >
-          Quay lại
-        </button>
+  const infoBlock = (
+    icon: React.ReactNode,
+    title: string,
+    children: React.ReactNode,
+  ) => (
+    <div>
+      <div className="flex items-center gap-3 mb-2 text-gray-900">
+        <div className="text-gray-700">{icon}</div>
+        <h3 className="font-extrabold text-[16px]">{title}</h3>
       </div>
-    );
-  }
+      <div className="pl-8 text-[15px] text-gray-700">{children}</div>
+    </div>
+  );
 
-  // === GIAO DIỆN CHÍNH ===
   return (
     <div className="w-full min-h-[calc(100vh-80px)] bg-[#fdfdfd] font-sans pl-10 pr-10 pb-5 -mt-15">
       {/* HEADER */}
@@ -192,7 +139,7 @@ export default function RescueDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
-        {/* cột trái render thông tin */}
+        {/* Cột trái */}
         <div className="lg:col-span-5 space-y-7">
           <div>
             <h2 className="text-xl font-extrabold text-gray-900 mb-1">
@@ -203,16 +150,17 @@ export default function RescueDetailPage() {
             </p>
           </div>
 
-          <InfoSection
-            icon={<User size={22} />}
-            title="Thông tin người yêu cầu"
-          >
+          {infoBlock(
+            <User size={22} />,
+            "Thông tin người yêu cầu",
             <p className="font-semibold text-gray-800">
               Số điện thoại: {detail.citizenPhone || "Không có"}
-            </p>
-          </InfoSection>
+            </p>,
+          )}
 
-          <InfoSection icon={<ShieldAlert size={22} />} title="Mức độ ưu tiên">
+          {infoBlock(
+            <ShieldAlert size={22} />,
+            "Mức độ ưu tiên",
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-[13px] font-bold ${
                 detail.urgency === "cao"
@@ -226,53 +174,59 @@ export default function RescueDetailPage() {
                 }`}
               />
               {detail.urgency ? detail.urgency.toUpperCase() : "BÌNH THƯỜNG"}
-            </span>
-          </InfoSection>
+            </span>,
+          )}
 
-          <InfoSection icon={<MapPin size={22} />} title="Vị trí cứu hộ">
-            <p className="text-gray-500 text-xs font-semibold mb-1 uppercase tracking-wide">
-              Địa chỉ
-            </p>
-            <p className="font-bold text-gray-800 mb-3">
-              {detail.address || "Đang cập nhật địa chỉ..."}
-            </p>
-            <p className="text-gray-500 text-xs font-semibold mb-1 uppercase tracking-wide">
-              Tọa độ GPS
-            </p>
-            <p className="font-bold text-gray-800 font-mono">
-              {detail.geo_location || "Không có tọa độ"}
-            </p>
-          </InfoSection>
+          {infoBlock(
+            <MapPin size={22} />,
+            "Vị trí cứu hộ",
+            <>
+              <p className="text-gray-500 text-xs font-semibold mb-1 uppercase tracking-wide">
+                Địa chỉ
+              </p>
+              <p className="font-bold text-gray-800 mb-3">
+                {detail.address || "Đang cập nhật địa chỉ..."}
+              </p>
+              <p className="text-gray-500 text-xs font-semibold mb-1 uppercase tracking-wide">
+                Tọa độ GPS
+              </p>
+              <p className="font-bold text-gray-800 font-mono">
+                {detail.geoLocation || "Không có tọa độ"}
+              </p>
+            </>,
+          )}
 
-          <InfoSection icon={<Car size={22} />} title="Loại phương tiện">
+          {infoBlock(
+            <Car size={22} />,
+            "Loại phương tiện",
             <p className="font-semibold text-gray-800">
               {detail.vehicleType || "Chưa điều phương tiện"}
-            </p>
-          </InfoSection>
+            </p>,
+          )}
 
-          <InfoSection
-            icon={<Users size={22} />}
-            title="Thông tin người phụ trách"
-          >
+          {infoBlock(
+            <Users size={22} />,
+            "Thông tin người phụ trách",
             <p className="font-semibold text-gray-800 mb-1">
               Điều phối viên:{" "}
               <span className="font-normal">
                 {detail.coordinatorName || "Hệ thống tự động"}
               </span>
-            </p>
-          </InfoSection>
+            </p>,
+          )}
 
-          <InfoSection icon={<AlignLeft size={22} />} title="Mô tả tình huống">
+          {infoBlock(
+            <AlignLeft size={22} />,
+            "Mô tả tình huống",
             <div className="w-full min-h-12 mt-2 p-3 border border-gray-200 rounded-md bg-white shadow-sm font-medium text-gray-700">
               {detail.description || "Không có mô tả chi tiết."}
-            </div>
-          </InfoSection>
+            </div>,
+          )}
 
-          <InfoSection
-            icon={<ImageIcon size={22} />}
-            title="Hình ảnh hiện trường"
-          >
-            {detail.images && detail.images.length > 0 ? (
+          {infoBlock(
+            <ImageIcon size={22} />,
+            "Hình ảnh hiện trường",
+            detail.images?.length ? (
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {detail.images.map((url, index) => (
                   <a
@@ -297,14 +251,14 @@ export default function RescueDetailPage() {
               <div className="w-full h-12 mt-2 border border-gray-200 rounded-md bg-white shadow-sm flex items-center px-3 text-gray-400 italic">
                 Người dân không gửi ảnh
               </div>
-            )}
-          </InfoSection>
+            ),
+          )}
         </div>
 
-        {/* cột phải render bản đồ*/}
+        {/* Cột phải — bản đồ */}
         <div className="lg:col-span-7 flex flex-col">
           <div className="w-full h-137.5 border border-gray-300 rounded-xl bg-gray-100 shadow-sm flex items-center justify-center relative overflow-hidden">
-            {detail.geo_location ? (
+            {detail.geoLocation ? (
               <div
                 key={detail.id}
                 ref={mapContainerRef}
@@ -317,7 +271,7 @@ export default function RescueDetailPage() {
               </div>
             )}
 
-            {!mapLoaded && detail.geo_location && (
+            {!mapLoaded && detail.geoLocation && (
               <div className="text-gray-400 flex flex-col items-center z-10 absolute bg-white/80 p-4 rounded-lg">
                 <MapPin
                   size={48}
@@ -332,6 +286,7 @@ export default function RescueDetailPage() {
         </div>
       </div>
 
+      {/* Action buttons */}
       <div className="flex flex-wrap justify-center gap-6 w-full mt-14 mb-8">
         <button
           onClick={() => handleUpdateStatus("tạm hoãn")}
@@ -342,7 +297,7 @@ export default function RescueDetailPage() {
           }
           className="flex items-center justify-center gap-3 w-64 py-3.5 bg-[#f59e0b] hover:bg-[#d97706] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-bold text-[17px] transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
         >
-          <div className="w-4 h-4 bg-white rounded-sm opacity-90"></div>
+          <div className="w-4 h-4 bg-white rounded-sm opacity-90" />
           {isUpdating ? "Đang xử lý..." : "Tạm hoãn nhiệm vụ"}
         </button>
 
@@ -357,27 +312,6 @@ export default function RescueDetailPage() {
           {isUpdating ? "Đang xử lý..." : "Hoàn thành nhiệm vụ"}
         </button>
       </div>
-    </div>
-  );
-}
-
-// Component phụ cho khối thông tin
-function InfoSection({
-  icon,
-  title,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <div className="flex items-center gap-3 mb-2 text-gray-900">
-        <div className="text-gray-700">{icon}</div>
-        <h3 className="font-extrabold text-[16px]">{title}</h3>
-      </div>
-      <div className="pl-8 text-[15px] text-gray-700">{children}</div>
     </div>
   );
 }

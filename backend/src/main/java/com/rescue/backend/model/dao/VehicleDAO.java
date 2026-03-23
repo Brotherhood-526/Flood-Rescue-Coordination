@@ -1,5 +1,6 @@
 package com.rescue.backend.model.dao;
 
+import com.rescue.backend.model.bean.Staff;
 import com.rescue.backend.model.bean.Vehicle;
 import com.rescue.backend.view.dto.vehicle.response.FilterVehicleResponse;
 import org.springframework.data.domain.Page;

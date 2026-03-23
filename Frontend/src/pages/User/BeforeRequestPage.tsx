@@ -202,12 +202,9 @@ export default function BeforeRequestPage(props: BeforeRequestPageProps) {
           <input
             type="text"
             placeholder="Link nguồn google map"
-            className={`mt-2 w-full rounded-md border px-3 py-2 ${errors.url ? "border-red-500" : "border-gray-300"}`}
+            className={`mt-2 w-full rounded-md border px-3 py-2 `}
             {...register("url")}
           />
-          {errors.url && (
-            <p className="text-red-500 text-xs mt-1">{errors.url.message}</p>
-          )}
         </div>
 
         {/* Upload ảnh */}

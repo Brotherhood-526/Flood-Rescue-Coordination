@@ -45,7 +45,7 @@ export default function Footer() {
             />
           </a>
           <a
-            href="#"
+            href="https://google.com"
             target="_blank"
             rel="noopener noreferrer"
             className="w-14 h-14 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 shadow-lg border-2 border-blue-500"

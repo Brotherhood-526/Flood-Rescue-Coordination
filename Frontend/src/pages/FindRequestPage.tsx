@@ -40,7 +40,7 @@ export default function FindRequestPage() {
       );
     }
 
-    const { assigned_team, victim_details } = apiResponse.data;
+    const { assignedTeam, victimDetails } = apiResponse.data;
 
     return (
       <div className="w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -66,13 +66,13 @@ export default function FindRequestPage() {
               <tbody>
                 <tr className="bg-white text-gray-700">
                   <td className="p-3 border border-gray-400 text-center">
-                    {assigned_team?.captain || "Đang cập nhật"}
+                    {assignedTeam?.captain || "Đang cập nhật"}
                   </td>
                   <td className="p-3 border border-gray-400 text-center">
-                    {assigned_team?.coordinator || "Đang cập nhật"}
+                    {assignedTeam?.coordinator || "Đang cập nhật"}
                   </td>
                   <td className="p-3 border border-gray-400 text-center">
-                    {assigned_team?.vehicle || "-"}
+                    {assignedTeam?.vehicle || "-"}
                   </td>
                 </tr>
               </tbody>
@@ -108,19 +108,19 @@ export default function FindRequestPage() {
               <tbody>
                 <tr className="bg-white text-gray-700">
                   <td className="p-3 border border-gray-400 text-center">
-                    {victim_details.phone}
+                    {victimDetails.phone}
                   </td>
                   <td className="p-3 border border-gray-400 text-center">
-                    {victim_details.full_name}
+                    {victimDetails.fullName}
                   </td>
                   <td className="p-3 border border-gray-400 text-center">
-                    {formatStatus(victim_details.urgency_level)}
+                    {formatStatus(victimDetails.urgencyLevel)}
                   </td>
                   <td className="p-3 border border-gray-400 text-center">
-                    {formatStatus(victim_details.current_status)}
+                    {formatStatus(victimDetails.currentStatus)}
                   </td>
                   <td className="p-3 border border-gray-400 text-center">
-                    {formatDate(victim_details.created_at)}
+                    {formatDate(victimDetails.createdAt)}
                   </td>
                 </tr>
               </tbody>
@@ -129,7 +129,7 @@ export default function FindRequestPage() {
         </div>
 
         <div className="flex justify-end mt-3 mb-20">
-          {victim_details.current_status?.toLowerCase() === "đã hủy" ? (
+          {victimDetails.currentStatus?.toLowerCase() === "đã hủy" ? (
             <span className="text-red-500 font-semibold italic text-sm">
               Yêu cầu đã bị hủy — không thể xem chi tiết
             </span>

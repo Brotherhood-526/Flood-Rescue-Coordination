@@ -2,11 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Image as ImageIcon, Send } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
-import {
-  rescueTeamService,
-  type RescueRequest,
-} from "@/services/Rescue/rescueTeamService";
-
+import { rescueTeamService } from "@/services/Rescue/rescueTeamService";
+import type { RescueRequest } from "@/types/rescue";
 interface ChatMessage {
   id: number;
   sender: string;
