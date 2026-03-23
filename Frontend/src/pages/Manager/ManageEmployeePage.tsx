@@ -257,16 +257,10 @@ export const ManageEmployeePage = () => {
     setDialogMode("edit");
     setEditingEmployeeId(employee.id);
 
-    // UI hiện không cho phép chỉnh sửa vai trò "quản lý".
-    // Nếu nhân viên đang có vai trò "quản lý" thì mặc định chuyển sang "cứu hộ"
-    // để tránh Select rơi vào giá trị không tồn tại.
-    const safeRole: EmployeeRole =
-      employee.role === "quản lý" ? "cứu hộ" : employee.role;
-
     setForm({
       fullName: employee.fullName,
       phone: employee.phone,
-      role: safeRole,
+      role: employee.role,
       password: "",
       teamName: employee.teamName ?? "",
       teamSize: employee.teamSize != null ? String(employee.teamSize) : "",
@@ -378,6 +372,10 @@ export const ManageEmployeePage = () => {
     const trimmedPhone = form.phone.trim();
 
     if (editingEmployeeId === null || !form.role || !trimmedFullName || !trimmedPhone) {
+      return;
+    }
+    if (form.role === "quản lý") {
+      toast.info("Không thể chỉnh sửa vai trò quản lý ở màn hình này.");
       return;
     }
 
@@ -578,6 +576,7 @@ export const ManageEmployeePage = () => {
                   </label>
                   <Select
                     value={form.role}
+                    disabled={dialogMode === "edit" && form.role === "quản lý"}
                     onValueChange={(value) =>
                       setForm((prev) => ({ ...prev, role: value as RoleKey }))
                     }
@@ -591,37 +590,47 @@ export const ManageEmployeePage = () => {
                     <SelectContent>
                       <SelectItem value="điều phối viên">Điều phối viên</SelectItem>
                       <SelectItem value="cứu hộ">Cứu hộ</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="employee-state"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Trạng thái
-                  </label>
-                  <Select
-                    value={form.state}
-                    onValueChange={(value) =>
-                      setForm((prev) => ({ ...prev, state: value }))
-                    }
-                  >
-                    <SelectTrigger
-                      id="employee-state"
-                      className="w-full rounded-none border-0 border-b border-slate-400 px-0 shadow-none focus:ring-0"
-                    >
-                      <SelectValue placeholder="Chọn trạng thái" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hoạt động">Hoạt động</SelectItem>
-                      <SelectItem value="không hoạt động">
-                        Không hoạt động
+                      <SelectItem value="quản lý" disabled>
+                        Quản lý
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                  {dialogMode === "edit" && form.role === "quản lý" && (
+                    <p className="text-xs text-amber-700">
+                      Vai trò quản lý không thể chỉnh sửa tại màn hình này.
+                    </p>
+                  )}
                 </div>
+
+                {dialogMode === "edit" && (
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="employee-state"
+                      className="text-sm font-medium text-slate-700"
+                    >
+                      Trạng thái
+                    </label>
+                    <Select
+                      value={form.state}
+                      onValueChange={(value) =>
+                        setForm((prev) => ({ ...prev, state: value }))
+                      }
+                    >
+                      <SelectTrigger
+                        id="employee-state"
+                        className="w-full rounded-none border-0 border-b border-slate-400 px-0 shadow-none focus:ring-0"
+                      >
+                        <SelectValue placeholder="Chọn trạng thái" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="hoạt động">Hoạt động</SelectItem>
+                        <SelectItem value="không hoạt động">
+                          Không hoạt động
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 <div className="space-y-2 sm:col-span-2">
                   <label
@@ -736,6 +745,7 @@ export const ManageEmployeePage = () => {
 
               <div className="flex justify-center">
                 <Button
+                  disabled={dialogMode === "edit" && form.role === "quản lý"}
                   onClick={() => {
                     if (dialogMode === "edit") void handleEditEmployee();
                     else void handleSubmitForm();

@@ -43,10 +43,17 @@ export const ManageTeamPage = () => {
   const teams: TeamRow[] = useMemo(
     () =>
       (teamList ?? []).map((t) => {
-        const staffStateLower = String(t.staffState ?? "").toLowerCase();
-        const status: TeamRow["status"] = staffStateLower.includes("hoạt")
-          ? "ready"
-          : "rescuing";
+        const staffStateLower = String(t.staffState ?? "").trim().toLowerCase();
+        const isNegativeState =
+          staffStateLower.includes("không hoạt động") ||
+          staffStateLower.includes("không hoạt") ||
+          staffStateLower.includes("khong hoat") ||
+          staffStateLower.includes("inactive");
+        const status: TeamRow["status"] = isNegativeState
+          ? "rescuing"
+          : staffStateLower.includes("hoạt")
+            ? "ready"
+            : "rescuing";
         return {
           id: t.id,
           teamName: t.leaderName,
