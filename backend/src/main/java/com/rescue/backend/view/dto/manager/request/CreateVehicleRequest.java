@@ -4,6 +4,7 @@ import java.util.UUID;
 
 public record CreateVehicleRequest(
         String type,
-        UUID rescueTeamId
+        UUID rescueTeamId,
+        String state
 ) {
 }

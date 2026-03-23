@@ -7,6 +7,7 @@ public record UpdateStaffRequest(
         String phone,
         String password,
         String role,
+        String state,
         String teamName,
         Integer teamSize,
         BigDecimal latitude,

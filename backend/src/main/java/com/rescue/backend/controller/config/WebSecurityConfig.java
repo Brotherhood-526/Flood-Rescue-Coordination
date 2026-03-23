@@ -17,25 +17,26 @@ import java.util.List;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   SessionAuthFilter sessionAuthFilter) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .addFilterBefore(sessionAuthFilter, UsernamePasswordAuthenticationFilter.class) // ← thêm
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/health").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/citizen/**").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/swagger-ui.html").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/webjars/**").permitAll()
-                        .anyRequest().authenticated()
-                );
-        return http.build();
-    }
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                       SessionAuthFilter sessionAuthFilter) throws Exception {
+            http
+                    .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                    .csrf(csrf -> csrf.disable())
+                    .addFilterBefore(sessionAuthFilter, UsernamePasswordAuthenticationFilter.class) // ← thêm
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers("/health").permitAll()
+                            .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers("/citizen/**").permitAll()
+                            .requestMatchers("/coordinator/**").permitAll()
+                            .requestMatchers("/swagger-ui/**").permitAll()
+                            .requestMatchers("/swagger-ui.html").permitAll()
+                            .requestMatchers("/v3/api-docs/**").permitAll()
+                            .requestMatchers("/webjars/**").permitAll()
+                            .anyRequest().authenticated()
+                    );
+            return http.build();
+        }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

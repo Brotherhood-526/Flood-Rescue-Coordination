@@ -5,10 +5,7 @@ import com.rescue.backend.view.dto.common.ResponseObject;
 import com.rescue.backend.view.dto.manager.request.CreateStaffRequest;
 import com.rescue.backend.view.dto.manager.request.CreateVehicleRequest;
 import com.rescue.backend.view.dto.manager.request.UpdateStaffRequest;
-import com.rescue.backend.view.dto.manager.response.RescueTeamResponse;
-import com.rescue.backend.view.dto.manager.response.StaffResponse;
-import com.rescue.backend.view.dto.manager.response.TeamOwnerResponse;
-import com.rescue.backend.view.dto.manager.response.VehicleResponse;
+import com.rescue.backend.view.dto.manager.response.*;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +44,7 @@ public class ManagerController {
             @RequestBody CreateStaffRequest request) {
 
         try {
-            Page<StaffResponse> staffs = managerService.createStaffs(request);
+            StaffResponse staffs = managerService.createStaffs(request);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ResponseObject(201, "Tạo nhân viên thành công", staffs));
         } catch (IllegalArgumentException e) {
@@ -59,13 +56,11 @@ public class ManagerController {
     @PatchMapping(value = "/staff/{id}")
     public ResponseEntity<ResponseObject> updateStaff(
             @PathVariable UUID id,
-            @RequestBody UpdateStaffRequest request,
-            @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page
+            @RequestBody UpdateStaffRequest request
     ) {
 
         try {
-            Page<StaffResponse> staffs = managerService.updateStaff(request, id, search, page);
+            StaffResponse staffs = managerService.updateStaff(request, id);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseObject(200, "Cập nhật nhân viên thành công", staffs));
         } catch (IllegalArgumentException e) {
@@ -79,12 +74,11 @@ public class ManagerController {
 
     @DeleteMapping("/staff/{id}")
     public ResponseEntity<ResponseObject> deleteStaff(
-            @PathVariable UUID id,
-            @RequestParam(required = false) String search
+            @PathVariable UUID id
     ) {
 
         try {
-            Page<StaffResponse> staffs = managerService.deleteStaff(id, search);
+            StaffResponse staffs = managerService.deleteStaff(id);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseObject(200, "Xóa nhân viên thành công", staffs));
         } catch (IllegalArgumentException e) {
@@ -112,7 +106,7 @@ public class ManagerController {
             @RequestBody CreateVehicleRequest request) {
 
         try {
-            Page<VehicleResponse> vehicles = managerService.createVehicle(request);
+            VehicleResponse vehicles = managerService.createVehicle(request);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ResponseObject(201, "Thêm phương tiện thành công", vehicles));
         } catch (RuntimeException e) {
@@ -124,12 +118,10 @@ public class ManagerController {
     @PatchMapping(value = "/vehicles/{id}")
     public ResponseEntity<ResponseObject> updateVehicle(
             @PathVariable UUID id,
-            @RequestBody CreateVehicleRequest request,
-            @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page) {
+            @RequestBody CreateVehicleRequest request) {
 
         try {
-            Page<VehicleResponse> vehicles = managerService.updateVehicle(request, id, search, page);
+            VehicleResponse vehicles = managerService.updateVehicle(request, id);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseObject(200, "Cập nhật phương tiện thành công", vehicles));
         } catch (IllegalArgumentException e) {
@@ -143,11 +135,10 @@ public class ManagerController {
 
     @DeleteMapping("/vehicles/{id}")
     public ResponseEntity<ResponseObject> deleteVehicle(
-            @PathVariable UUID id,
-            @RequestParam(required = false) String search
+            @PathVariable UUID id
     ) {
         try {
-            Page<VehicleResponse> vehicles = managerService.deleteVehicle(id, search);
+            VehicleResponse vehicles = managerService.deleteVehicle(id);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseObject(200, "Xóa phương tiện thành công", vehicles));
         } catch (IllegalArgumentException e) {
@@ -184,6 +175,26 @@ public class ManagerController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseObject(400, e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<ResponseObject> getDashboard() {
+        try {
+            DashboardResponse data = managerService.getDashboard();
+            return ResponseEntity.ok(
+                    new ResponseObject(200, "Lấy bảng thống kê thành công", data)
+            );
+        } catch (IllegalStateException e) {
+            // Lỗi thống kê nội bộ (data trống, tính toán sai)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(400, e.getMessage(), null)
+            );
+        } catch (Exception e) {
+            // Lỗi bất ngờ (DB down, null pointer,...)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Lỗi hệ thống: " + e.getMessage(), null)
+            );
         }
     }
 
