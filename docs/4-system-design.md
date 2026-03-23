@@ -4,16 +4,16 @@
 The system is designed using Client-Server architecture, with separated Frontend and Backend:
 
 - Backend
-    + Processes logic, handles requests, manages data
-    + Returns data in JSON format through RESTful APIs
+    - Processes logic, handles requests, manages data
+    - Returns data in JSON format through RESTful APIs
 
 - Frontend
-    + Handles user interface, user interaction, show data to users
-    + Receives data from backend
+    - Handles user interface, user interaction, show data to users
+    - Receives data from backend
 
 - Communication
-    + Performed via HTTP requests using JSON
-    + Currently exploring WebSocket for real-time communication such as messaging
+    - Performed via HTTP requests using JSON
+    - Currently exploring WebSocket for real-time communication such as messaging
 
 The system uses MySQL database to store and manage data. It interacts with Backend via JPA and Hibernate.   
 ## 4.2 Backend Architecture (MVC2)
@@ -49,6 +49,11 @@ The DTOs are grouped into domains such as auth, citizen, manager, rescueTeam, ma
 In addition, there is a common object (`common\ResponseObject.java`) for sharing between classes.
 
 ### 4.2.3 Controller
+The Controller layer handles input HTTP requests and processes responses. 
+
+It consists many classes (`com.rescue.backend.controller.controller.*`):
+- The classes have @RestController annotation to mark as entry points to the system
+- They manage overall request-response cycle and communication between client and backend system
 
 ## 4.3 Frontend Architecture
 
