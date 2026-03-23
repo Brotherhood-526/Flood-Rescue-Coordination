@@ -61,7 +61,7 @@ export default function AfterRequestPage({
                 disabled={loading}
                 className="flex-1 bg-red-500 hover:bg-red-400 text-white py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
               >
-                {loading ? "Đang hủy..." : "Xác nhận hủy"}
+                {loading ? "Đang hủy" : "Xác nhận hủy"}
               </button>
             </div>
           </div>

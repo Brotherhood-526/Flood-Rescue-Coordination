@@ -375,6 +375,8 @@ export const useRequestController = (
     popupRef.current = null;
     localStorage.removeItem("rescue_requestId");
     localStorage.removeItem("rescue_phone");
+    popupRef.current?.remove();
+    popupRef.current = null;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
