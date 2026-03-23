@@ -2,7 +2,6 @@ import apiClient from "@/services/axiosClient";
 import type {
   NearbyTeamOption,
   RequestDetail,
-  VehicleAndRescueTeamInfo,
   TakePageResponse,
 } from "@/types/coordinator";
 
