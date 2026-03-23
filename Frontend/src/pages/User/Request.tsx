@@ -1,4 +1,4 @@
-import { Locate, User } from "lucide-react";
+import { Locate, User, LogOut } from "lucide-react";
 import { useRequestController } from "@/hooks/User/useRequestController";
 import { useRef } from "react";
 import BeforeRequestPage from "./BeforeRequestPage";
@@ -20,17 +20,21 @@ export default function RequestPage() {
         {c.isSubmitted && (
           <>
             <div className="flex items-center gap-3 pb-5">
-              <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
-                <User className="w-6 h-6 text-gray-500" />
+              <div className="w-12 h-12 rounded-full bg-gray-100 border-black border-2 flex items-center justify-center shrink-0">
+                <User className="w-6 h-6 text-black" />
               </div>
-              <div className="flex flex-col justify-center">
+              <div className="flex flex-col justify-center flex-1">
                 <span className="text-lg font-bold text-gray-800">
                   {c.submittedData?.name || "Người dùng"}
                 </span>
-                <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md w-fit mt-0.5">
-                  ID: {c.requestId ? `#${String(c.requestId)}` : "#---"}
-                </span>
               </div>
+              <button
+                onClick={c.handleCancelRequest}
+                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-200 border-2 border-black text-black rounded-full text-xs font-semibold transition-all shrink-0"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                Thoát
+              </button>
             </div>
             <hr className="border-black mb-3" />
           </>
@@ -39,7 +43,7 @@ export default function RequestPage() {
         {!c.isSubmitted ? (
           <BeforeRequestPage
             isSubmitting={c.isSubmitting}
-            onSubmitForm={c.handleSubmit(c.onSubmit)}
+            onSubmitForm={c.onSubmitForm}
             handleKeyDown={c.handleKeyDown}
             register={c.register}
             errors={c.errors}
@@ -59,6 +63,7 @@ export default function RequestPage() {
             submittedData={c.submittedData}
             requestId={c.requestId}
             status={c.status}
+            urgency={c.urgency}
             submittedPreviews={
               c.imageUrls.length > 0 ? c.imageUrls : c.submittedPreviews
             }
@@ -95,7 +100,7 @@ export default function RequestPage() {
         onOpenChange={c.setIsDialogOpen}
         isSubmitted={c.isSubmitted}
         isSubmitting={c.isSubmitting}
-        onSubmitForm={c.handleSubmit(c.onSubmit)}
+        onSubmitForm={c.onSubmitForm}
         handleKeyDown={c.handleKeyDown}
         register={c.register}
         errors={c.errors}

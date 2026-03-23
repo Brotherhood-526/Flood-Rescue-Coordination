@@ -1,10 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  Menu,
-  X,
   User,
   CircleUserRound,
-  Bell,
   BarChart3,
   Users,
   ShieldCheck,
@@ -18,47 +15,101 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/Auth/useAuth";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useAuthStore } from "@/store/authStore.ts";
 
-/**
- * Selects and renders the header variant appropriate for the given user role.
- *
- * @param role - Numeric role identifier: 1 = public user header, 2 = rescue header, 4 = coordinator header (other values render nothing)
- * @returns The React element for the matching header variant, or `null` if the role is unrecognized
- */
 export default function Header({ role }: { role: number }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const toggleMobile = () => {
-    setMobileOpen(!mobileOpen);
-  };
-
   switch (role) {
     case 1:
-      return (
-        <UserHeader
-          mobileOpen={mobileOpen}
-          setMobileOpen={setMobileOpen}
-          toggleMobile={toggleMobile}
-        />
-      );
+      return <UserHeader />;
     case 2:
-      return <RescueHeader noty={false} />;
+      return <RescueHeader />;
     case 3:
-      return <ManagerHeader noty={false} />;
+      return <ManagerHeader />;
     case 4:
-      return <CoordinatorHeader noty={false} />;
+      return <CoordinatorHeader />;
     default:
       return null;
   }
 }
 
-/* RESCUE HEADER  */
-export function RescueHeader({ noty }: { noty: boolean }) {
+// User header
+export function UserHeader() {
+  const location = useLocation();
+
+  const getLinkClass = (path: string) => {
+    const base = "px-5 py-2 font-medium transition";
+    const active = "text-blue-600 font-bold underline";
+    const inactive = "text-gray-700 hover:text-blue-600";
+    return location.pathname === path
+      ? `${base} ${active}`
+      : `${base} ${inactive}`;
+  };
+
+  return (
+    <header className="bg-white shadow-md">
+      <div className="w-full fixed top-0 left-0 bg-white shadow z-50">
+        <div className="flex justify-between items-center h-20 px-8 py-4">
+          <Link to="/">
+            <img
+              src="/Logo.png"
+              alt="Flood Rescue Logo"
+              className="h-12 w-auto cursor-pointer"
+            />
+          </Link>
+          <nav className="hidden md:flex items-center space-x-8">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <Link to="/" className={getLinkClass("/")}>
+                    Trang chủ
+                  </Link>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <Link to="/map" className={getLinkClass("/map")}>
+                    Bản đồ
+                  </Link>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <Link to="/search" className={getLinkClass("/search")}>
+                    Tra cứu
+                  </Link>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <Link to="/contact" className={getLinkClass("/contact")}>
+                    Liên hệ
+                  </Link>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <Link to="/guide" className={getLinkClass("/guide")}>
+                    Hướng dẫn sử dụng
+                  </Link>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </nav>
+
+          <div className="hidden md:block">
+            <Link to="/login">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
+                Đăng nhập
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+// Rescue header
+export function RescueHeader() {
   const { staff, logout } = useAuth();
-  console.log("Check data staff trong Header:", staff);
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const displayTeamName = staff?.teamName ?? "Chưa có tên đội";
   const displayMemberCount = staff?.teamSize ?? "null";
@@ -115,14 +166,8 @@ export function RescueHeader({ noty }: { noty: boolean }) {
     </>
   );
 }
-/**
- * Render the coordinator header for dispatch users, showing title, subtitle, action buttons, and user identity.
- *
- * @param noty - Whether to show notification indicators on action buttons
- * @returns The header element for the coordinator interface
- */
 
-export function CoordinatorHeader({ noty }: { noty: boolean }) {
+export function CoordinatorHeader() {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const { logout } = useAuth();
   const staff = useAuthStore((state) => state.staff);
@@ -146,17 +191,6 @@ export function CoordinatorHeader({ noty }: { noty: boolean }) {
             className="bg-gray-200! text-black! relative"
           >
             Đăng xuất
-            {noty && (
-              <div className="absolute top-0 right-0 w-3 h-3 bg-rose-500 rounded-full"></div>
-            )}
-          </Button>
-
-          <Button className="bg-gray-200! text-black! relative">
-            <Bell className="h-6! w-6!" fill="currentColor" strokeWidth={2.5} />
-            Thông báo
-            {noty && (
-              <div className="absolute top-0 right-0 w-3 h-3 bg-rose-500 rounded-full"></div>
-            )}
           </Button>
 
           <div className="flex gap-1 items-center">
@@ -174,165 +208,8 @@ export function CoordinatorHeader({ noty }: { noty: boolean }) {
   );
 }
 
-/*  USER HEADER  */
-
-export function UserHeader({
-  mobileOpen,
-  setMobileOpen,
-  toggleMobile,
-}: {
-  mobileOpen: boolean;
-  setMobileOpen: (e: boolean) => void;
-  toggleMobile: () => void;
-}) {
-  const location = useLocation();
-
-  const getLinkClass = (path: string) => {
-    const base = "px-5 py-2 font-medium transition";
-    const active = "text-blue-600 font-bold underline";
-    const inactive = "text-gray-700 hover:text-blue-600";
-    return location.pathname === path
-      ? `${base} ${active}`
-      : `${base} ${inactive}`;
-  };
-
-  const getMobileLinkClass = (path: string) => {
-    const base = "block px-3 py-2 rounded-md font-medium transition";
-    const active = "text-blue-600 bg-blue-50 font-bold underline";
-    const inactive = "text-gray-700 hover:text-blue-600 hover:bg-gray-50";
-    return location.pathname === path
-      ? `${base} ${active}`
-      : `${base} ${inactive}`;
-  };
-
-  return (
-    <header className="bg-white shadow-md">
-      <div className="w-full fixed top-0 left-0 bg-white shadow z-50">
-        <div className="flex justify-between items-center h-20 px-8 py-4">
-          <Link to="/">
-            <img
-              src="/Logo.png"
-              alt="Flood Rescue Logo"
-              className="h-12 w-auto cursor-pointer"
-            />
-          </Link>
-
-          {/* Desktop */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <Link to="/" className={getLinkClass("/")}>
-                    Trang chủ
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link to="/map" className={getLinkClass("/map")}>
-                    Bản đồ
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link to="/search" className={getLinkClass("/search")}>
-                    Tra cứu
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link to="/contact" className={getLinkClass("/contact")}>
-                    Liên hệ
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link to="/guide" className={getLinkClass("/guide")}>
-                    Hướng dẫn sử dụng
-                  </Link>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-          </nav>
-
-          <div className="hidden md:block">
-            <Link to="/login">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
-                Đăng nhập
-              </Button>
-            </Link>
-          </div>
-
-          <button
-            onClick={toggleMobile}
-            className="md:hidden p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition"
-          >
-            {mobileOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
-        </div>
-
-        {/* Mobile */}
-        {mobileOpen && (
-          <nav className="md:hidden pb-4">
-            <div className="space-y-2">
-              <Link
-                to="/"
-                className={getMobileLinkClass("/")}
-                onClick={() => setMobileOpen(false)}
-              >
-                Trang chủ
-              </Link>
-              <Link
-                to="/map"
-                className={getMobileLinkClass("/map")}
-                onClick={() => setMobileOpen(false)}
-              >
-                Bản đồ
-              </Link>
-              <Link
-                to="/search"
-                className={getMobileLinkClass("/search")}
-                onClick={() => setMobileOpen(false)}
-              >
-                Tra cứu
-              </Link>
-              <Link
-                to="/contact"
-                className={getMobileLinkClass("/contact")}
-                onClick={() => setMobileOpen(false)}
-              >
-                Liên hệ
-              </Link>
-              <Link
-                to="/guide"
-                className={getMobileLinkClass("/guide")}
-                onClick={() => setMobileOpen(false)}
-              >
-                Hướng dẫn sử dụng
-              </Link>
-
-              <div className="px-3 py-2 pt-4 border-t">
-                <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                    Đăng nhập
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </nav>
-        )}
-      </div>
-    </header>
-  );
-}
-
-// /*  MANAGER HEADER */
-
-export function ManagerHeader({ noty }: { noty: boolean }) {
-  void noty;
+// Manager header
+export function ManagerHeader() {
   const { staff, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -370,14 +247,12 @@ export function ManagerHeader({ noty }: { noty: boolean }) {
     : "/manager";
 
   const displayName = staff?.name ?? "Chưa có tên";
-  const mobileDisplayName =
-    displayName.length > 20 ? `${displayName.slice(0, 20)}...` : displayName;
 
   return (
     <>
       <header className="border-b border-gray-300 bg-slate-950 text-gray-200 shadow-md">
         <div className="fixed left-0 top-0 z-50 w-full border-b border-gray-300 bg-[#f2f2f2]">
-          <div className="hidden w-full flex-row items-center justify-between bg-slate-950 px-[2vw] py-[2vh] md:flex">
+          <div className="flex w-full flex-row items-center justify-between bg-slate-950 px-[2vw] py-[2vh]">
             <div>
               <p className="text-[3vh] font-bold">Bảng quản trị hệ thống</p>
               <p className="text-slate-300">
@@ -391,7 +266,7 @@ export function ManagerHeader({ noty }: { noty: boolean }) {
                 <span className="text-base font-semibold">{displayName}</span>
                 <Button
                   onClick={() => setIsLogoutOpen(true)}
-                  className="!bg-white !text-black hover:!bg-gray-200"
+                  className="bg-white! text-black! hover:bg-gray-200!"
                 >
                   Đăng xuất
                 </Button>
@@ -399,23 +274,7 @@ export function ManagerHeader({ noty }: { noty: boolean }) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between bg-slate-950 px-4 py-3 text-gray-200 md:hidden">
-            <div className="flex items-center gap-2">
-              <CircleUserRound size={22} />
-              <span className="max-w-[160px] truncate text-sm font-semibold">
-                {mobileDisplayName}
-              </span>
-            </div>
-            <Button
-              type="button"
-              onClick={() => setIsLogoutOpen(true)}
-              className="h-8 !bg-white !px-3 !py-1 !text-sm !text-black hover:!bg-gray-200"
-            >
-              Đăng xuất
-            </Button>
-          </div>
-
-          <nav className="mx-auto flex w-full max-w-[1200px] items-stretch overflow-x-auto">
+          <nav className="mx-auto flex w-full max-w-300 items-stretch overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeRoute === tab.route;
@@ -425,7 +284,7 @@ export function ManagerHeader({ noty }: { noty: boolean }) {
                   key={tab.key}
                   type="button"
                   onClick={() => navigate(tab.route)}
-                  className={`flex min-w-[180px] flex-1 items-center justify-center gap-3 border-r border-gray-300 px-4 py-4 text-base font-semibold cursor-pointer ${
+                  className={`flex min-w-45 flex-1 items-center justify-center gap-3 border-r border-gray-300 px-4 py-4 text-base font-semibold cursor-pointer ${
                     isActive
                       ? "bg-white border-b-2 border-b-[#4438ca] text-gray-900"
                       : "text-gray-800 hover:bg-gray-100"
