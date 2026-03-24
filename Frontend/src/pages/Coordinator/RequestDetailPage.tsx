@@ -24,10 +24,10 @@ import vietmapgl from "@vietmap/vietmap-gl-js";
 import { ROUTES } from "@/router/routes";
 import { useRequestDetail } from "@/hooks/Coordinator/useRequestDetail";
 import { useVehicleList } from "@/hooks/Coordinator/useVehicle";
+import { useRequestUpdate } from "@/hooks/Coordinator/useRequestUpdate";
 import { timeAgo } from "@/utils/timeAgo";
 import { getRequestTypeLabel } from "@/utils/requestHelpers";
 import type { CoordinatorRequest } from "@/types/coordinator";
-import { useRequestUpdate } from "@/hooks/Coordinator/useRequestUpdate";
 
 export default function RequestDetailPage() {
   const navigate = useNavigate();
@@ -51,7 +51,8 @@ export default function RequestDetailPage() {
             <Button
               className="bg-gray-300! text-black! font-bold!"
               onClick={() =>
-                id && navigate(ROUTES.COORDINATE_CHAT.replace(":requestId", id))
+                id &&
+                navigate(ROUTES.COORDINATE_CHAT.replace(":requestId", id))
               }
             >
               Hộp thoại
@@ -85,8 +86,9 @@ export default function RequestDetailPage() {
 function Solving() {
   const { id } = useParams();
   const { requestDetail } = useRequestDetail(id!);
-  const location = useLocation(); // để lấy data được truyền qua navigate
-  const request = location.state as CoordinatorRequest; //lấy thông tin citizenName từ state của trang trước truyền sang trang full map
+  const location = useLocation();
+  const request = location.state as CoordinatorRequest;
+
   return (
     <div className="w-full flex-[9.5] bg-white pt-[1vh] flex flex-row justify-between items-start px-[2vw]">
       <Information />
@@ -98,6 +100,7 @@ function Solving() {
     </div>
   );
 }
+
 function Information() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -106,16 +109,19 @@ function Information() {
   const [vehicle, setVehicle] = useState<string | null>(null);
   const [urgency, setUrgency] = useState<string | null>(null);
   const [rescueTeam, setRescueTeam] = useState<string | null>(null);
-  const { updateRequest, cancelRequest } = useRequestUpdate();
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   const { requestDetail } = useRequestDetail(id!);
+  const { updateRequest, cancelRequest, loading: isUpdating, error: updateError } =
+    useRequestUpdate();
   const tempDisplayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const { vehicleList } = useVehicleList(id, tempDisplayVehicle);
   const displayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const displayUrgency = urgency ?? requestDetail?.urgency ?? null;
   const selectedRescueTeamName =
     vehicleList.find((t) => t.id === rescueTeam)?.teamName ?? null;
-  const displayRescueTeam =
-    selectedRescueTeamName ?? requestDetail?.rescueTeamName ?? null;
+  const displayRescueTeam = selectedRescueTeamName ?? requestDetail?.rescueTeamName ?? null;
+  const requestImages = requestDetail?.images ?? [];
 
   const activeStyle = "!bg-white !border-green-600 !border-2 !text-black";
   const normalStyle =
@@ -181,9 +187,7 @@ function Information() {
               {requestDetail?.status}
             </span>
             <br />
-            <span>
-              {request?.createdAt ? timeAgo(request.createdAt) : ""}
-            </span>{" "}
+            <span>{request?.createdAt ? timeAgo(request.createdAt) : ""}</span>
           </div>
           <select
             value={displayUrgency ?? ""}
@@ -209,9 +213,7 @@ function Information() {
           <span className="pl-[1.8vw] text-lg font-semibold">
             {request?.citizenName}
           </span>
-          <span className="pl-[1.8vw] text-lg font-semibold">
-            {request?.phone}
-          </span>
+          <span className="pl-[1.8vw] text-lg font-semibold">{request?.phone}</span>
         </div>
 
         <div className={miniDiv}>
@@ -237,21 +239,23 @@ function Information() {
 
         <div className={miniDiv}>
           <div className="flex flex-row gap-[1vh]">
-            <Image className="h-5! w-5!" /> Link ảnh
+            <Image className="h-5! w-5!" /> Ảnh đính kèm
           </div>
-          <div className="flex flex-row gap-4">
-            {" "}
-            {requestDetail?.images?.length ? (
-              requestDetail.images.map((img) => (
-                <a key={img.id} href={img.imageUrl} target="_blank">
-                  <img
-                    src={img.imageUrl}
-                    className="w-50 h-50 object-cover rounded"
-                  />
-                </a>
+          <div className="grid grid-cols-3 gap-2">
+            {requestImages.length > 0 ? (
+              requestImages.map((img) => (
+                <img
+                  key={img.id}
+                  src={img.imageUrl}
+                  alt="request attachment"
+                  className="w-full h-24 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-90"
+                  onClick={() => setPreviewImage(img.imageUrl)}
+                />
               ))
             ) : (
-              <span>Không có ảnh</span>
+              <div className="col-span-3 text-sm text-gray-500">
+                Không có ảnh
+              </div>
             )}
           </div>
         </div>
@@ -293,19 +297,18 @@ function Information() {
           Phân công đội cứu hộ phù hợp
           {requestDetail?.status === "yêu cầu mới" ? (
             <select
-              value={displayRescueTeam ?? ""}
+              value={rescueTeam ?? ""}
               onChange={(e) => setRescueTeam(e.target.value)}
               className="h-[5vh] w-[80%] px-3 text-[1.8vh] bg-white border-2 border-black rounded-lg cursor-pointer outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="" disabled hidden>
                 -- Chọn đội cứu hộ --
               </option>
-              {Array.isArray(vehicleList) &&
-                vehicleList.map((team) => (
-                  <option key={team.id} value={team.teamName}>
-                    {team.teamName}
-                  </option>
-                ))}
+              {vehicleList.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.teamName}
+                </option>
+              ))}
             </select>
           ) : (
             <div className="h-[5vh] w-[80%] px-3 flex items-center text-[1.8vh] bg-gray-100 border-2 border-gray-300 rounded-lg font-bold text-gray-700">
@@ -330,11 +333,38 @@ function Information() {
                 onClick={() => handleUpdateStatus("accept")}
                 className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-blue-600! hover:!bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Chấp Nhận
+                Cập Nhật
               </Button>
             )}
           </CardFooter>
         )}
+      {updateError && (
+        <div className="px-[2vw] pb-[2vh] text-sm text-red-600">{updateError}</div>
+      )}
+
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="relative w-[92vw] h-[88vh] bg-black rounded-lg overflow-hidden flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-3 right-3 bg-white/90 text-black px-3 py-1 rounded-md text-sm font-semibold"
+              onClick={() => setPreviewImage(null)}
+            >
+              Đóng
+            </button>
+            <img
+              src={previewImage}
+              alt="attachment preview"
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
@@ -352,6 +382,7 @@ function MiniMap({
   const { map, mount, mapLoaded, unmount } = useVietMap();
   const markerRef = useRef<vietmapgl.Marker | null>(null);
   const popupRef = useRef<vietmapgl.Popup | null>(null);
+
   useEffect(() => {
     if (mapContainer.current) {
       mount(mapContainer.current);

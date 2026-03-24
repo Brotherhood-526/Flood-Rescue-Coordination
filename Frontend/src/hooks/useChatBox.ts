@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { chatService, type ChatMessageDto } from "@/services/chatService";
+import { chatService, type ChatMessageDto } from "@/services/chatService.ts";
 import { getAxiosErrorMessage } from "@/utils/errorHandler";
 
 type ChatScope = "coordinator" | "rescue" | "citizen";
@@ -9,10 +9,7 @@ export const useChatbox = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchMessage = useCallback(
-    async (
-      requestId: string,
-      scope: ChatScope = "coordinator",
-    ): Promise<ChatMessageDto[]> => {
+    async (requestId: string, scope: ChatScope = "coordinator"): Promise<ChatMessageDto[]> => {
       if (!requestId) return [];
       try {
         setLoading(true);
@@ -54,17 +51,9 @@ export const useChatbox = () => {
         }
         if (!senderId) return null;
         if (scope === "rescue") {
-          return await chatService.sendRescueMessage(
-            requestId,
-            senderId,
-            payload,
-          );
+          return await chatService.sendRescueMessage(requestId, senderId, payload);
         }
-        return await chatService.sendCoordinatorMessage(
-          requestId,
-          senderId,
-          payload,
-        );
+        return await chatService.sendCoordinatorMessage(requestId, senderId, payload);
       } catch (err) {
         setError(getAxiosErrorMessage(err, "Không thể gửi tin nhắn."));
         return null;
