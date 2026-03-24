@@ -11,12 +11,14 @@ export type MessageComponent = {
     name: string;
 };
 
-type TestChatBoxProps = {
+type ChatBoxProps = {
     title: string;
     senderId: string;
     requestId: string;
     messages: MessageComponent[];
     setMessages: React.Dispatch<React.SetStateAction<MessageComponent[]>>;
+    inputDisabled?: boolean;
+    inputPlaceholder?: string;
     className?: string;
     messageClassName?: string;
 };
@@ -29,11 +31,23 @@ type MessageProps = {
 
 type ChatInputProps = {
     onSend: (content: string) => void;
+    disabled?: boolean;
+    placeholder?: string;
 };
 
 /* ---------------- MAIN COMPONENT ----------------*/
 
-export default function ChatBox({ title, senderId, requestId, messages, setMessages, className, messageClassName }: TestChatBoxProps) {
+export default function ChatBox({
+    title,
+    senderId,
+    requestId,
+    messages,
+    setMessages,
+    inputDisabled = false,
+    inputPlaceholder = "Nhập tin nhắn tại đây...",
+    className,
+    messageClassName,
+}: ChatBoxProps) {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const {sendMessage} = useChatbox();
 
@@ -42,6 +56,7 @@ export default function ChatBox({ title, senderId, requestId, messages, setMessa
     }, [messages]);
 
     const handleSend = async (content: string) => {
+        if (inputDisabled) return;
         const sent = await sendMessage(
             requestId,
             senderId,
@@ -79,7 +94,11 @@ export default function ChatBox({ title, senderId, requestId, messages, setMessa
             </div>
 
             <div>
-                <ChatInput onSend={handleSend}/>
+                <ChatInput
+                    onSend={handleSend}
+                    disabled={inputDisabled}
+                    placeholder={inputPlaceholder}
+                />
             </div>
         </div>
     );
@@ -105,10 +124,11 @@ function Message({ message, senderId, className }: MessageProps) {
     );
 }
 
-function ChatInput({ onSend }: ChatInputProps) {
+function ChatInput({ onSend, disabled = false, placeholder = "Nhập tin nhắn tại đây..." }: ChatInputProps) {
     const [value, setValue] = useState("");
 
     const handleSend = () => {
+        if (disabled) return;
         if (!value.trim()) return;
 
         onSend(value.trim());
@@ -133,6 +153,7 @@ function ChatInput({ onSend }: ChatInputProps) {
 
             <Textarea
                 value={value}
+                disabled={disabled}
                 onChange={(e) => {
                     setValue(e.target.value)
                     e.target.style.height = "auto"
@@ -144,7 +165,7 @@ function ChatInput({ onSend }: ChatInputProps) {
                         handleSend()
                     }
                 }}
-                placeholder="Nhập tin nhắn tại đây..."
+                placeholder={placeholder}
                 rows={1}
                 className="flex-1 bg-gray-100 border-none focus-visible:ring-0 text-[0.95em] resize-none overflow-hidden"
             />
@@ -153,7 +174,7 @@ function ChatInput({ onSend }: ChatInputProps) {
 
             <Button
                 onClick={handleSend}
-                disabled={!value.trim()}
+                disabled={disabled || !value.trim()}
                 className="bg-red-600 hover:bg-red-700 text-white px-[1em] cursor-pointer"
             >
                 Gửi

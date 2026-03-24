@@ -10,12 +10,12 @@ export const ROUTES = {
   COORDINATE: "/coordinate",
   COORDINATE_DETAIL: "/coordinate/detail/:id",
   COORDINATE_MAP: "/coordinate/map",
-  COORDINATE_CHAT: "/coordinate/chat",
+  COORDINATE_CHAT: "/coordinate/chat/:requestId",
 
   // Nhóm Rescue
   RESCUE: "/rescue",
   RESCUE_DETAIL: "/rescue/detail",
-  RESCUE_CHAT: "/rescue/chat",
+  RESCUE_CHAT: "/rescue/chat/:requestId",
   RESCUE_MAP: "/rescue/map",
 
   // Nhóm Manager

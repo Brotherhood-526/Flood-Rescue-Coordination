@@ -5,6 +5,8 @@ import ChatBox, {type MessageComponent} from "@/layouts/ChatBox.tsx";
 import {useEffect, useState} from "react";
 import {useChatbox} from "@/hooks/useChatBox";
 import { useAuthStore } from "@/store/authStore";
+import { coordinatorService } from "@/services/Coordinator/coordinatorService";
+import type { RequestDetail } from "@/types/coordinator";
 
 // const mockMessages: MessageComponent[] = [
 //     { content: "Hello world", time: "10:30 AM", name: "Điều phối viên" },
@@ -26,6 +28,7 @@ export default function ChatBoxPage() {
     const [messages, setMessages] = useState<MessageComponent[]>([]);
     const {fetchMessage} = useChatbox();
     const { requestId } = useParams();
+    const [requestDetail, setRequestDetail] = useState<RequestDetail | null>(null);
     const [tick, setTick] = useState(0);
     const staff = useAuthStore((state) => state.staff);
 
@@ -34,6 +37,19 @@ export default function ChatBoxPage() {
     const handleBack = ()=> {
         navigate(-1);
     }
+
+    useEffect(() => {
+        const loadRequestDetail = async () => {
+            if (!requestId) return;
+            try {
+                const detail = await coordinatorService.getRequestDetail(requestId);
+                setRequestDetail(detail);
+            } catch (error) {
+                console.error("Fetch request detail failed:", error);
+            }
+        };
+        loadRequestDetail();
+    }, [requestId]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -65,6 +81,12 @@ export default function ChatBoxPage() {
         loadMessages();
     }, [requestId, tick]);
 
+    const isCompleted =
+        requestDetail?.status?.toLowerCase().includes("hoàn thành") ?? false;
+    const statusLabel = requestDetail?.status ?? "Chưa cập nhật";
+    const vehicleLabel = requestDetail?.vehicleType ?? "Chưa điều xe";
+    const rescueTeamLabel = requestDetail?.rescueTeamName ?? "Chưa phân công";
+
 
 
     return (
@@ -81,6 +103,12 @@ export default function ChatBoxPage() {
                 <div className="w-1/2 h-[75vh]">
                     <ChatBox title={"Hộp Thoại"}
                              senderId={senderId!} requestId={requestId!}
+                             inputDisabled={isCompleted}
+                             inputPlaceholder={
+                                 isCompleted
+                                     ? "Nhiệm vụ đã hoàn thành nên không thể gửi tin nhắn"
+                                     : "Nhập tin nhắn tại đây..."
+                             }
                              messages={messages} setMessages={setMessages} />
                 </div>
 
@@ -95,13 +123,12 @@ export default function ChatBoxPage() {
                         {/*Tất cả giá trị trong ngoặc đều lấy từ api hoặc được truyền vào*/}
                         <div className="flex flex-col gap-2 text-[1.3em] p-[3vw]">
                             <p>
-                                <span className="font-bold">Đội trưởng nhóm:</span> (Tên nhóm)
+                                <span className="font-bold">Đội trưởng nhóm:</span> {rescueTeamLabel}
                                 <span className="px-4 py-1 rounded-[1vh] bg-blue-200 text-sky-800 ml-[1vh]">
-                                    Đã nhận nhiệm vụ
+                                    {statusLabel}
                                 </span>
                             </p>
-                            <p>Sử dụng phương tiện giải cứu: (tên phương tiện)</p>
-                            <p>Vị trí: (vị trí)</p>
+                            <p>Sử dụng phương tiện giải cứu: {vehicleLabel}</p>
                         </div>
                     </div>
                 </div>

@@ -49,7 +49,13 @@ export default function RequestDetailPage() {
               <Undo2 className="w-5! h-5!" strokeWidth={2.5} />
               Quay Lại
             </Button>
-            <Button className="bg-gray-300! text-black! font-bold!">
+            <Button
+              className="bg-gray-300! text-black! font-bold!"
+              onClick={() =>
+                id &&
+                navigate(ROUTES.COORDINATE_CHAT.replace(":requestId", id))
+              }
+            >
               Hộp thoại
             </Button>
           </div>

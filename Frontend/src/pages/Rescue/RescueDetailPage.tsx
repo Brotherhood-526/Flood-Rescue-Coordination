@@ -109,7 +109,9 @@ export default function RescueDetailPage() {
             <ArrowLeft size={18} /> Quay lại
           </button>
           <button
-            onClick={() => navigate(`${ROUTES.RESCUE_CHAT}?id=${detail.id}`)}
+            onClick={() =>
+              navigate(ROUTES.RESCUE_CHAT.replace(":requestId", detail.id))
+            }
             className="flex items-center gap-2 px-5 py-2.5 bg-[#e5e7eb] hover:bg-[#d1d5db] text-gray-800 rounded-full font-bold text-sm transition-colors"
           >
             <MessageCircle size={18} /> Hội thoại

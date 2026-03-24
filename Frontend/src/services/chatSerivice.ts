@@ -30,4 +30,20 @@ export const chatService = {
       params: { testAccountId: senderId || undefined },
     })) as unknown as ChatMessageDto;
   },
+
+  getRescueMessages: async (requestId: string): Promise<ChatMessageDto[]> => {
+    return (await apiClient.get(
+      `/rescueteam/chat/${requestId}`,
+    )) as unknown as ChatMessageDto[];
+  },
+
+  sendRescueMessage: async (
+    requestId: string,
+    senderId: string,
+    payload: SendMessagePayload,
+  ): Promise<ChatMessageDto> => {
+    return (await apiClient.post(`/rescueteam/chat/${requestId}`, payload, {
+      params: { testAccountId: senderId || undefined },
+    })) as unknown as ChatMessageDto;
+  },
 };
