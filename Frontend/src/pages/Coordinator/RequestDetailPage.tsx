@@ -17,7 +17,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useVietMap } from "@/lib/useVietMap";
@@ -110,6 +109,7 @@ function Information() {
   const [vehicle, setVehicle] = useState<string | null>(null);
   const [urgency, setUrgency] = useState<string | null>(null);
   const [rescueTeam, setRescueTeam] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const { requestDetail } = useRequestDetail(id!);
   const { updateRequest, cancelRequest, loading: isUpdating, error: updateError } =
@@ -238,12 +238,25 @@ function Information() {
 
         <div className={miniDiv}>
           <div className="flex flex-row gap-[1vh]">
-            <Image className="h-5! w-5!" /> Link ảnh đính kèm
+            <Image className="h-5! w-5!" /> Ảnh đính kèm
           </div>
-          <Input
-            readOnly
-            value={requestDetail?.additionalLink || "Không có link"}
-          />
+          <div className="grid grid-cols-3 gap-2">
+            {(requestDetail?.images ?? []).length > 0 ? (
+              requestDetail.images.map((img) => (
+                <img
+                  key={img.id}
+                  src={img.imageUrl}
+                  alt="request attachment"
+                  className="w-full h-24 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-90"
+                  onClick={() => setPreviewImage(img.imageUrl)}
+                />
+              ))
+            ) : (
+              <div className="col-span-3 text-sm text-gray-500">
+                Không có ảnh
+              </div>
+            )}
+          </div>
         </div>
 
         <div className={miniDiv}>
@@ -328,6 +341,30 @@ function Information() {
         )}
       {updateError && (
         <div className="px-[2vw] pb-[2vh] text-sm text-red-600">{updateError}</div>
+      )}
+
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="relative w-[92vw] h-[88vh] bg-black rounded-lg overflow-hidden flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-3 right-3 bg-white/90 text-black px-3 py-1 rounded-md text-sm font-semibold"
+              onClick={() => setPreviewImage(null)}
+            >
+              Đóng
+            </button>
+            <img
+              src={previewImage}
+              alt="attachment preview"
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+        </div>
       )}
     </Card>
   );
