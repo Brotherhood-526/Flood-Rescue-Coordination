@@ -102,9 +102,8 @@ public class DispatchService {
         return vehicleDAO.filterVehicleByType(filterVehicleRequest.vehicle_type());
     }
 
-    public Page<RequestListResponse> getRequests(String status, int page) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
-
+    public Page<RequestListResponse> getRequests(String status, int page,int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Request> requests;
 
         if (status == null || status.isBlank()) {
@@ -223,6 +222,7 @@ public class DispatchService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Không tìm thấy yêu cầu với id: " + requestID));
 
+
         if (dto.status() != null) {
             String newStatus = switch (dto.status().trim().toLowerCase()) {
                 case "đang xử lý", "processing" -> "đang xử lý";
@@ -231,11 +231,23 @@ public class DispatchService {
                         "Coordinator chỉ được set status 'đang xử lý' hoặc 'đã huỷ'");
             };
 
-            if (!"yêu cầu mới".equals(request.getStatus())) {
-                throw new IllegalStateException(
-                        "Yêu cầu đang ở trạng thái '" + request.getStatus()
-                                + "', không thể cập nhật");
+            if ("đã huỷ".equals(newStatus)) {
+                if ("hoàn thành".equals(request.getStatus())) {
+                    throw new IllegalStateException("Yêu cầu đã hoàn thành, không thể huỷ");
+                }
+                if ("đã huỷ".equals(request.getStatus())) {
+                    return getRequestDetail(request.getId());
+                }
+                request.setStatus("đã huỷ");
+                requestDAO.save(request);
+                return getRequestDetail(request.getId());
             }
+
+            if (!"yêu cầu mới".equals(request.getStatus())) {
+                // Nếu không phải huỷ, mà muốn cập nhật xe/đội cứu hộ, thì mới chặn lại
+                throw new IllegalStateException("Yêu cầu đang ở trạng thái '" + request.getStatus() + "', không thể cập nhật");
+            }
+
             request.setStatus(newStatus);
         }
 
@@ -244,7 +256,8 @@ public class DispatchService {
         if (urgency == null || !VALID_URGENCY_TYPES.contains(urgency.trim().toLowerCase())) {
             throw new IllegalArgumentException("Mức độ khẩn cấp không hợp lệ. Chỉ chấp nhận: 'cao', 'trung bình', 'thấp'");
         }
-        request.setUrgency(dto.urgency());
+        String normalizedUrgency = urgency.trim().toLowerCase();
+        request.setUrgency(normalizedUrgency);
 
         Staff rescueTeam = staffDAO.findById(dto.rescueTeamID())
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -258,11 +271,12 @@ public class DispatchService {
 
         String type = dto.vehicleType();
         if (type == null || !VALID_VEHICLE_TYPES.contains(type.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Trạng thái không hợp lệ. Chỉ chấp nhận: 'đang sử dụng', 'không hoạt động' hoặc 'bảo trì'");
+            throw new IllegalArgumentException("Loại phương tiện không hợp lệ. Chỉ chấp nhận: 'xuồng', 'xe cứu hộ' hoặc 'trực thăng'");
         }
+        String normalizedVehicleType = type.trim().toLowerCase();
 
         Vehicle vehicle = vehicleDAO
-                .findAvailableVehicle(dto.rescueTeamID(), dto.vehicleType(), PageRequest.of(0, 1))
+                .findAvailableVehicle(dto.rescueTeamID(), normalizedVehicleType, PageRequest.of(0, 1))
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Không có phương tiện khả dụng"));

@@ -115,10 +115,11 @@ public class DispatchController {
     @GetMapping("/requests")
     public ResponseEntity<ResponseObject> getRequests(
             @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
         try {
-            Page<RequestListResponse> result = dispatchService.getRequests(status, page);
+            Page<RequestListResponse> result = dispatchService.getRequests(status, page, size);
             return ResponseEntity.ok(new ResponseObject(200, "Success", result));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -178,11 +179,14 @@ public class DispatchController {
             RequestDetailResponse detail = dispatchService.updateRequest(requestId, coordinatorId, dto);
             return ResponseEntity.ok(new ResponseObject(200, "Chấp nhận yêu cầu thành công", detail));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject(404, e.getMessage(), null));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(400, e.getMessage(), null));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseObject(400, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Không thể cập nhật yêu cầu", e.getMessage()));
         }
     }
 

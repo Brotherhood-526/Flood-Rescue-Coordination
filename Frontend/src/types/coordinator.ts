@@ -13,21 +13,27 @@ export interface CoordinatorRequest {
   createdAt: string;
 }
 
+export interface RequestImage {
+  id: string;
+  imageUrl: string;
+}
 export interface RequestDetail {
   id: string;
   type: string;
-  description: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-  additionalLink: string;
   status: string;
-  createdAt: string;
   urgency: string | null;
-  rescueTeamId: string | null;
-  rescueTeamName: string | null;
-  vehicleId: string | null;
+  citizenName: string;
+  phone: string;
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  description: string;
+  additionalLink: string | null;
+  images: { id: string; imageUrl: string }[];
   vehicleType: string | null;
+  rescueTeamName: string | null;
+  rescueTeamLatitude: number | null;
+  rescueTeamLongitude: number | null;
 }
 
 export interface TakePageResponse {
@@ -37,9 +43,7 @@ export interface TakePageResponse {
 
 export interface VehicleAndRescueTeamInfo {
   id: string;
-  type: string;
-  rescueTeamId: string;
-  rescueTeamName: string;
+  teamName: string;
 }
 
 export interface NearbyTeamOption {
