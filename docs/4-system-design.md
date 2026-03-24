@@ -92,13 +92,10 @@ To make sure Frontend and Backend work well together, the Frontend's React archi
 |Services (`model.service`)|Hooks (hooks/)|Business logic & Handles interactions|
 |DTOs (`view.dto`)|Validations/Mappers|Data format, validation<br>Data exchange between FE and BE|
 |Controllers (`@RestController`)|Router/Pages|Manages requests flow<br> Control how users move through the system|
-## 4.4 System Workflow
 
-## 4.5 UML Diagrams
+## 4.4 Technology Stack
 
-## 4.6 Technology Stack
-
-### 4.6.1 Backend Technologies
+### 4.4.1 Backend Technologies
 | Category | Technology | Purpose |
 | :--- | :--- | :--- |
 | Framework | Spring Boot | Main backend framework for building RESTful applications |
@@ -116,7 +113,7 @@ To make sure Frontend and Backend work well together, the Frontend's React archi
 | Media Storage | Cloudinary | Handles image upload and storage |
 | API Docs | SpringDoc OpenAPI (Swagger) | API documentation and testing UI |
 | Data Format | JSON | Data exchange format between frontend and backend |
-### 4.6.2 Frontend Technologies
+### 4.4.2 Frontend Technologies
 | Category | Technology | Purpose |
 | :--- | :--- | :--- |
 | Core | React | Component-based UI development |
@@ -131,4 +128,3 @@ To make sure Frontend and Backend work well together, the Frontend's React archi
 | Forms | React Hook Form | Efficient form handling |
 | Validation | Zod | Schema-based validation |
 | Maps | Vietmap GL JS | Interactive map integration |
-## 4.7 Summary
