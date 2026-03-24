@@ -51,7 +51,7 @@ export default function RescueChatBox() {
   useEffect(() => {
     const loadMessages = async () => {
       if (!requestId) return;
-      const data = await fetchMessage(requestId);
+      const data = await fetchMessage(requestId, "rescue");
       const formatted: ChatMessage[] = data.map((msg) => ({
         id: msg.id,
         sender: msg.senderName,
@@ -74,7 +74,7 @@ export default function RescueChatBox() {
   const handleSend = async () => {
     if (!message.trim() || isCompleted) return;
     if (!requestId || !staff?.accountId) return;
-    const sent = await sendMessage(requestId, staff.accountId, message);
+    const sent = await sendMessage(requestId, staff.accountId, message, "rescue");
     if (!sent) return;
     setMessages((prev) => [
       ...prev,
