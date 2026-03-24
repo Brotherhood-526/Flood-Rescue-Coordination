@@ -121,6 +121,7 @@ function Information() {
   const selectedRescueTeamName =
     vehicleList.find((t) => t.id === rescueTeam)?.teamName ?? null;
   const displayRescueTeam = selectedRescueTeamName ?? requestDetail?.rescueTeamName ?? null;
+  const requestImages = requestDetail?.images ?? [];
 
   const activeStyle = "!bg-white !border-green-600 !border-2 !text-black";
   const normalStyle =
@@ -241,8 +242,8 @@ function Information() {
             <Image className="h-5! w-5!" /> Ảnh đính kèm
           </div>
           <div className="grid grid-cols-3 gap-2">
-            {(requestDetail?.images ?? []).length > 0 ? (
-              requestDetail.images.map((img) => (
+            {requestImages.length > 0 ? (
+              requestImages.map((img) => (
                 <img
                   key={img.id}
                   src={img.imageUrl}
