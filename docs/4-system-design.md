@@ -121,9 +121,7 @@ To make sure Frontend and Backend work well together, the Frontend's React archi
 | :--- | :--- | :--- |
 | Core | React | Component-based UI development |
 | Core | TypeScript | Static typing and improved maintainability |
-| Build Tool | Vite | Fast development server and optimized builds |
 | Styling | Tailwind CSS | Utility-first CSS framework |
-| Styling | Radix UI | Accessible UI primitives |
 | Styling | shadcn/ui | Pre-built UI components |
 | Styling | Lucide React | Icon library |
 | State Management | Zustand | Global state management |
@@ -133,11 +131,4 @@ To make sure Frontend and Backend work well together, the Frontend's React archi
 | Forms | React Hook Form | Efficient form handling |
 | Validation | Zod | Schema-based validation |
 | Maps | Vietmap GL JS | Interactive map integration |
-| Notifications | React Toastify | User feedback via toast messages |
-| Utilities | clsx | Conditional class handling |
-| Utilities | tailwind-merge | Tailwind class conflict resolution |
-| Utilities | class-variance-authority | Manage component variants |
-| Dev Tools | ESLint | Code linting and quality control |
-| Dev Tools | typescript-eslint | TypeScript linting rules |
-| Dev Tools | Vite React Plugin | React integration for Vite |
 ## 4.7 Summary
