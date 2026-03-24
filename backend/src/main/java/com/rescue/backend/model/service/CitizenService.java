@@ -11,6 +11,7 @@ import com.rescue.backend.view.dto.citizen.request.LookupRequest;
 import com.rescue.backend.view.dto.citizen.request.RescueRequest;
 import com.rescue.backend.view.dto.citizen.request.UpdateRequest;
 import com.rescue.backend.view.dto.citizen.response.CitizenRescueResponse;
+import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import com.rescue.backend.view.dto.image.response.LookupImageResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class CitizenService {
     private final RequestDAO requestDAO;
     private final RequestImageDAO requestImageDAO;
     private final Cloudinary cloudinary;
+    private final ChatService chatService;
 
     @Transactional
     public CitizenRescueResponse createRescueRequest(RescueRequest rescueRequest) {
@@ -248,5 +250,9 @@ public class CitizenService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu"));
         request.setStatus("đã huỷ");
         requestDAO.save(request);
+    }
+
+    public List<MessageResponse> getAllMessagesByRequest(UUID requestId) {
+        return chatService.takeAllMessageOfRequest(requestId);
     }
 }

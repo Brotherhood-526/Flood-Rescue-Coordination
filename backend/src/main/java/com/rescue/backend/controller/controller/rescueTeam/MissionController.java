@@ -2,6 +2,7 @@ package com.rescue.backend.controller.controller.rescueTeam;
 
 import com.rescue.backend.controller.annotation.RequiresRole;
 import com.rescue.backend.model.service.RescueTeamService;
+import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import com.rescue.backend.view.dto.common.ResponseObject;
 import com.rescue.backend.view.dto.rescueTeam.request.UpdateTaskRequest;
 import com.rescue.backend.view.dto.rescueTeam.response.TaskDetailResponse;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/rescueteam")
@@ -102,5 +104,19 @@ public class MissionController {
             );
         }
 
+    }
+
+    @GetMapping("/chat/{requestId}")
+    public ResponseEntity<ResponseObject> getAllMessages(@PathVariable UUID requestId) {
+        try {
+            List<MessageResponse> result = rescueTeamService.getAllMessagesByRequest(requestId);
+            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseObject(404, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Không thể tải lịch sử chat", e.getMessage()));
+        }
     }
 }
