@@ -5,6 +5,7 @@ import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import com.rescue.backend.model.bean.*;
 import com.rescue.backend.model.dao.CitizenDAO;
+import com.rescue.backend.model.dao.MessageDAO;
 import com.rescue.backend.model.dao.RequestDAO;
 import com.rescue.backend.model.dao.RequestImageDAO;
 import com.rescue.backend.view.dto.citizen.request.LookupRequest;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.rescue.backend.utils.CloudinaryUtils.extractPublicId;
@@ -32,6 +34,7 @@ public class CitizenService {
     private final CitizenDAO citizenDAO;
     private final RequestDAO requestDAO;
     private final RequestImageDAO requestImageDAO;
+    private final MessageDAO messageDAO;
     private final Cloudinary cloudinary;
     private final ChatService chatService;
 
@@ -254,5 +257,41 @@ public class CitizenService {
 
     public List<MessageResponse> getAllMessagesByRequest(UUID requestId) {
         return chatService.takeAllMessageOfRequest(requestId);
+    }
+
+    @Transactional
+    public MessageResponse sendMessage(UUID requestId, String content, LocalDateTime sendAt) {
+        if (requestId == null) {
+            throw new IllegalArgumentException("Thiếu requestId");
+        }
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nội dung tin nhắn không được để trống");
+        }
+
+        Request request = requestDAO.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy yêu cầu với id: " + requestId));
+        Citizen sender = request.getCitizen();
+        if (sender == null || sender.getId() == null) {
+            throw new IllegalStateException("Yêu cầu chưa có thông tin người dân");
+        }
+
+        Message message = new Message();
+        message.setRequest(request);
+        message.setSenderId(sender.getId());
+        message.setSenderRole("người dân");
+        message.setContent(content.trim());
+        message.setSendAt(sendAt != null ? sendAt : LocalDateTime.now());
+
+        Message persisted = messageDAO.save(message);
+
+        return new MessageResponse(
+                persisted.getId(),
+                sender.getId(),
+                sender.getName(),
+                persisted.getSenderRole(),
+                persisted.getContent(),
+                persisted.getSendAt()
+        );
     }
 }

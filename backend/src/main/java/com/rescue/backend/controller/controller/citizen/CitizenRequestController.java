@@ -5,6 +5,7 @@ import com.rescue.backend.view.dto.citizen.request.LookupRequest;
 import com.rescue.backend.view.dto.citizen.request.RescueRequest;
 import com.rescue.backend.view.dto.citizen.request.UpdateRequest;
 import com.rescue.backend.view.dto.citizen.response.CitizenRescueResponse;
+import com.rescue.backend.view.dto.chat.request.SendMessageRequest;
 import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import com.rescue.backend.view.dto.common.ResponseObject;
 import org.springframework.http.HttpStatus;
@@ -103,6 +104,28 @@ public class CitizenRequestController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ResponseObject(500, "Không thể tải lịch sử chat", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/chat/{requestId}")
+    public ResponseEntity<ResponseObject> sendMessage(
+            @PathVariable UUID requestId,
+            @RequestBody SendMessageRequest dto
+    ) {
+        try {
+            MessageResponse result = citizenService.sendMessage(
+                    requestId,
+                    dto.content(),
+                    dto.sendAt()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    new ResponseObject(201, "Gửi tin nhắn thành công", result));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(400, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Không thể gửi tin nhắn", e.getMessage()));
         }
     }
 }

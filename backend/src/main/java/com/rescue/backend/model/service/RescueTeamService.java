@@ -1,7 +1,11 @@
 package com.rescue.backend.model.service;
 
+import com.rescue.backend.model.bean.Message;
 import com.rescue.backend.model.bean.Request;
+import com.rescue.backend.model.bean.Staff;
+import com.rescue.backend.model.dao.MessageDAO;
 import com.rescue.backend.model.dao.RequestDAO;
+import com.rescue.backend.model.dao.StaffDAO;
 import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import com.rescue.backend.view.dto.image.response.LookupImageResponse;
 import com.rescue.backend.view.dto.rescueTeam.request.UpdateTaskRequest;
@@ -16,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +30,8 @@ public class RescueTeamService {
 
     @Autowired
     private  final RequestDAO requestDAO;
+    private final StaffDAO staffDAO;
+    private final MessageDAO messageDAO;
     private final ChatService chatService;
 
     public Page<TeamAssignmentResponse> getTaskByFilter(UUID teamId, String filter, int page) {
@@ -113,5 +120,52 @@ public class RescueTeamService {
 
     public List<MessageResponse> getAllMessagesByRequest(UUID requestId) {
         return chatService.takeAllMessageOfRequest(requestId);
+    }
+
+    @Transactional
+    public MessageResponse sendMessage(
+            UUID requestId,
+            UUID senderId,
+            String content,
+            LocalDateTime sendAt
+    ) {
+        if (requestId == null) {
+            throw new IllegalArgumentException("Thiếu requestId");
+        }
+        if (senderId == null) {
+            throw new IllegalArgumentException("Thiếu senderId");
+        }
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nội dung tin nhắn không được để trống");
+        }
+
+        Request request = requestDAO.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy yêu cầu với id: " + requestId));
+
+        Staff sender = staffDAO.findById(senderId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy đội cứu hộ với id: " + senderId));
+        if (sender.getRole() == null || !sender.getRole().trim().equalsIgnoreCase("cứu hộ")) {
+            throw new IllegalArgumentException("Tài khoản gửi tin nhắn không phải đội cứu hộ");
+        }
+
+        Message message = new Message();
+        message.setRequest(request);
+        message.setSenderId(senderId);
+        message.setSenderRole("cứu hộ");
+        message.setContent(content.trim());
+        message.setSendAt(sendAt != null ? sendAt : LocalDateTime.now());
+
+        Message saved = messageDAO.save(message);
+
+        return new MessageResponse(
+                saved.getId(),
+                senderId,
+                sender.getName(),
+                saved.getSenderRole(),
+                saved.getContent(),
+                saved.getSendAt()
+        );
     }
 }

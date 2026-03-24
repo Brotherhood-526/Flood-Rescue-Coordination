@@ -312,6 +312,9 @@ public class DispatchService {
         Staff sender = staffDAO.findById(senderId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Không tìm thấy điều phối viên với id: " + senderId));
+        if (sender.getRole() == null || !sender.getRole().trim().equalsIgnoreCase("điều phối viên")) {
+            throw new IllegalArgumentException("Tài khoản gửi tin nhắn không phải điều phối viên");
+        }
 
         Message message = new Message();
         message.setRequest(request);

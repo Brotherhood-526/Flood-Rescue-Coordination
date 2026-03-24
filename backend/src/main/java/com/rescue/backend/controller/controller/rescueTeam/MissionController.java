@@ -2,6 +2,7 @@ package com.rescue.backend.controller.controller.rescueTeam;
 
 import com.rescue.backend.controller.annotation.RequiresRole;
 import com.rescue.backend.model.service.RescueTeamService;
+import com.rescue.backend.view.dto.chat.request.SendMessageRequest;
 import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import com.rescue.backend.view.dto.common.ResponseObject;
 import com.rescue.backend.view.dto.rescueTeam.request.UpdateTaskRequest;
@@ -117,6 +118,36 @@ public class MissionController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ResponseObject(500, "Không thể tải lịch sử chat", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/chat/{requestId}")
+    public ResponseEntity<ResponseObject> sendMessage(
+            @PathVariable UUID requestId,
+            @RequestParam(required = false) UUID testAccountId,
+            @RequestBody SendMessageRequest dto,
+            HttpSession session
+    ) {
+        UUID rescueTeamId = (testAccountId != null) ? testAccountId : (UUID) session.getAttribute("STAFF_ID");
+        if (rescueTeamId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new ResponseObject(401, "Vui lòng đăng nhập hoặc truyền testAccountId", null));
+        }
+        try {
+            MessageResponse result = rescueTeamService.sendMessage(
+                    requestId,
+                    rescueTeamId,
+                    dto.content(),
+                    dto.sendAt()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    new ResponseObject(201, "Gửi tin nhắn thành công", result));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(400, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Không thể gửi tin nhắn", e.getMessage()));
         }
     }
 }
