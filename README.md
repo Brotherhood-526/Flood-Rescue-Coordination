@@ -62,10 +62,10 @@ _Chức năng:_
 
 ### User (Citizen)
 
-- **S4** User Login
-- **S5** Submit Request
-- **S6** View Requests
-- **S7** Message Box
+- **S04** Submit Request
+- **S05** View Requests
+- **S06** Edit Requests
+- **S07** Message Box
 
 ### Staff (Rescue Team / Coordinator / Manager)
 
@@ -168,4 +168,4 @@ _Chức năng:_
 **S26. Manager – Edit Vehicle**
 
 # ERD Diagram
-![ERD Diagram](img/database/ERD_diagram.png) 
+![ERD Diagram](img/database/ERD_Diagram.png) 
