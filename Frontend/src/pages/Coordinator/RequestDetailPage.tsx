@@ -16,15 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useVietMap } from "@/lib/useVietMap";
@@ -35,30 +27,14 @@ import { useVehicleList } from "@/hooks/Coordinator/useVehicle";
 import { timeAgo } from "@/utils/timeAgo";
 import { getRequestTypeLabel } from "@/utils/requestHelpers";
 import type { CoordinatorRequest } from "@/types/coordinator";
-
-const DEFAULT_CENTER: [number, number] = [106.7009, 10.7769];
-
-// TODO: thay bằng data thật từ API
-const USER_LOCATIONS: [number, number][] = [
-  [106.6297, 10.8231],
-  [106.6577, 10.8453],
-  [106.6936, 10.7314],
-  [106.7143, 10.8012],
-  [106.6723, 10.756],
-  [106.743, 10.8655],
-];
-
-// TODO: thay bằng data thật từ API
-const TEAM_LOCATIONS: [number, number][] = [
-  [106.7009, 10.7769],
-  [106.667, 10.838],
-  [106.635, 10.7904],
-  [106.6298, 10.7432],
-  [106.803, 10.87],
-];
+import { coordinatorService } from "@/services/Coordinator/coordinatorService";
 
 export default function RequestDetailPage() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const { requestDetail } = useRequestDetail(id!);
+  const location = useLocation();
+  const request = location.state as CoordinatorRequest;
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -66,7 +42,7 @@ export default function RequestDetailPage() {
         <div className="flex flex-row flex-[0.5] justify-between items-center px-[2vw] mb-[2vh]">
           <div className="flex flex-row gap-[1vw]">
             <Button
-              className="bg-gray-300!text-black! font-bold!"
+              className="bg-gray-300! text-black! font-bold!"
               onClick={() => navigate(-1)}
             >
               <Undo2 className="w-5! h-5!" strokeWidth={2.5} />
@@ -76,9 +52,21 @@ export default function RequestDetailPage() {
               Hộp thoại
             </Button>
           </div>
+
           <Button
             className="bg-gray-300! text-black! font-bold!"
-            onClick={() => navigate(ROUTES.COORDINATE_MAP)}
+            onClick={() =>
+              navigate(ROUTES.COORDINATE_MAP, {
+                state: {
+                  userLat: requestDetail?.latitude,
+                  userLng: requestDetail?.longitude,
+                  userName: request?.citizenName,
+                  teamLat: requestDetail?.rescueTeamLatitude,
+                  teamLng: requestDetail?.rescueTeamLongitude,
+                  teamName: requestDetail?.rescueTeamName,
+                },
+              })
+            }
           >
             Toàn bản đồ
           </Button>
@@ -90,77 +78,148 @@ export default function RequestDetailPage() {
 }
 
 function Solving() {
+  const { id } = useParams();
+  const { requestDetail } = useRequestDetail(id!);
+  const location = useLocation(); // để lấy data được truyền qua navigate
+  const request = location.state as CoordinatorRequest; //lấy thông tin citizenName từ state của trang trước truyền sang trang full map
   return (
     <div className="w-full flex-[9.5] bg-white pt-[1vh] flex flex-row justify-between items-start px-[2vw]">
       <Information />
-      <MiniMap />
+      <MiniMap
+        latitude={requestDetail?.latitude ?? null}
+        longitude={requestDetail?.longitude ?? null}
+        citizenName={request?.citizenName}
+      />
     </div>
   );
 }
-
 function Information() {
-  const [vehicle, setVehicle] = useState<string | null>(null);
-  const [urgency, setUrgency] = useState<string | null>(null);
-  const [rescueTeam, setRescueTeam] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
   const request = location.state as CoordinatorRequest;
+  const [vehicle, setVehicle] = useState<string | null>(null);
+  const [urgency, setUrgency] = useState<string | null>(null);
+  const [rescueTeam, setRescueTeam] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const { requestDetail } = useRequestDetail(id!);
-  const { vehicleList } = useVehicleList(id, vehicle);
-
+  const tempDisplayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
+  const { vehicleList } = useVehicleList(id, tempDisplayVehicle);
   const displayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const displayUrgency = urgency ?? requestDetail?.urgency ?? null;
   const displayRescueTeam = rescueTeam ?? requestDetail?.rescueTeamName ?? null;
 
-  const activeStyle = "!bg-gray-100";
-  const normalStyle = "!bg-transparent";
+  const activeStyle = "!bg-white !border-green-600 !border-2 !text-black";
+  const normalStyle =
+    "!bg-white !border-black !border-2 hover:!border-gray-400";
   const vehiclesButton =
     "flex flex-col gap-0 !w-[6vw] !h-[8vh] !border-gray-300 !text-black";
   const miniDiv = "flex flex-col gap-1";
+  // hàm xử lý 2 cái nút chấp nhận và từ chối
+  const handleUpdateStatus = async (action: "accept" | "reject") => {
+    if (!id) return;
+    try {
+      setIsUpdating(true);
+      if (action === "accept") {
+        if (!displayUrgency || !displayRescueTeam || !displayVehicle) {
+          alert(
+            "Vui lòng chọn loại phương tiện, mức độ khẩn cấp và đội cứu hộ trước khi chấp nhận",
+          );
+          setIsUpdating(false);
+          return;
+        }
+
+        const selectedTeam = vehicleList.find(
+          (t) => t.teamName === displayRescueTeam,
+        );
+        const teamId = selectedTeam?.id;
+
+        if (!teamId) {
+          alert("Không tìm thấy thông tin đội cứu hộ!");
+          setIsUpdating(false);
+          return;
+        }
+
+        const res = await coordinatorService.acceptRequest(id, {
+          status: "đang xử lý",
+          urgency: displayUrgency,
+          rescueTeamID: teamId,
+          vehicleType: displayVehicle,
+        });
+
+        navigate(ROUTES.COORDINATE_MAP, {
+          state: {
+            userLat: res.latitude,
+            userLng: res.longitude,
+            userName: res.citizenName,
+            teamLat: res.rescueTeamLatitude,
+            teamLng: res.rescueTeamLongitude,
+            teamName: res.rescueTeamName,
+          },
+        });
+        return;
+      } else if (action === "reject") {
+        await coordinatorService.acceptRequest(id, {
+          status: "đã huỷ",
+        });
+
+        alert("Đã từ chối yêu cầu!");
+      }
+      navigate(-1);
+    } catch (error) {
+      console.error("Lỗi API:", error);
+      alert("Lỗi khi cập nhật trạng thái yêu cầu.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
-    <Card className="bg-white w-[54vw] h-[75vh] py-[2vh]! overflow-y-auto hide-scrollbar">
+    <Card className="bg-white w-[50vw] h-[75vh] py-[2vh]! overflow-y-auto hide-scrollbar">
       <CardHeader>
         <CardTitle className="text-lg font-bold mb-[-1vh]">
-          Yêu cầu loại {getRequestTypeLabel(requestDetail?.type)}{" "}
-          {/* dùng util */}
+          Yêu cầu loại{" "}
+          <span className="text-red-600">
+            {getRequestTypeLabel(requestDetail?.type).toUpperCase()}
+          </span>
         </CardTitle>
         <CardDescription className="flex flex-row justify-between items-start text-black">
           <div>
-            <span className="text-base font-semibold">
-              {requestDetail?.status === "processing" ? "yêu cầu mới" : ""}
+            <span className="text-base font-semibold capitalize text-blue-600">
+              {requestDetail?.status}
             </span>
             <br />
             <span>
               {request?.createdAt ? timeAgo(request.createdAt) : ""}
             </span>{" "}
-            {/* dùng util */}
           </div>
-          <Select
-            value={displayUrgency ?? undefined}
-            onValueChange={setUrgency}
+          <select
+            value={displayUrgency ?? ""}
+            onChange={(e) => setUrgency(e.target.value)}
+            disabled={requestDetail?.status !== "yêu cầu mới"}
+            className="h-[3.5vh] w-[12vw] px-2 rounded-full border border-gray-400 text-[1.6vh] bg-white outline-none cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
           >
-            <SelectTrigger className="h-[3vh]! w-full max-w-[17vw] rounded-full! text-[2vh]! bg-transparent!">
-              <SelectValue placeholder="Hãy chọn mức độ khẩn cấp" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="high">Cao</SelectItem>
-              <SelectItem value="medium">Trung bình</SelectItem>
-              <SelectItem value="low">Thấp</SelectItem>
-            </SelectContent>
-          </Select>
+            <option value="" disabled hidden>
+              Chọn mức độ
+            </option>
+            <option value="cao">Cao</option>
+            <option value="trung bình">Trung bình</option>
+            <option value="thấp">Thấp</option>
+          </select>
         </CardDescription>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-[2vh]">
         <div className={miniDiv}>
           <div className="flex flex-row gap-[1vh]">
-            <Phone className="h-5! w-5!" /> Người yêu cầu
+            <Phone className="h-5! w-5!" /> Người yêu cầu cứu hộ
           </div>
           <span className="pl-[1.8vw] text-lg font-semibold">
             {request?.citizenName}
+          </span>
+          <span className="pl-[1.8vw] text-lg font-semibold">
+            {request?.phone}
           </span>
         </div>
 
@@ -170,6 +229,10 @@ function Information() {
           </div>
           <span className="pl-[1.8vw] text-lg font-semibold">
             {requestDetail?.address}
+          </span>
+          <div className="ml-[1.8vw]">Tọa độ GPS</div>
+          <span className="pl-[1.8vw] text-lg font-semibold">
+            {requestDetail?.longitude},{requestDetail?.latitude}
           </span>
         </div>
 
@@ -183,12 +246,23 @@ function Information() {
 
         <div className={miniDiv}>
           <div className="flex flex-row gap-[1vh]">
-            <Image className="h-5! w-5!" /> Link ảnh đính kèm
+            <Image className="h-5! w-5!" /> Link ảnh
           </div>
-          <Input
-            readOnly
-            value={requestDetail?.additionalLink || "Không có link"}
-          />
+          <div className="flex flex-row gap-4">
+            {" "}
+            {requestDetail?.images?.length ? (
+              requestDetail.images.map((img) => (
+                <a key={img.id} href={img.imageUrl} target="_blank">
+                  <img
+                    src={img.imageUrl}
+                    className="w-50 h-50 object-cover rounded"
+                  />
+                </a>
+              ))
+            ) : (
+              <span>Không có ảnh</span>
+            )}
+          </div>
         </div>
 
         <div className={miniDiv}>
@@ -196,17 +270,17 @@ function Information() {
           <div className="flex flex-row gap-[2vw]">
             {[
               {
-                value: "Rescue Vehicle",
+                value: "xe cứu hộ",
                 label: "Xe cứu hộ",
                 icon: <Van className="h-7! w-7!" />,
               },
               {
-                value: "boat",
+                value: "xuồng",
                 label: "Xuồng",
                 icon: <Ship className="h-7! w-7!" />,
               },
               {
-                value: "helicopter",
+                value: "trực thăng",
                 label: "Trực thăng",
                 icon: <Helicopter className="h-7! w-7!" />,
               },
@@ -225,74 +299,115 @@ function Information() {
 
         <div className={miniDiv}>
           Phân công đội cứu hộ phù hợp
-          <Select
-            value={displayRescueTeam ?? undefined}
-            onValueChange={setRescueTeam}
-          >
-            <SelectTrigger className="h-[5vh]! w-[80%] text-[2vh]! bg-transparent!">
-              <SelectValue placeholder="Chọn đội cứu hộ" />
-            </SelectTrigger>
-            <SelectContent>
-              {vehicleList.map(
-                (
-                  team, // đổi rescueTeams → vehicleList
-                ) => (
-                  <SelectItem
-                    key={team.rescueTeamId}
-                    value={team.rescueTeamName}
-                  >
-                    {team.rescueTeamName}
-                  </SelectItem>
-                ),
-              )}
-            </SelectContent>
-          </Select>
+          {requestDetail?.status === "yêu cầu mới" ? (
+            <select
+              value={displayRescueTeam ?? ""}
+              onChange={(e) => setRescueTeam(e.target.value)}
+              className="h-[5vh] w-[80%] px-3 text-[1.8vh] bg-white border-2 border-black rounded-lg cursor-pointer outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="" disabled hidden>
+                -- Chọn đội cứu hộ --
+              </option>
+              {Array.isArray(vehicleList) &&
+                vehicleList.map((team) => (
+                  <option key={team.id} value={team.teamName}>
+                    {team.teamName}
+                  </option>
+                ))}
+            </select>
+          ) : (
+            <div className="h-[5vh] w-[80%] px-3 flex items-center text-[1.8vh] bg-gray-100 border-2 border-gray-300 rounded-lg font-bold text-gray-700">
+              {displayRescueTeam || "Không có"}
+            </div>
+          )}
         </div>
       </CardContent>
 
-      {requestDetail?.status !== "completed" && (
-        <CardFooter className="flex flex-row items-center justify-center px-[2vw] gap-[3vw]">
-          <Button className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-red-600!">
-            Từ chối
-          </Button>
-          <Button className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-indigo-600!">
-            {requestDetail?.status === "processing" ? "Chấp nhận" : "Cập Nhật"}
-          </Button>
-        </CardFooter>
-      )}
+      {requestDetail?.status !== "hoàn thành" &&
+        requestDetail?.status !== "đã huỷ" && (
+          <CardFooter className="flex flex-row items-center justify-center px-[2vw] gap-[3vw]">
+            <Button
+              onClick={() => handleUpdateStatus("reject")}
+              disabled={isUpdating}
+              className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-red-600! hover:!bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Từ chối
+            </Button>
+
+            {requestDetail?.status === "yêu cầu mới" && (
+              <Button
+                onClick={() => handleUpdateStatus("accept")}
+                disabled={isUpdating}
+                className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-blue-600! hover:!bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Chấp Nhận
+              </Button>
+            )}
+          </CardFooter>
+        )}
     </Card>
   );
 }
 
-function MiniMap() {
+function MiniMap({
+  latitude,
+  longitude,
+  citizenName,
+}: {
+  latitude: number | null;
+  longitude: number | null;
+  citizenName?: string;
+}) {
   const mapContainer = useRef<HTMLDivElement | null>(null);
-  const { map, mount } = useVietMap();
+  const { map, mount, mapLoaded, unmount } = useVietMap();
+  const markerRef = useRef<vietmapgl.Marker | null>(null);
+  const popupRef = useRef<vietmapgl.Popup | null>(null);
+  useEffect(() => {
+    if (mapContainer.current) {
+      mount(mapContainer.current);
+    }
+    return () => unmount();
+  }, [mount, unmount]);
 
   useEffect(() => {
-    if (!mapContainer.current) return;
-    mount(mapContainer.current);
-  }, [mount]);
+    if (!mapLoaded || !map || !latitude || !longitude) return;
 
-  useEffect(() => {
-    if (!map) return;
-    map.flyTo({ center: [DEFAULT_CENTER[0], DEFAULT_CENTER[1]], zoom: 13 });
+    const lngLat: [number, number] = [longitude, latitude];
+    popupRef.current?.remove();
+    markerRef.current?.remove();
+    popupRef.current = new vietmapgl.Popup({ offset: 25, closeButton: false })
+      .setHTML(`
+        <div>
+          <p style="font-weight:700;font-size:13px;margin:0 0 4px;color:#111; text-align:center;">
+            Người yêu cầu:${citizenName}
+          </p>
+        </div>
+      `);
 
-    TEAM_LOCATIONS.forEach((position) => {
-      const el = document.createElement("div");
-      el.className = "w-3 h-3 bg-blue-600 rounded-full border-2 border-white";
-      new vietmapgl.Marker({ element: el }).setLngLat(position).addTo(map);
-    });
-
-    USER_LOCATIONS.forEach((position) => {
-      const el = document.createElement("div");
-      el.className = "w-3 h-3 bg-red-600 rounded-full border-2 border-white";
-      new vietmapgl.Marker({ element: el }).setLngLat(position).addTo(map);
-    });
-  }, [map]);
+    markerRef.current = new vietmapgl.Marker({ color: "#ef4444" })
+      .setLngLat(lngLat)
+      .setPopup(popupRef.current)
+      .addTo(map);
+    markerRef.current.togglePopup();
+    map.flyTo({ center: lngLat, zoom: 15, duration: 1500 });
+  }, [mapLoaded, map, latitude, longitude, citizenName]);
 
   return (
-    <Card className="w-[40vw] h-[75vh] p-0 overflow-hidden">
-      <div ref={mapContainer} className="h-full w-full" />
+    <Card className="w-[45vw] h-[75vh] p-0 overflow-hidden relative bg-gray-100">
+      <div ref={mapContainer} className="h-full w-full absolute inset-0" />
+      {(!latitude || !longitude) && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
+          <div className="text-gray-500 font-medium flex flex-col items-center gap-2">
+            <MapPin
+              size={48}
+              className="opacity-30 text-red-500 animate-pulse"
+            />
+            <p className="bg-white px-4 py-1 rounded-full shadow-sm">
+              {!latitude ? "Đang lấy tọa độ GPS..." : "Không có dữ liệu vị trí"}
+            </p>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
