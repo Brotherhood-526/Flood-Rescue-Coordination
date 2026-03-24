@@ -1,7 +1,10 @@
 import axios from "axios";
 
+const rawBaseURL = import.meta.env.VITE_BACKEND_URL as string | undefined;
+const normalizedBaseURL = rawBaseURL ? rawBaseURL.replace(/\/+$/, "") : rawBaseURL;
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL, // Nhớ config .env
+  baseURL: normalizedBaseURL, 
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
