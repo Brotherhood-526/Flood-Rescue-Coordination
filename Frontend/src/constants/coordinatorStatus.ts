@@ -3,7 +3,7 @@ export const COORDINATOR_STATUS = {
   PROCESSING: "đang xử lý",
   DELAYED: "tạm hoãn",
   COMPLETED: "hoàn thành",
-  CANCEL: "đã hủy",
+  CANCEL: "đã huỷ",
 } as const;
 
 export type CoordinatorRequestStatus =
@@ -11,4 +11,4 @@ export type CoordinatorRequestStatus =
   | "đang xử lý"
   | "tạm hoãn"
   | "hoàn thành"
-  | "đã hủy";
+  | "đã huỷ";

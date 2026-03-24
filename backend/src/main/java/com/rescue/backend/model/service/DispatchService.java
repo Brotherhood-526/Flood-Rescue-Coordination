@@ -37,7 +37,6 @@ public class DispatchService {
     @Autowired
     private StaffDAO staffDAO;
 
-    private static final int PAGE_SIZE = 1000;
     private static final List<String> VALID_VEHICLE_TYPES =
             List.of("xuồng", "xe cứu hộ", "trực thăng");
     private static final List<String> VALID_URGENCY_TYPES =
@@ -90,9 +89,8 @@ public class DispatchService {
         return vehicleDAO.filterVehicleByType(filterVehicleRequest.vehicle_type());
     }
 
-    public Page<RequestListResponse> getRequests(String status, int page) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
-
+    public Page<RequestListResponse> getRequests(String status, int page,int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Request> requests;
 
         if (status == null || status.isBlank()) {
@@ -201,6 +199,7 @@ public class DispatchService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Không tìm thấy yêu cầu với id: " + requestID));
 
+
         if (dto.status() != null) {
             String newStatus = switch (dto.status().trim().toLowerCase()) {
                 case "đang xử lý", "processing" -> "đang xử lý";
@@ -209,11 +208,18 @@ public class DispatchService {
                         "Coordinator chỉ được set status 'đang xử lý' hoặc 'đã huỷ'");
             };
 
-            if (!"yêu cầu mới".equals(request.getStatus())) {
-                throw new IllegalStateException(
-                        "Yêu cầu đang ở trạng thái '" + request.getStatus()
-                                + "', không thể cập nhật");
+            if ("đã huỷ".equals(newStatus)) {
+                // Cho phép huỷ bất chấp trạng thái hiện tại là gì (miễn không phải hoàn thành)
+                request.setStatus("đã huỷ");
+                requestDAO.save(request);
+                return getRequestDetail(request.getId());
             }
+
+            if (!"yêu cầu mới".equals(request.getStatus())) {
+                // Nếu không phải huỷ, mà muốn cập nhật xe/đội cứu hộ, thì mới chặn lại
+                throw new IllegalStateException("Yêu cầu đang ở trạng thái '" + request.getStatus() + "', không thể cập nhật");
+            }
+
             request.setStatus(newStatus);
         }
 

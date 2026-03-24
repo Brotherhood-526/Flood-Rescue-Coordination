@@ -1,14 +1,22 @@
-import { useState } from "react";
-import { UserPlus, Pencil, Trash2 } from "lucide-react";
+import { useMemo, useState, type KeyboardEvent } from "react";
+import {
+  Search,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { isAxiosError } from "axios";
+import { toast } from "react-toastify";
+
+import { useManagerRescueTeams } from "@/hooks/Manager/useManagerRescueTeams";
+import { managerService } from "@/services/Manager/managerService";
 
 type TeamRow = {
   id: string;
@@ -19,275 +27,200 @@ type TeamRow = {
   totalTasks: number;
 };
 
-const fakeTeams: TeamRow[] = [
-  {
-    id: "8c95365f-1f65-11f1-86e9-a2aa24837ca7",
-    teamName: "Nguyễn Văn A",
-    phone: "0723456789",
-    quantity: 5,
-    status: "ready",
-    totalTasks: 24,
-  },
-  {
-    id: "9e43c215-1f65-11f1-86e9-a2aa24837ca7",
-    teamName: "Nguyễn Văn A",
-    phone: "0234583392",
-    quantity: 3,
-    status: "rescuing",
-    totalTasks: 24,
-  },
-  {
-    id: "ac72076d-1f65-11f1-86e9-a2aa24837ca7",
-    teamName: "Nguyễn Văn A",
-    phone: "0908493846",
-    quantity: 4,
-    status: "ready",
-    totalTasks: 24,
-  },
-  {
-    id: "b9324a2f-1f65-11f1-86e9-a2aa24837ca7",
-    teamName: "Nguyễn Văn A",
-    phone: "0384756884",
-    quantity: 5,
-    status: "rescuing",
-    totalTasks: 24,
-  },
-];
-
 export const ManageTeamPage = () => {
-  const [teams, setTeams] = useState<TeamRow[]>(fakeTeams);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
-  const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
   const [deletingTeamId, setDeletingTeamId] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    teamName: "",
-    memberCount: "",
-    phone: "",
-  });
 
-  const resetForm = () => {
-    setForm({ teamName: "", memberCount: "", phone: "" });
-    setDialogMode("create");
-    setEditingTeamId(null);
-  };
+  const {
+    teamList,
+    loading,
+    error,
+    refetch,
+  } = useManagerRescueTeams({ search: searchKeyword });
 
-  const handleOpenCreate = () => {
-    resetForm();
-    setIsDialogOpen(true);
-  };
+  const teams: TeamRow[] = useMemo(
+    () =>
+      (teamList ?? []).map((t) => {
+        const staffStateLower = String(t.staffState ?? "").trim().toLowerCase();
+        const isNegativeState =
+          staffStateLower.includes("không hoạt động") ||
+          staffStateLower.includes("không hoạt") ||
+          staffStateLower.includes("khong hoat") ||
+          staffStateLower.includes("inactive");
+        const status: TeamRow["status"] = isNegativeState
+          ? "rescuing"
+          : staffStateLower.includes("hoạt")
+            ? "ready"
+            : "rescuing";
+        return {
+          id: t.id,
+          teamName: t.leaderName,
+          phone: t.phone,
+          quantity: t.teamSize,
+          status,
+          totalTasks: t.totalTasks,
+        };
+      }),
+    [teamList],
+  );
 
-  const handleOpenEdit = (team: TeamRow) => {
-    setDialogMode("edit");
-    setEditingTeamId(team.id);
-    setForm({
-      teamName: team.teamName,
-      memberCount: String(team.quantity),
-      phone: team.phone,
-    });
-    setIsDialogOpen(true);
-  };
+  const PAGE_SIZE = 10;
+  const [pageIndex, setPageIndex] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(teams.length / PAGE_SIZE));
+  const currentPageIndex = Math.min(pageIndex, totalPages - 1);
+  const pagedTeams = teams.slice(
+    currentPageIndex * PAGE_SIZE,
+    currentPageIndex * PAGE_SIZE + PAGE_SIZE,
+  );
 
-  const handleCreateTeam = () => {
-    if (!form.teamName.trim() || !form.memberCount.trim() || !form.phone.trim()) {
-      return;
-    }
-
-    const count = Number(form.memberCount);
-    if (Number.isNaN(count) || count <= 0) {
-      return;
-    }
-
-    if (dialogMode === "edit" && editingTeamId !== null) {
-      setTeams((prev) =>
-        prev.map((team) =>
-          team.id === editingTeamId
-            ? {
-                ...team,
-                teamName: form.teamName.trim(),
-                quantity: count,
-                phone: form.phone.trim(),
-              }
-            : team
-        )
-      );
-      resetForm();
-      setIsDialogOpen(false);
-      return;
-    }
-
-    const nextTeam: TeamRow = {
-      id: crypto.randomUUID(),
-      teamName: form.teamName.trim(),
-      phone: form.phone.trim(),
-      quantity: count,
-      status: "ready",
-      totalTasks: 0,
-    };
-
-    setTeams((prev) => [...prev, nextTeam]);
-    resetForm();
-    setIsDialogOpen(false);
-  };
-
-  const handleOpenDelete = (id: string) => {
-    setDeletingTeamId(id);
-    setIsConfirmDeleteOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deletingTeamId === null) return;
-    setTeams((prev) => prev.filter((team) => team.id !== deletingTeamId));
-    setDeletingTeamId(null);
-    setIsConfirmDeleteOpen(false);
+    try {
+      await managerService.deleteStaff(deletingTeamId, {
+        search: searchKeyword || undefined,
+      });
+      toast.success("Xóa đội cứu hộ thành công.");
+      await refetch();
+      setDeletingTeamId(null);
+      setIsConfirmDeleteOpen(false);
+    } catch (e) {
+      if (isAxiosError(e)) {
+        const message =
+          (e.response?.data as any)?.message ??
+          (e.response?.data as any)?.error ??
+          e.message;
+        toast.error(message || "Không thể xóa đội cứu hộ.");
+      } else {
+        toast.error("Không thể xóa đội cứu hộ.");
+      }
+    }
+  };
+
+  const handleSearch = () => {
+    setPageIndex(0);
+    setSearchKeyword(searchInput);
+  };
+
+  const handleSearchInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleSearch();
+    }
   };
 
   return (
     <div className="flex w-full flex-col bg-white pt-[3vh]">
       <div className="min-h-[calc(100vh-180px)] w-full p-4">
-        <div className="mb-4 flex items-center justify-end">
-          <Dialog
-            open={isDialogOpen}
-            onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) resetForm();
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button
-                onClick={handleOpenCreate}
-                className="rounded-xl bg-indigo-600 px-4 py-2 text-base font-semibold text-white hover:bg-indigo-700"
-              >
-                <UserPlus className="mr-2 h-4 w-4" />
-                Thêm mới đội cứu hộ
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[700px]">
-              <DialogHeader>
-                <DialogTitle className="text-center text-xl font-bold">
-                  {dialogMode === "edit"
-                    ? "Chỉnh sửa thông tin của đội cứu hộ"
-                    : "Điền thông tin của đội cứu hộ"}
-                </DialogTitle>
-              </DialogHeader>
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold text-slate-900">Quản lý đội cứu hộ</h2>
+        </div>
 
-              <div className="grid gap-6 py-3 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="team-name"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Tên của đội
-                  </label>
-                  <Input
-                    id="team-name"
-                    value={form.teamName}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, teamName: e.target.value }))
-                    }
-                    className="rounded-none border-0 border-b border-slate-400 px-0 shadow-none focus-visible:ring-0"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="team-member-count"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Số lượng thành viên
-                  </label>
-                  <Input
-                    id="team-member-count"
-                    type="number"
-                    value={form.memberCount}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, memberCount: e.target.value }))
-                    }
-                    className="rounded-none border-0 border-b border-slate-400 px-0 shadow-none focus-visible:ring-0"
-                  />
-                </div>
-
-                <div className="space-y-2 sm:col-span-2">
-                  <label
-                    htmlFor="team-phone"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Số điện thoại
-                  </label>
-                  <Input
-                    id="team-phone"
-                    value={form.phone}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, phone: e.target.value }))
-                    }
-                    className="rounded-none border-0 border-b border-slate-400 px-0 shadow-none focus-visible:ring-0"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-center">
-                <Button
-                  onClick={handleCreateTeam}
-                  className="rounded-xl bg-emerald-600 px-8 py-2 text-base font-semibold text-white hover:bg-emerald-700"
-                >
-                  Hoàn tất
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+        <div className="mb-4 flex w-full flex-wrap items-center justify-between gap-3">
+          <div className="flex w-full flex-wrap items-center gap-2 md:w-auto">
+            <Input
+              id="team-search"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleSearchInputKeyDown}
+              placeholder="Nhập tên đội hoặc số điện thoại..."
+              className="w-full rounded-xl md:w-[420px]"
+            />
+            <Button
+              type="button"
+              onClick={handleSearch}
+              className="rounded-xl bg-indigo-600 px-4 text-white hover:bg-indigo-700"
+            >
+              <Search className="mr-2 h-4 w-4" />
+              Tìm kiếm
+            </Button>
+          </div>
         </div>
 
         <table className="w-full table-fixed">
           <thead>
             <tr className="bg-slate-200 text-center text-base font-bold text-slate-900">
-              <th className="py-3">STT</th>
               <th className="py-3">Tên đội</th>
               <th className="py-3">Số điện thoại</th>
               <th className="py-3">Số lượng</th>
               <th className="py-3">Trạng thái</th>
               <th className="py-3">Tổng nhiệm vụ</th>
-              <th className="py-3">Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            {teams.map((team, index) => (
-              <tr
-                key={team.id}
-                className={`text-center text-base text-slate-900 ${index < teams.length - 1 ? "border-b border-slate-200" : ""}`}
-              >
-                <td className="py-3 font-semibold">{String(index + 1).padStart(2, "0")}</td>
-                <td className="py-3">{team.teamName}</td>
-                <td className="py-3">{team.phone}</td>
-                <td className="py-3">{team.quantity}</td>
-                <td className="py-3">
-                  <Status status={team.status} />
-                </td>
-                <td className="py-3">{team.totalTasks}</td>
-                <td className="py-3">
-                  <div className="flex items-center justify-center gap-3">
-                    <button
-                      type="button"
-                      aria-label={`Sửa đội cứu hộ ${team.teamName}`}
-                      onClick={() => handleOpenEdit(team)}
-                      className="inline-flex items-center justify-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                    >
-                      <Pencil className="h-4 w-4 text-indigo-500" />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label={`Xóa đội cứu hộ ${team.teamName}`}
-                      onClick={() => handleOpenDelete(team.id)}
-                      className="inline-flex items-center justify-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </button>
-                  </div>
+            {loading && (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-base text-slate-500">
+                  Đang tải dữ liệu...
                 </td>
               </tr>
-            ))}
+            )}
+
+            {!loading && error && (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-base text-red-600">
+                  {error}
+                </td>
+              </tr>
+            )}
+
+            {!loading &&
+              !error &&
+              pagedTeams.map((team, index) => (
+                <tr
+                  key={team.id}
+                  className={`text-center text-base text-slate-900 ${
+                    index < pagedTeams.length - 1 ? "border-b border-slate-200" : ""
+                  }`}
+                >
+                  <td className="py-3">{team.teamName}</td>
+                  <td className="py-3">{team.phone}</td>
+                  <td className="py-3">{team.quantity}</td>
+                  <td className="py-3">
+                    <Status status={team.status} />
+                  </td>
+                  <td className="py-3">{team.totalTasks}</td>
+                </tr>
+              ))}
+
+            {!loading && !error && teams.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-base text-slate-500">
+                  Không tìm thấy đội cứu hộ phù hợp.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
+
+        {!loading && !error && teams.length > 0 && totalPages > 1 && (
+          <div className="mt-4 flex items-center justify-center gap-4">
+            <Button
+              variant="outline"
+              className="rounded-full w-10 h-10 p-0 border-gray-300 hover:bg-gray-100"
+              onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
+              disabled={currentPageIndex <= 0}
+            >
+              <ChevronsLeft className="w-5 h-5" />
+            </Button>
+
+            <span className="text-sm font-semibold text-gray-700">
+              Trang {currentPageIndex + 1} / {totalPages}
+            </span>
+
+            <Button
+              variant="outline"
+              className="rounded-full w-10 h-10 p-0 border-gray-300 hover:bg-gray-100"
+              onClick={() =>
+                setPageIndex((p) => Math.min(totalPages - 1, p + 1))
+              }
+              disabled={currentPageIndex >= totalPages - 1}
+            >
+              <ChevronsRight className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <Dialog open={isConfirmDeleteOpen} onOpenChange={setIsConfirmDeleteOpen}>
@@ -305,7 +238,7 @@ export const ManageTeamPage = () => {
               Quay lại
             </Button>
             <Button
-              onClick={handleConfirmDelete}
+              onClick={() => void handleConfirmDelete()}
               className="bg-red-600 text-white hover:bg-red-700"
             >
               Xóa
@@ -322,13 +255,13 @@ function Status({ status }: { status: TeamRow["status"] }) {
     case "ready":
       return (
         <span className="inline-flex min-w-[120px] justify-center rounded-full bg-emerald-200 px-3 py-1 text-base text-emerald-700">
-          Sẵn sàng
+          Hoạt động
         </span>
       );
     case "rescuing":
       return (
-        <span className="inline-flex min-w-[120px] justify-center rounded-full bg-amber-200 px-3 py-1 text-base text-amber-700">
-          Đang cứu hộ
+        <span className="inline-flex min-w-[120px] justify-center rounded-full bg-slate-200 px-3 py-1 text-base text-slate-600">
+          Không hoạt động
         </span>
       );
     default:

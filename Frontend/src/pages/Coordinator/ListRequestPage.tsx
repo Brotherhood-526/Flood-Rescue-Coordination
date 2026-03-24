@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction, useState } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CommonTable } from "@/layouts/DataTable";
@@ -13,7 +13,6 @@ import {
   ArrowUpNarrowWide,
   ChevronsLeft,
   ChevronsRight,
-  Loader2,
 } from "lucide-react";
 import { useRequestList } from "@/hooks/Coordinator/useRequestList";
 import { COORDINATOR_STATUS } from "@/constants/coordinatorStatus";
@@ -22,16 +21,30 @@ import { formatDateVN } from "@/utils/parseDate";
 import type { CoordinatorRequest } from "@/types/coordinator";
 
 export default function ListRequestPage() {
-  const [filter, setFilter] = useState("");
-  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  // Lấy toàn bộ state và data từ Hook
+  const {
+    filter,
+    setFilter,
+    sortOrder,
+    setSortOrder,
+    pageNumber,
+    pageSize,
+    totalPage,
+    requestList,
+    handlePageChange,
+  } = useRequestList();
 
   return (
     <div className="w-full min-h-[calc(100vh-80px)] p-8 bg-[#fdfdfd] font-sans">
       <Filters filter={filter} setFilter={setFilter} />
       <Requests
-        filter={filter}
         sortOrder={sortOrder}
         setSortOrder={setSortOrder}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        totalPage={totalPage}
+        requestList={requestList}
+        handlePageChange={handlePageChange}
       />
     </div>
   );
@@ -75,7 +88,7 @@ function Filters({
     },
     {
       key: COORDINATOR_STATUS.CANCEL,
-      label: "Đã hủy",
+      label: "Đã huỷ", // Đã sửa lỗi chính tả ở đây
       icon: <CircleX size={44} strokeWidth={1.5} />,
       activeColor: "border-red-400 ring-2 ring-red-400 bg-red-50",
       textColor: "text-red-600",
@@ -115,22 +128,22 @@ function Filters({
 }
 
 function Requests({
-  filter,
   sortOrder,
   setSortOrder,
+  pageNumber,
+  pageSize,
+  totalPage,
+  requestList,
+  handlePageChange,
 }: {
-  filter: string;
   sortOrder: "asc" | "desc";
   setSortOrder: Dispatch<SetStateAction<"asc" | "desc">>;
+  pageNumber: number;
+  pageSize: number;
+  totalPage: number;
+  requestList: CoordinatorRequest[];
+  handlePageChange: (left: boolean) => void;
 }) {
-  const {
-    pageNumber,
-    pageSize,
-    totalPage,
-    requestList,
-    loading,
-    handlePageChange,
-  } = useRequestList(filter, sortOrder);
   const navigate = useNavigate();
 
   const handleOpenRequest = (request: CoordinatorRequest) => {
@@ -164,40 +177,28 @@ function Requests({
         </button>
       </div>
 
-      {/* Loading */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 text-[#25a863] gap-3">
-          <Loader2 className="animate-spin" size={36} />
-          <p className="text-gray-500 font-medium">
-            Đang tải danh sách yêu cầu...
-          </p>
-        </div>
-      ) : (
-        <CommonTable
-          columns={columns}
-          data={requestList}
-          renderRow={(r, idx) => (
-            <TableRow
-              key={pageNumber * pageSize + idx + 1}
-              onClick={() => handleOpenRequest(r)}
-              className="hover:bg-gray-100 cursor-pointer border-b border-gray-200 transition-colors"
-            >
-              <TableCell className="font-mono text-gray-500 font-medium">
-                #{r.id.substring(0, 8).toUpperCase()}
-              </TableCell>
-              <TableCell className="font-bold text-gray-800">
-                {r.phone}
-              </TableCell>
-              <TableCell>
-                <StatusBadge status={r.status} />
-              </TableCell>
-              <TableCell className="text-gray-600 font-medium">
-                {formatDateVN(r.createdAt)}
-              </TableCell>
-            </TableRow>
-          )}
-        />
-      )}
+      <CommonTable
+        columns={columns}
+        data={requestList}
+        renderRow={(r, idx) => (
+          <TableRow
+            key={pageNumber * pageSize + idx + 1}
+            onClick={() => handleOpenRequest(r)}
+            className="hover:bg-gray-100 cursor-pointer border-b border-gray-200 transition-colors"
+          >
+            <TableCell className="font-mono text-gray-500 font-medium">
+              #{r.id.substring(0, 8).toUpperCase()}
+            </TableCell>
+            <TableCell className="font-bold text-gray-800">{r.phone}</TableCell>
+            <TableCell>
+              <StatusBadge status={r.status} />
+            </TableCell>
+            <TableCell className="text-gray-600 font-medium">
+              {formatDateVN(r.createdAt)}
+            </TableCell>
+          </TableRow>
+        )}
+      />
 
       <div className="mt-6 flex items-center justify-center gap-4 text-sm font-semibold text-gray-600">
         <Button
@@ -247,7 +248,6 @@ export function StatusBadge({ status }: { status: string }) {
       className: "bg-red-50 text-red-600 border-red-300",
     },
   };
-  console.log("status raw:", JSON.stringify(status));
 
   const { label, className } = map[status.toLowerCase()] ?? {
     label: status,
