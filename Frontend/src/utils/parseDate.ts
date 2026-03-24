@@ -11,7 +11,7 @@ export const formatDateVN = (dateStr: string): string => {
   });
 };
 
-// Dùng để sort — chỉ cần getTime() là đủ
+// Dùng để sort
 export const toTimestamp = (dateStr: string): number => {
   if (!dateStr) return 0;
   return new Date(dateStr).getTime();
