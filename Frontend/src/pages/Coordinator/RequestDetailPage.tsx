@@ -51,8 +51,7 @@ export default function RequestDetailPage() {
             <Button
               className="bg-gray-300! text-black! font-bold!"
               onClick={() =>
-                id &&
-                navigate(ROUTES.COORDINATE_CHAT.replace(":requestId", id))
+                id && navigate(ROUTES.COORDINATE_CHAT.replace(":requestId", id))
               }
             >
               Hộp thoại
@@ -112,15 +111,19 @@ function Information() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const { requestDetail } = useRequestDetail(id!);
-  const { updateRequest, cancelRequest, loading: isUpdating, error: updateError } =
-    useRequestUpdate();
+  const {
+    updateRequest,
+    cancelRequest,
+    error: updateError,
+  } = useRequestUpdate();
   const tempDisplayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const { vehicleList } = useVehicleList(id, tempDisplayVehicle);
   const displayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const displayUrgency = urgency ?? requestDetail?.urgency ?? null;
   const selectedRescueTeamName =
     vehicleList.find((t) => t.id === rescueTeam)?.teamName ?? null;
-  const displayRescueTeam = selectedRescueTeamName ?? requestDetail?.rescueTeamName ?? null;
+  const displayRescueTeam =
+    selectedRescueTeamName ?? requestDetail?.rescueTeamName ?? null;
   const requestImages = requestDetail?.images ?? [];
 
   const activeStyle = "!bg-white !border-green-600 !border-2 !text-black";
@@ -213,7 +216,9 @@ function Information() {
           <span className="pl-[1.8vw] text-lg font-semibold">
             {request?.citizenName}
           </span>
-          <span className="pl-[1.8vw] text-lg font-semibold">{request?.phone}</span>
+          <span className="pl-[1.8vw] text-lg font-semibold">
+            {request?.phone}
+          </span>
         </div>
 
         <div className={miniDiv}>
@@ -339,7 +344,9 @@ function Information() {
           </CardFooter>
         )}
       {updateError && (
-        <div className="px-[2vw] pb-[2vh] text-sm text-red-600">{updateError}</div>
+        <div className="px-[2vw] pb-[2vh] text-sm text-red-600">
+          {updateError}
+        </div>
       )}
 
       {previewImage && (
