@@ -27,7 +27,10 @@ export default function ChatBoxDialog({
   chatInput,
   setChatInput,
   handleSendMessage,
+  requestStatus,
 }: ChatBoxDialogProps) {
+  const isFinished =
+    requestStatus === "đã huỷ" || requestStatus === "hoàn thành";
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl w-[95vw] h-[80vh] flex flex-col p-0 overflow-hidden">
@@ -71,16 +74,17 @@ export default function ChatBoxDialog({
               type="text"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              placeholder="Nhập tin nhắn tại đây..."
-              className="flex-1 bg-gray-200 text-gray-800 rounded-lg px-4 py-3 outline-none text-sm focus:ring-2 focus:ring-gray-300 transition-all"
+              placeholder={
+                isFinished
+                  ? "Yêu cầu cứu hộ đã kết thúc"
+                  : "Nhập tin nhắn tại đây"
+              }
+              disabled={isFinished}
+              className="flex-1 bg-gray-200 text-gray-800 rounded-lg px-4 py-3 outline-none text-sm focus:ring-2 focus:ring-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <button
-              type="button"
-              className="p-2 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-            ></button>
-            <button
               type="submit"
-              disabled={!chatInput.trim()}
+              disabled={!chatInput.trim() || isFinished}
               className="bg-[#da291c] hover:bg-[#b02115] disabled:bg-red-300 disabled:cursor-not-allowed text-white font-bold px-6 py-2.5 rounded-lg transition-colors"
             >
               Gửi

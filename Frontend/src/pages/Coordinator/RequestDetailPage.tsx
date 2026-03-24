@@ -323,7 +323,6 @@ function Information() {
           <CardFooter className="flex flex-row items-center justify-center px-[2vw] gap-[3vw]">
             <Button
               onClick={() => handleUpdateStatus("reject")}
-              disabled={isUpdating}
               className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-red-600! hover:!bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Từ chối
@@ -332,7 +331,6 @@ function Information() {
             {requestDetail?.status === "yêu cầu mới" && (
               <Button
                 onClick={() => handleUpdateStatus("accept")}
-                disabled={isUpdating}
                 className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-blue-600! hover:!bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cập Nhật

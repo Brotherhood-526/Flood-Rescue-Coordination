@@ -1,5 +1,5 @@
 import type { RescueImage } from "@/types/apiRescue";
-// ── Lookup / Search ───────────────────────────────
+
 export interface LookupCitizenRequestBody {
   citizenPhone: string;
 }
@@ -24,7 +24,7 @@ export interface CitizenLookupData {
   vehicleType: string | null;
 }
 
-// ── Find request view ─────────────────────────────
+//  Find request view
 export interface AssignedTeam {
   id: string | null;
   captain: string | null;
@@ -51,13 +51,12 @@ export interface FindRequestApiResponse {
   data: FindRequestViewData | null;
 }
 
-// ── Submit / Update ───────────────────────────────
+// Submit / Update
 export interface RescueResponse {
   requestId: string;
   status: string;
 }
 
-// ── Chat ──────────────────────────────────────────
 export interface ChatMessage {
   id: string | number;
   role: string;
@@ -66,4 +65,21 @@ export interface ChatMessage {
   text: string;
   colorClass: string;
   bgClass: string;
+}
+// Route State (khi navigate sang trang request)
+export interface RequestRouteState {
+  isSubmitted?: boolean;
+  requestId?: string;
+  status?: string;
+  urgency?: string;
+  imageUrls?: string[];
+  submittedData?: {
+    name: string;
+    phone: string;
+    type: string;
+    address: string;
+    locate: string;
+    description: string;
+    url: string;
+  };
 }

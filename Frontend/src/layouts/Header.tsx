@@ -27,6 +27,13 @@ const LOGOUT_BTN =
   "bg-white text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer";
 
 export default function Header({ role }: { role: number }) {
+  const location = useLocation();
+  const path = location.pathname;
+
+  if (path.startsWith("/manager")) return <ManagerHeader />;
+  if (path.startsWith("/coordinate")) return <CoordinatorHeader />;
+  if (path.startsWith("/rescue")) return <RescueHeader />;
+
   switch (role) {
     case 1:
       return <UserHeader />;
@@ -37,7 +44,7 @@ export default function Header({ role }: { role: number }) {
     case 4:
       return <CoordinatorHeader />;
     default:
-      return null;
+      return <UserHeader />;
   }
 }
 
@@ -207,53 +214,49 @@ export function ManagerHeader() {
 
   return (
     <>
-      <header className="shadow-md">
-        <div className="fixed left-0 top-0 z-50 w-full">
-          {/* Top bar */}
-          <div
-            className={`${HEADER_BASE} fixed top-0 left-0 w-full z-50 shadow-md`}
-          >
-            <div>
-              <p className={TITLE_STYLE}>Bảng quản trị hệ thống</p>
-              <p className={SUB_STYLE}>Quản lý toàn bộ hoạt động của nhóm</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <CircleUserRound size={22} className="text-slate-300" />
-              <span className="text-sm font-medium text-white">
-                {staff?.name ?? "Chưa có tên"}
-              </span>
-              <button
-                onClick={() => setIsLogoutOpen(true)}
-                className={LOGOUT_BTN}
-              >
-                Đăng xuất
-              </button>
-            </div>
+      <header className="fixed left-0 top-0 z-50 w-full shadow-md">
+        {/* Top bar */}
+        <div className={HEADER_BASE}>
+          <div>
+            <p className={TITLE_STYLE}>Bảng quản trị hệ thống</p>
+            <p className={SUB_STYLE}>Quản lý toàn bộ hoạt động của nhóm</p>
           </div>
-
-          {/* Nav tabs */}
-          <nav className="flex w-full bg-white border-b border-gray-200">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeRoute === tab.route;
-              return (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => navigate(tab.route)}
-                  className={`flex flex-1 items-center justify-center gap-2 px-4 py-4 text-sm font-semibold border-r border-gray-200 cursor-pointer transition-colors ${
-                    isActive
-                      ? "bg-white border-b-2 border-b-[#0f172a] text-[#0f172a]"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  <Icon className="h-5 w-5 shrink-0" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </nav>
+          <div className="flex items-center gap-3">
+            <CircleUserRound size={22} className="text-slate-300" />
+            <span className="text-sm font-medium text-white">
+              {staff?.name ?? "Chưa có tên"}
+            </span>
+            <button
+              onClick={() => setIsLogoutOpen(true)}
+              className={LOGOUT_BTN}
+            >
+              Đăng xuất
+            </button>
+          </div>
         </div>
+
+        {/* Nav tabs */}
+        <nav className="flex w-full border-b border-gray-200 bg-white">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeRoute === tab.route;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => navigate(tab.route)}
+                className={`flex flex-1 items-center justify-center gap-2 border-r border-gray-200 px-4 py-4 text-sm font-semibold transition-colors cursor-pointer ${
+                  isActive
+                    ? "border-b-2 border-b-[#0f172a] bg-white text-[#0f172a]"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
       </header>
       <ConfirmDialog
         isOpen={isLogoutOpen}

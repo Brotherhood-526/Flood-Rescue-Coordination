@@ -13,7 +13,12 @@ import {
 } from "@/validations/user.request.schema";
 import type { ChatMessage, CitizenLookupData } from "@/types/request";
 import type { RescueImage } from "@/types/apiRescue";
+import {
+  buildSubmitFormData,
+  buildUpdateFormData,
+} from "@/services/User/requestService";
 
+import { RESCUE_STORAGE_KEYS } from "@/constants/request.constants";
 export const useRequestController = (
   mapContainer: React.RefObject<HTMLDivElement | null>,
 ) => {
@@ -26,7 +31,7 @@ export const useRequestController = (
   const markerRef = useRef<vietmapgl.Marker | null>(null);
   const popupRef = useRef<vietmapgl.Popup | null>(null);
 
-  // ── State ──────────────────────────────────────────────
+  // State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("address");
@@ -55,7 +60,7 @@ export const useRequestController = (
     routeState?.urgency ?? null,
   );
 
-  // ── Form ───────────────────────────────────────────────
+  //Form
   const {
     register,
     handleSubmit,
@@ -82,14 +87,14 @@ export const useRequestController = (
   const selectedType = watch("type");
   const currentImages = (watch("image") as File[]) || [];
 
-  // ── Map setup ──────────────────────────────────────────
+  // Map setup
   useEffect(() => {
     if (!mapContainer.current) return;
     mount(mapContainer.current);
     return () => unmount();
   }, [mount, unmount, mapContainer]);
 
-  // ── Refetch từ localStorage ──
+  // Refetch từ localStorage
   useEffect(() => {
     if (!isSubmitted || !phone || submittedData) return;
     const refetch = async () => {
@@ -120,7 +125,7 @@ export const useRequestController = (
     refetch();
   }, [isSubmitted, phone, submittedData]);
 
-  // ── Cắm cờ sau submit ──────────────────────────────────
+  // Cắm cờ sau submit
   useEffect(() => {
     if (!map || !isSubmitted || !submittedData?.locate) return;
     const [lat, lng] = submittedData.locate
@@ -134,7 +139,7 @@ export const useRequestController = (
     map.flyTo({ center: [lng, lat], zoom: 16 });
   }, [map, isSubmitted, submittedData?.locate]);
 
-  // ── Popup kéo cờ ──────────────────────────────────────
+  // Popup kéo cờ
   const showDragPopup = useCallback(
     (lngLat: [number, number]) => {
       popupRef.current?.remove();
@@ -153,7 +158,7 @@ export const useRequestController = (
     [map],
   );
 
-  // ── Drag marker ───────────────────────────────────────
+  // Drag marker
   const attachDraggable = useCallback(
     (marker: vietmapgl.Marker) => {
       marker.on("dragend", async () => {
@@ -352,45 +357,26 @@ export const useRequestController = (
 
   const onSubmit = async (data: RequestSchemaType) => {
     try {
-      const formData = new FormData();
       if (isSubmitted && requestId) {
-        formData.append("requestId", String(requestId));
-        formData.append("Type", data.type);
-        formData.append("address", data.address);
-        formData.append("description", data.description);
-        formData.append("citizenName", data.name);
-        formData.append("citizenPhone", data.phone);
-        if (data.locate) {
-          const [lat, lng] = data.locate.split(",").map((s) => s.trim());
-          formData.append("latitude", lat);
-          formData.append("longitude", lng);
-        }
-        if (data.url) formData.append("additionLink", data.url);
-        data.image?.forEach((f) => formData.append("images", f));
-        await requestService.update(requestId, formData);
+        // Cập nhật
+        const formData = buildUpdateFormData(requestId, data);
+        await requestService.update(formData);
         alert("Cập nhật thông tin thành công!");
         setIsDialogOpen(false);
       } else {
-        formData.append("type", data.type);
-        formData.append("address", data.address);
-        formData.append("description", data.description);
-        formData.append("name", data.name);
-        formData.append("phone", data.phone);
-        if (data.locate) {
-          const [lat, lng] = data.locate.split(",").map((s) => s.trim());
-          formData.append("latitude", lat);
-          formData.append("longitude", lng);
-        }
-        if (data.url) formData.append("additionalLink", data.url);
-        data.image?.forEach((f) => formData.append("images", f));
+        // Gửi mới
+        const formData = buildSubmitFormData(data);
         const response = await requestService.submit(formData);
         if (response?.requestId) setRequestId(response.requestId);
         if (response?.status) setStatus(response.status);
         alert("Gửi yêu cầu thành công!");
         setIsSubmitted(true);
         setPhone(data.phone);
-        localStorage.setItem("rescue_requestId", response.requestId);
-        localStorage.setItem("rescue_phone", data.phone);
+        localStorage.setItem(
+          RESCUE_STORAGE_KEYS.REQUEST_ID,
+          response.requestId,
+        );
+        localStorage.setItem(RESCUE_STORAGE_KEYS.PHONE, data.phone);
       }
       setSubmittedData(data);
     } catch (err) {

@@ -1,31 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MapPinned, Navigation, Locate, X, Upload } from "lucide-react";
-import type {
-  UseFormRegister,
-  FieldErrors,
-  UseFormSetValue,
-} from "react-hook-form";
-import type { RefObject } from "react";
-import { type RequestSchemaType } from "@/validations/user.request.schema";
-
-interface BeforeRequestPageProps {
-  isSubmitting: boolean;
-  onSubmitForm: (e?: React.BaseSyntheticEvent) => Promise<void>;
-  handleKeyDown: (e: React.KeyboardEvent<HTMLFormElement>) => void;
-  register: UseFormRegister<RequestSchemaType>;
-  errors: FieldErrors<RequestSchemaType>;
-  selectedType: string;
-  setValue: UseFormSetValue<RequestSchemaType>;
-  activeTab: string;
-  setActiveTab: (val: string) => void;
-  handleConfirmAddress: () => void;
-  handleGetLocation: () => void;
-  previews: string[];
-  handleRemoveImage: (index: number) => void;
-  inputRef: RefObject<HTMLInputElement | null>;
-  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import type { BeforeRequestPageProps } from "@/types/requestProps";
 
 export default function BeforeRequestPage(props: BeforeRequestPageProps) {
   const {
