@@ -70,7 +70,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ===== GIẢI PHÁP CỦA CHÚNG TÔI ===== */}
+      {/* ===== GIẢI PHÁP CỦA CHÚNG TÔI  */}
       <div className="px-50 py-20">
         <h2 className="mb-16 text-center text-2xl font-bold uppercase tracking-wide text-gray-800">
           GIẢI PHÁP CỦA CHÚNG TÔI

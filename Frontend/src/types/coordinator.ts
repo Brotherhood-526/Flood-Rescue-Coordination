@@ -45,8 +45,3 @@ export interface VehicleAndRescueTeamInfo {
   id: string;
   teamName: string;
 }
-
-export interface NearbyTeamOption {
-  id: string;
-  teamName: string;
-}

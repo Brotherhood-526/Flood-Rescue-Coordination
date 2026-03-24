@@ -28,6 +28,7 @@ import { useRequestUpdate } from "@/hooks/Coordinator/useRequestUpdate";
 import { timeAgo } from "@/utils/timeAgo";
 import { getRequestTypeLabel } from "@/utils/requestHelpers";
 import type { CoordinatorRequest } from "@/types/coordinator";
+import { coordinatorService } from "@/services/Coordinator/coordinatorService";
 
 export default function RequestDetailPage() {
   const navigate = useNavigate();
@@ -86,9 +87,8 @@ export default function RequestDetailPage() {
 function Solving() {
   const { id } = useParams();
   const { requestDetail } = useRequestDetail(id!);
-  const location = useLocation();
-  const request = location.state as CoordinatorRequest;
-
+  const location = useLocation(); // để lấy data được truyền qua navigate
+  const request = location.state as CoordinatorRequest; //lấy thông tin citizenName từ state của trang trước truyền sang trang full map
   return (
     <div className="w-full flex-[9.5] bg-white pt-[1vh] flex flex-row justify-between items-start px-[2vw]">
       <Information />
@@ -100,7 +100,6 @@ function Solving() {
     </div>
   );
 }
-
 function Information() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -109,11 +108,9 @@ function Information() {
   const [vehicle, setVehicle] = useState<string | null>(null);
   const [urgency, setUrgency] = useState<string | null>(null);
   const [rescueTeam, setRescueTeam] = useState<string | null>(null);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const { requestDetail } = useRequestDetail(id!);
-  const { updateRequest, cancelRequest, loading: isUpdating, error: updateError } =
-    useRequestUpdate();
   const tempDisplayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const { vehicleList } = useVehicleList(id, tempDisplayVehicle);
   const displayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
@@ -129,6 +126,64 @@ function Information() {
   const vehiclesButton =
     "flex flex-col gap-0 !w-[6vw] !h-[8vh] !border-gray-300 !text-black";
   const miniDiv = "flex flex-col gap-1";
+  // hàm xử lý 2 cái nút chấp nhận và từ chối
+  const handleUpdateStatus = async (action: "accept" | "reject") => {
+    if (!id) return;
+    try {
+      setIsUpdating(true);
+      if (action === "accept") {
+        if (!displayUrgency || !displayRescueTeam || !displayVehicle) {
+          alert(
+            "Vui lòng chọn loại phương tiện, mức độ khẩn cấp và đội cứu hộ trước khi chấp nhận",
+          );
+          setIsUpdating(false);
+          return;
+        }
+
+        const selectedTeam = vehicleList.find(
+          (t) => t.teamName === displayRescueTeam,
+        );
+        const teamId = selectedTeam?.id;
+
+        if (!teamId) {
+          alert("Không tìm thấy thông tin đội cứu hộ!");
+          setIsUpdating(false);
+          return;
+        }
+
+        const res = await coordinatorService.acceptRequest(id, {
+          status: "đang xử lý",
+          urgency: displayUrgency,
+          rescueTeamID: teamId,
+          vehicleType: displayVehicle,
+        });
+
+        navigate(ROUTES.COORDINATE_MAP, {
+          state: {
+            userLat: res.latitude,
+            userLng: res.longitude,
+            userName: res.citizenName,
+            teamLat: res.rescueTeamLatitude,
+            teamLng: res.rescueTeamLongitude,
+            teamName: res.rescueTeamName,
+          },
+        });
+        return;
+      } else if (action === "reject") {
+        await coordinatorService.acceptRequest(id, {
+          status: "đã huỷ",
+        });
+
+        alert("Đã từ chối yêu cầu!");
+      }
+      navigate(-1);
+    } catch (error) {
+      console.error("Lỗi API:", error);
+      alert("Lỗi khi cập nhật trạng thái yêu cầu.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const handleUpdateStatus = async (action: "accept" | "reject") => {
     if (!id) return;
@@ -187,7 +242,9 @@ function Information() {
               {requestDetail?.status}
             </span>
             <br />
-            <span>{request?.createdAt ? timeAgo(request.createdAt) : ""}</span>
+            <span>
+              {request?.createdAt ? timeAgo(request.createdAt) : ""}
+            </span>{" "}
           </div>
           <select
             value={displayUrgency ?? ""}
@@ -213,7 +270,9 @@ function Information() {
           <span className="pl-[1.8vw] text-lg font-semibold">
             {request?.citizenName}
           </span>
-          <span className="pl-[1.8vw] text-lg font-semibold">{request?.phone}</span>
+          <span className="pl-[1.8vw] text-lg font-semibold">
+            {request?.phone}
+          </span>
         </div>
 
         <div className={miniDiv}>
@@ -239,23 +298,21 @@ function Information() {
 
         <div className={miniDiv}>
           <div className="flex flex-row gap-[1vh]">
-            <Image className="h-5! w-5!" /> Ảnh đính kèm
+            <Image className="h-5! w-5!" /> Link ảnh
           </div>
-          <div className="grid grid-cols-3 gap-2">
-            {requestImages.length > 0 ? (
-              requestImages.map((img) => (
-                <img
-                  key={img.id}
-                  src={img.imageUrl}
-                  alt="request attachment"
-                  className="w-full h-24 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-90"
-                  onClick={() => setPreviewImage(img.imageUrl)}
-                />
+          <div className="flex flex-row gap-4">
+            {" "}
+            {requestDetail?.images?.length ? (
+              requestDetail.images.map((img) => (
+                <a key={img.id} href={img.imageUrl} target="_blank">
+                  <img
+                    src={img.imageUrl}
+                    className="w-50 h-50 object-cover rounded"
+                  />
+                </a>
               ))
             ) : (
-              <div className="col-span-3 text-sm text-gray-500">
-                Không có ảnh
-              </div>
+              <span>Không có ảnh</span>
             )}
           </div>
         </div>
@@ -297,18 +354,19 @@ function Information() {
           Phân công đội cứu hộ phù hợp
           {requestDetail?.status === "yêu cầu mới" ? (
             <select
-              value={rescueTeam ?? ""}
+              value={displayRescueTeam ?? ""}
               onChange={(e) => setRescueTeam(e.target.value)}
               className="h-[5vh] w-[80%] px-3 text-[1.8vh] bg-white border-2 border-black rounded-lg cursor-pointer outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="" disabled hidden>
                 -- Chọn đội cứu hộ --
               </option>
-              {vehicleList.map((team) => (
-                <option key={team.id} value={team.id}>
-                  {team.teamName}
-                </option>
-              ))}
+              {Array.isArray(vehicleList) &&
+                vehicleList.map((team) => (
+                  <option key={team.id} value={team.teamName}>
+                    {team.teamName}
+                  </option>
+                ))}
             </select>
           ) : (
             <div className="h-[5vh] w-[80%] px-3 flex items-center text-[1.8vh] bg-gray-100 border-2 border-gray-300 rounded-lg font-bold text-gray-700">
@@ -335,38 +393,11 @@ function Information() {
                 disabled={isUpdating}
                 className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-blue-600! hover:!bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Cập Nhật
+                Chấp Nhận
               </Button>
             )}
           </CardFooter>
         )}
-      {updateError && (
-        <div className="px-[2vw] pb-[2vh] text-sm text-red-600">{updateError}</div>
-      )}
-
-      {previewImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6"
-          onClick={() => setPreviewImage(null)}
-        >
-          <div
-            className="relative w-[92vw] h-[88vh] bg-black rounded-lg overflow-hidden flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="absolute top-3 right-3 bg-white/90 text-black px-3 py-1 rounded-md text-sm font-semibold"
-              onClick={() => setPreviewImage(null)}
-            >
-              Đóng
-            </button>
-            <img
-              src={previewImage}
-              alt="attachment preview"
-              className="max-w-full max-h-full object-contain"
-            />
-          </div>
-        </div>
-      )}
     </Card>
   );
 }
@@ -384,7 +415,6 @@ function MiniMap({
   const { map, mount, mapLoaded, unmount } = useVietMap();
   const markerRef = useRef<vietmapgl.Marker | null>(null);
   const popupRef = useRef<vietmapgl.Popup | null>(null);
-
   useEffect(() => {
     if (mapContainer.current) {
       mount(mapContainer.current);
