@@ -214,7 +214,7 @@ export function ManagerHeader() {
 
   return (
     <>
-      <header className="fixed left-0 top-0 z-50 w-full shadow-md">
+      <header className="left-0 top-0 z-50 w-full shadow-md">
         {/* Top bar */}
         <div className={HEADER_BASE}>
           <div>
