@@ -2,49 +2,79 @@ import { ImageUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {useState, useEffect, useRef} from "react";
 import {Textarea} from "@/components/ui/textarea.tsx";
+import{useChatbox} from "@/hooks/useChatBox";
 
 export type MessageComponent = {
     content?: string;
     time: string;
+    senderId: string;
     name: string;
 };
 
-type TestChatBoxProps = {
+type ChatBoxProps = {
     title: string;
-    senderName: string;
+    senderId: string;
+    requestId: string;
     messages: MessageComponent[];
     setMessages: React.Dispatch<React.SetStateAction<MessageComponent[]>>;
+    inputDisabled?: boolean;
+    inputPlaceholder?: string;
     className?: string;
     messageClassName?: string;
 };
 
 type MessageProps = {
     message: MessageComponent;
-    senderName: string;
+    senderId: string;
     className?: string;
 };
 
 type ChatInputProps = {
     onSend: (content: string) => void;
+    disabled?: boolean;
+    placeholder?: string;
 };
 
 /* ---------------- MAIN COMPONENT ----------------*/
 
-export default function ChatBox({ title, senderName, messages, setMessages, className, messageClassName }: TestChatBoxProps) {
+export default function ChatBox({
+    title,
+    senderId,
+    requestId,
+    messages,
+    setMessages,
+    inputDisabled = false,
+    inputPlaceholder = "Nhập tin nhắn tại đây...",
+    className,
+    messageClassName,
+}: ChatBoxProps) {
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const {sendMessage} = useChatbox();
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    const handleSend = (content: string) => {
+    const handleSend = async (content: string) => {
+        if (inputDisabled) return;
+        const sent = await sendMessage(
+            requestId,
+            senderId,
+            content
+        );
+        if (!sent) return;
+
         const newMessage: MessageComponent = {
-            content,
-            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-            name: senderName,
+            content: sent.content,
+            time: new Date(sent.sentAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            }),
+            senderId: sent.senderId,
+            name: sent.senderName
         };
 
-        setMessages([...messages, newMessage]);
+        setMessages((prev) => [...prev, newMessage]);
     };
 
     return (
@@ -58,13 +88,17 @@ export default function ChatBox({ title, senderName, messages, setMessages, clas
             {/* Messages */}
             <div className="flex-1 flex flex-col overflow-y-auto px-[1em] py-[0.8em] gap-[0.6em]">
                 {messages.map((msg, index) => (
-                    <Message key={index} message={msg} senderName={senderName} className={messageClassName} />
+                    <Message key={index} message={msg} senderId={senderId} className={messageClassName} />
                 ))}
                 <div ref={messagesEndRef} />
             </div>
 
             <div>
-                <ChatInput onSend={handleSend}/>
+                <ChatInput
+                    onSend={handleSend}
+                    disabled={inputDisabled}
+                    placeholder={inputPlaceholder}
+                />
             </div>
         </div>
     );
@@ -72,8 +106,8 @@ export default function ChatBox({ title, senderName, messages, setMessages, clas
 
 /* ---------------- MESSAGE ---------------- */
 
-function Message({ message, senderName, className }: MessageProps) {
-    const isSender = message.name === senderName;
+function Message({ message, senderId, className }: MessageProps) {
+    const isSender = message.senderId === senderId;
 
     return (
         <div className={`flex flex-col w-full ${isSender? "items-end" : "items-start"}`}>
@@ -90,10 +124,11 @@ function Message({ message, senderName, className }: MessageProps) {
     );
 }
 
-function ChatInput({ onSend }: ChatInputProps) {
+function ChatInput({ onSend, disabled = false, placeholder = "Nhập tin nhắn tại đây..." }: ChatInputProps) {
     const [value, setValue] = useState("");
 
     const handleSend = () => {
+        if (disabled) return;
         if (!value.trim()) return;
 
         onSend(value.trim());
@@ -118,6 +153,7 @@ function ChatInput({ onSend }: ChatInputProps) {
 
             <Textarea
                 value={value}
+                disabled={disabled}
                 onChange={(e) => {
                     setValue(e.target.value)
                     e.target.style.height = "auto"
@@ -129,7 +165,7 @@ function ChatInput({ onSend }: ChatInputProps) {
                         handleSend()
                     }
                 }}
-                placeholder="Nhập tin nhắn tại đây..."
+                placeholder={placeholder}
                 rows={1}
                 className="flex-1 bg-gray-100 border-none focus-visible:ring-0 text-[0.95em] resize-none overflow-hidden"
             />
@@ -138,7 +174,7 @@ function ChatInput({ onSend }: ChatInputProps) {
 
             <Button
                 onClick={handleSend}
-                disabled={!value.trim()}
+                disabled={disabled || !value.trim()}
                 className="bg-red-600 hover:bg-red-700 text-white px-[1em] cursor-pointer"
             >
                 Gửi

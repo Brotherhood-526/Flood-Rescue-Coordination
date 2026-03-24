@@ -24,6 +24,7 @@ import vietmapgl from "@vietmap/vietmap-gl-js";
 import { ROUTES } from "@/router/routes";
 import { useRequestDetail } from "@/hooks/Coordinator/useRequestDetail";
 import { useVehicleList } from "@/hooks/Coordinator/useVehicle";
+import { useRequestUpdate } from "@/hooks/Coordinator/useRequestUpdate";
 import { timeAgo } from "@/utils/timeAgo";
 import { getRequestTypeLabel } from "@/utils/requestHelpers";
 import type { CoordinatorRequest } from "@/types/coordinator";
@@ -48,7 +49,13 @@ export default function RequestDetailPage() {
               <Undo2 className="w-5! h-5!" strokeWidth={2.5} />
               Quay Lại
             </Button>
-            <Button className="bg-gray-300! text-black! font-bold!">
+            <Button
+              className="bg-gray-300! text-black! font-bold!"
+              onClick={() =>
+                id &&
+                navigate(ROUTES.COORDINATE_CHAT.replace(":requestId", id))
+              }
+            >
               Hộp thoại
             </Button>
           </div>
@@ -108,7 +115,10 @@ function Information() {
   const { vehicleList } = useVehicleList(id, tempDisplayVehicle);
   const displayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const displayUrgency = urgency ?? requestDetail?.urgency ?? null;
-  const displayRescueTeam = rescueTeam ?? requestDetail?.rescueTeamName ?? null;
+  const selectedRescueTeamName =
+    vehicleList.find((t) => t.id === rescueTeam)?.teamName ?? null;
+  const displayRescueTeam = selectedRescueTeamName ?? requestDetail?.rescueTeamName ?? null;
+  const requestImages = requestDetail?.images ?? [];
 
   const activeStyle = "!bg-white !border-green-600 !border-2 !text-black";
   const normalStyle =
@@ -172,6 +182,48 @@ function Information() {
       alert("Lỗi khi cập nhật trạng thái yêu cầu.");
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleUpdateStatus = async (action: "accept" | "reject") => {
+    if (!id) return;
+    try {
+      if (action === "accept") {
+        if (!displayUrgency || !rescueTeam || !displayVehicle) {
+          alert(
+            "Vui lòng chọn loại phương tiện, mức độ khẩn cấp và đội cứu hộ trước khi chấp nhận",
+          );
+          return;
+        }
+
+        const res = await updateRequest({
+          requestId: id,
+          urgency: displayUrgency,
+          rescueTeamID: rescueTeam,
+          vehicleType: displayVehicle,
+        });
+        if (!res) return;
+
+        navigate(ROUTES.COORDINATE_MAP, {
+          state: {
+            userLat: res.latitude,
+            userLng: res.longitude,
+            userName: res.citizenName,
+            teamLat: res.rescueTeamLatitude,
+            teamLng: res.rescueTeamLongitude,
+            teamName: res.rescueTeamName,
+          },
+        });
+        return;
+      }
+
+      const cancelled = await cancelRequest(id);
+      if (!cancelled) return;
+      alert("Đã từ chối yêu cầu!");
+      navigate(-1);
+    } catch (error) {
+      console.error("Lỗi API:", error);
+      alert("Lỗi khi cập nhật trạng thái yêu cầu.");
     }
   };
 
@@ -289,6 +341,7 @@ function Information() {
                 key={v.value}
                 className={`${vehiclesButton} ${displayVehicle === v.value ? activeStyle : normalStyle}`}
                 onClick={() => setVehicle(v.value)}
+                disabled={requestDetail?.status !== "yêu cầu mới"}
               >
                 {v.icon}
                 {v.label}

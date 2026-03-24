@@ -63,8 +63,8 @@ public interface StaffDAO extends JpaRepository<Staff, UUID> {
              SELECT
                  s.id,
                  s.team_name
-             FROM staff s
-             INNER JOIN vehicle v ON v.rescue_team_id = s.id
+             FROM Staff s
+             INNER JOIN Vehicle v ON v.rescue_team_id = s.id
              WHERE s.role        = 'cứu hộ'
                AND s.staff_state = 'hoạt động'
                AND v.type        = :vehicleType
@@ -73,7 +73,7 @@ public interface StaffDAO extends JpaRepository<Staff, UUID> {
                GROUP BY s.id, s.team_name, s.geo_location
              ORDER BY ST_Distance_Sphere(
                  s.geo_location,
-                 ST_GeomFromText(CONCAT('POINT(', :longitude, ' ', :latitude, ')'), 4326)
+                 ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)
              ) ASC
              LIMIT 4
             \s""", nativeQuery = true)

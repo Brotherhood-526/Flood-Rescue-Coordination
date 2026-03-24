@@ -1,6 +1,8 @@
 package com.rescue.backend.controller.controller.coordinator;
 
 import com.rescue.backend.model.service.DispatchService;
+import com.rescue.backend.view.dto.chat.request.SendMessageRequest;
+import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import com.rescue.backend.view.dto.common.ResponseObject;
 
 import com.rescue.backend.view.dto.coordinator.request.UpdateRequest;
@@ -152,6 +154,9 @@ public class DispatchController {
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new ResponseObject(404, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Không thể lấy đội cứu hộ gần nhất", e.getMessage()));
         }
     }
 
@@ -175,11 +180,62 @@ public class DispatchController {
             RequestDetailResponse detail = dispatchService.updateRequest(requestId, coordinatorId, dto);
             return ResponseEntity.ok(new ResponseObject(200, "Chấp nhận yêu cầu thành công", detail));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject(404, e.getMessage(), null));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(400, e.getMessage(), null));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseObject(400, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Không thể cập nhật yêu cầu", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/chat/{requestId}")
+    public ResponseEntity<ResponseObject> getAllMessages(@PathVariable UUID requestId) {
+        try {
+            List<MessageResponse> result = dispatchService.takeAllMessageOfRequest(requestId);
+            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseObject(404, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Không thể tải lịch sử chat", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/chat/{requestId}")
+    public ResponseEntity<ResponseObject> sendMessage(
+            @PathVariable UUID requestId,
+            @RequestParam(required = false) UUID testAccountId,
+            @RequestBody SendMessageRequest dto,
+            HttpSession session
+    ) {
+        UUID coordinatorId = testAccountId != null
+                ? testAccountId
+                : (UUID) session.getAttribute("STAFF_ID");
+
+        if (coordinatorId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    new ResponseObject(401, "Vui lòng đăng nhập hoặc truyền testAccountId", null));
+        }
+
+        try {
+            MessageResponse result = dispatchService.sendMessage(
+                    requestId,
+                    coordinatorId,
+                    dto.content(),
+                    dto.sendAt()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    new ResponseObject(201, "Gửi tin nhắn thành công", result));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseObject(400, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ResponseObject(500, "Không thể gửi tin nhắn", e.getMessage()));
         }
     }
 }

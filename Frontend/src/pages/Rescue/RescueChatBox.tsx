@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Send } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { rescueTeamService } from "@/services/Rescue/rescueTeamService";
+import { useChatbox } from "@/hooks/useChatBox";
 import type { RescueRequest } from "@/types/rescue";
 interface ChatMessage {
-  id: number;
+  id: string;
   sender: string;
   senderRole: string;
   content: string;
@@ -14,14 +15,15 @@ interface ChatMessage {
 
 export default function RescueChatBox() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const requestId = searchParams.get("id");
+  const { requestId } = useParams();
   const staff = useAuthStore((state) => state.staff);
   const [detail, setDetail] = useState<RescueRequest | null>(null);
   const [message, setMessage] = useState("");
   const isCompleted =
     detail?.status?.toLowerCase().includes("hoàn thành") ?? false;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [tick, setTick] = useState(0);
+  const { fetchMessage, sendMessage, error: chatError } = useChatbox();
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -40,25 +42,51 @@ export default function RescueChatBox() {
   }, [requestId]);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      setTick((prev) => prev + 1);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (!requestId) return;
+      const data = await fetchMessage(requestId, "rescue");
+      const formatted: ChatMessage[] = data.map((msg) => ({
+        id: msg.id,
+        sender: msg.senderName,
+        senderRole: msg.senderRole,
+        content: msg.content,
+        time: new Date(msg.sentAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      }));
+      setMessages(formatted);
+    };
+    loadMessages();
+  }, [requestId, tick, fetchMessage]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const getNow = () =>
-    new Date().toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!message.trim() || isCompleted) return;
+    if (!requestId || !staff?.accountId) return;
+    const sent = await sendMessage(requestId, staff.accountId, message, "rescue");
+    if (!sent) return;
     setMessages((prev) => [
       ...prev,
       {
-        id: Date.now(),
-        sender: staff?.name ?? "Đội cứu hộ",
-        senderRole: "rescue",
-        content: message.trim(),
-        time: getNow(),
+        id: sent.id,
+        sender: sent.senderName,
+        senderRole: sent.senderRole,
+        content: sent.content,
+        time: new Date(sent.sentAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       },
     ]);
     setMessage("");
@@ -86,7 +114,7 @@ export default function RescueChatBox() {
               <div
                 key={msg.id}
                 className={`flex flex-col w-full ${
-                  msg.senderRole === "rescue" ? "items-end" : "items-start"
+                  msg.senderRole === "cứu hộ" ? "items-end" : "items-start"
                 }`}
               >
                 <div className="flex gap-3 text-[15px] mb-1.5 font-semibold text-[#8b5cf6]">
@@ -96,7 +124,7 @@ export default function RescueChatBox() {
 
                 <div
                   className={`p-4 rounded-2xl w-[85%] text-left text-[15px] leading-relaxed shadow-sm text-white ${
-                    msg.senderRole === "rescue"
+                    msg.senderRole === "cứu hộ"
                       ? "bg-[#6366f1] rounded-tr-sm"
                       : "bg-[#3b82f6] rounded-tl-sm"
                   }`}
@@ -170,6 +198,9 @@ export default function RescueChatBox() {
           </div>
         </div>
       </div>
+      {chatError && (
+        <div className="mt-3 text-sm text-red-600">{chatError}</div>
+      )}
     </div>
   );
 }

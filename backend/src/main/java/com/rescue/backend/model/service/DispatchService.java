@@ -1,12 +1,15 @@
 package com.rescue.backend.model.service;
 
 
+import com.rescue.backend.model.bean.Message;
 import com.rescue.backend.model.bean.Request;
 import com.rescue.backend.model.bean.Staff;
 import com.rescue.backend.model.bean.Vehicle;
+import com.rescue.backend.model.dao.MessageDAO;
 import com.rescue.backend.model.dao.RequestDAO;
 import com.rescue.backend.model.dao.StaffDAO;
 import com.rescue.backend.model.dao.VehicleDAO;
+import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import com.rescue.backend.view.dto.coordinator.request.TakeListRequest;
 import com.rescue.backend.view.dto.coordinator.request.UpdateRequest;
 import com.rescue.backend.view.dto.coordinator.response.*;
@@ -19,10 +22,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Service
 public class DispatchService {
@@ -37,6 +42,13 @@ public class DispatchService {
     @Autowired
     private StaffDAO staffDAO;
 
+    @Autowired
+    private MessageDAO messageDAO;
+
+    @Autowired
+    private ChatService chatService;
+
+    private static final int PAGE_SIZE = 1000;
     private static final List<String> VALID_VEHICLE_TYPES =
             List.of("xuồng", "xe cứu hộ", "trực thăng");
     private static final List<String> VALID_URGENCY_TYPES =
@@ -179,7 +191,7 @@ public class DispatchService {
         double lng = request.getLongitude().doubleValue();
 
         List<Object[]> rows = staffDAO.findTop4NearbyTeams(
-                lng, lat, vehicleType.trim().toLowerCase());
+                lat, lng, vehicleType.trim().toLowerCase());
 
         if (rows == null || rows.isEmpty()) {
             throw new IllegalStateException(
@@ -188,10 +200,20 @@ public class DispatchService {
 
         return rows.stream()
                 .map(row -> new NearbyTeamResponse(
-                        UUID.fromString((String) row[0]),
+                        toUuid(row[0]),
                         (String) row[1]
                 ))
                 .toList();
+    }
+
+    private UUID toUuid(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof UUID uuid) {
+            return uuid;
+        }
+        return UUID.fromString(value.toString());
     }
 
     public RequestDetailResponse updateRequest(UUID requestID, UUID coordinatorID, UpdateRequest dto) {
@@ -209,7 +231,12 @@ public class DispatchService {
             };
 
             if ("đã huỷ".equals(newStatus)) {
-                // Cho phép huỷ bất chấp trạng thái hiện tại là gì (miễn không phải hoàn thành)
+                if ("hoàn thành".equals(request.getStatus())) {
+                    throw new IllegalStateException("Yêu cầu đã hoàn thành, không thể huỷ");
+                }
+                if ("đã huỷ".equals(request.getStatus())) {
+                    return getRequestDetail(request.getId());
+                }
                 request.setStatus("đã huỷ");
                 requestDAO.save(request);
                 return getRequestDetail(request.getId());
@@ -228,7 +255,8 @@ public class DispatchService {
         if (urgency == null || !VALID_URGENCY_TYPES.contains(urgency.trim().toLowerCase())) {
             throw new IllegalArgumentException("Mức độ khẩn cấp không hợp lệ. Chỉ chấp nhận: 'cao', 'trung bình', 'thấp'");
         }
-        request.setUrgency(dto.urgency());
+        String normalizedUrgency = urgency.trim().toLowerCase();
+        request.setUrgency(normalizedUrgency);
 
         Staff rescueTeam = staffDAO.findById(dto.rescueTeamID())
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -242,11 +270,12 @@ public class DispatchService {
 
         String type = dto.vehicleType();
         if (type == null || !VALID_VEHICLE_TYPES.contains(type.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Trạng thái không hợp lệ. Chỉ chấp nhận: 'đang sử dụng', 'không hoạt động' hoặc 'bảo trì'");
+            throw new IllegalArgumentException("Loại phương tiện không hợp lệ. Chỉ chấp nhận: 'xuồng', 'xe cứu hộ' hoặc 'trực thăng'");
         }
+        String normalizedVehicleType = type.trim().toLowerCase();
 
         Vehicle vehicle = vehicleDAO
-                .findAvailableVehicle(dto.rescueTeamID(), dto.vehicleType(), PageRequest.of(0, 1))
+                .findAvailableVehicle(dto.rescueTeamID(), normalizedVehicleType, PageRequest.of(0, 1))
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Không có phương tiện khả dụng"));
@@ -257,5 +286,56 @@ public class DispatchService {
         requestDAO.save(request);
         vehicleDAO.save(vehicle);
         return getRequestDetail(request.getId());
+    }
+
+    @Transactional
+    public MessageResponse sendMessage(
+            UUID requestId,
+            UUID senderId,
+            String content,
+            LocalDateTime sendAt
+    ) {
+        if (requestId == null) {
+            throw new IllegalArgumentException("Thiếu requestId");
+        }
+        if (senderId == null) {
+            throw new IllegalArgumentException("Thiếu senderId");
+        }
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nội dung tin nhắn không được để trống");
+        }
+
+        Request request = requestDAO.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy yêu cầu với id: " + requestId));
+
+        Staff sender = staffDAO.findById(senderId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy điều phối viên với id: " + senderId));
+        if (sender.getRole() == null || !sender.getRole().trim().equalsIgnoreCase("điều phối viên")) {
+            throw new IllegalArgumentException("Tài khoản gửi tin nhắn không phải điều phối viên");
+        }
+
+        Message message = new Message();
+        message.setRequest(request);
+        message.setSenderId(senderId);
+        message.setSenderRole("điều phối viên");
+        message.setContent(content.trim());
+        message.setSendAt(sendAt != null ? sendAt : LocalDateTime.now());
+
+        Message saved = messageDAO.save(message);
+
+        return new MessageResponse(
+                saved.getId(),
+                senderId,
+                sender.getName(),
+                saved.getSenderRole(),
+                saved.getContent(),
+                saved.getSendAt()
+        );
+    }
+
+    public List<MessageResponse> takeAllMessageOfRequest(UUID requestId){
+        return chatService.takeAllMessageOfRequest(requestId);
     }
 }

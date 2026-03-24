@@ -27,7 +27,7 @@ import { ManageVehiclePage } from "@/pages/Manager/ManageVehiclePage";
 import ListRequestPage from "@/pages/Coordinator/ListRequestPage";
 import RequestDetailPage from "@/pages/Coordinator/RequestDetailPage";
 import FullMapCoordinatorPage from "@/pages/Coordinator/FullMapCoordinatorPage";
-import TestChatBox from "@/pages/Coordinator/TestChatBox";
+import ChatBoxPage from "@/pages/Coordinator/ChatBoxPage";
 
 export const router = createBrowserRouter([
   { path: ROUTES.LOGIN, element: <Login /> },
@@ -60,7 +60,10 @@ export const router = createBrowserRouter([
         children: [{ index: true, element: <RequestDetailPage /> }],
       },
       { path: ROUTES.COORDINATE_MAP, element: <FullMapCoordinatorPage /> },
-      { path: ROUTES.COORDINATE_CHAT, element: <TestChatBox /> },
+      { path: ROUTES.COORDINATE_CHAT,
+        element: <MainLayout role={4} />,
+        children: [{ index: true, element: <ChatBoxPage /> }],
+      },
     ],
   },
 

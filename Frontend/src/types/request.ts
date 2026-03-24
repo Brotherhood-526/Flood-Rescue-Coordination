@@ -58,7 +58,7 @@ export interface RescueResponse {
 }
 
 export interface ChatMessage {
-  id: number;
+  id: string | number;
   role: string;
   name: string;
   time: string;
