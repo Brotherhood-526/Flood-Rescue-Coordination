@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { chatService, type ChatMessageDto } from "@/services/chatSerivice";
+import { chatService, type ChatMessageDto } from "@/services/chatService.ts";
 import { getAxiosErrorMessage } from "@/utils/errorHandler";
 
 type ChatScope = "coordinator" | "rescue" | "citizen";
