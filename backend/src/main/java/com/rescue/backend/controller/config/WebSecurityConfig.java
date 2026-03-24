@@ -28,6 +28,7 @@ public class WebSecurityConfig {
                             .requestMatchers("/health").permitAll()
                             .requestMatchers("/auth/**").permitAll()
                             .requestMatchers("/citizen/**").permitAll()
+                            .requestMatchers("/rescueteam/chat/**").permitAll()
                             .requestMatchers("/swagger-ui/**").permitAll()
                             .requestMatchers("/coordinator/**").permitAll()
                             .requestMatchers("/error").permitAll()
