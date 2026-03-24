@@ -9,7 +9,6 @@ import com.rescue.backend.model.dao.MessageDAO;
 import com.rescue.backend.model.dao.RequestDAO;
 import com.rescue.backend.model.dao.StaffDAO;
 import com.rescue.backend.model.dao.VehicleDAO;
-import com.rescue.backend.view.dto.chat.request.SendMessageRequest;
 import com.rescue.backend.view.dto.chat.response.MessageResponse;
 import com.rescue.backend.view.dto.coordinator.request.TakeListRequest;
 import com.rescue.backend.view.dto.coordinator.request.UpdateRequest;
@@ -26,9 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Service
 public class DispatchService {
@@ -289,27 +288,49 @@ public class DispatchService {
         return getRequestDetail(request.getId());
     }
 
-//    @Transactional
-//    public int sendMessage(SendMessageRequest request) {
-//
-//        Message message = new Message();
-//
-//        message.setSenderRole(request.senderRole());
-//        message.setContent(request.content());
-//        message.setSenderId(request.senderId());
-//
-//        message.setSendAt(
-//                request.sendAt() != null ? request.sendAt() : LocalDateTime.now()
-//        );
-//
-//        Request req = new Request();
-//        req.setId(request.requestId());
-//        message.setRequest(req);
-//
-//        messageDAO.save(message);
-//
-//        return 1;
-//    }
+    @Transactional
+    public MessageResponse sendMessage(
+            UUID requestId,
+            UUID senderId,
+            String content,
+            LocalDateTime sendAt
+    ) {
+        if (requestId == null) {
+            throw new IllegalArgumentException("Thiếu requestId");
+        }
+        if (senderId == null) {
+            throw new IllegalArgumentException("Thiếu senderId");
+        }
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nội dung tin nhắn không được để trống");
+        }
+
+        Request request = requestDAO.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy yêu cầu với id: " + requestId));
+
+        Staff sender = staffDAO.findById(senderId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy điều phối viên với id: " + senderId));
+
+        Message message = new Message();
+        message.setRequest(request);
+        message.setSenderId(senderId);
+        message.setSenderRole("điều phối viên");
+        message.setContent(content.trim());
+        message.setSendAt(sendAt != null ? sendAt : LocalDateTime.now());
+
+        Message saved = messageDAO.save(message);
+
+        return new MessageResponse(
+                saved.getId(),
+                senderId,
+                sender.getName(),
+                saved.getSenderRole(),
+                saved.getContent(),
+                saved.getSendAt()
+        );
+    }
 
     public List<MessageResponse> takeAllMessageOfRequest(UUID requestId){
         return chatService.takeAllMessageOfRequest(requestId);
