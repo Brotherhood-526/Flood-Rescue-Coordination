@@ -2,7 +2,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { XIcon } from "lucide-react";
 
 export interface ChatMessage {
-  id: number;
+  id: string | number;
   role: string;
   name: string;
   time: string;

@@ -6,6 +6,7 @@ import vietmapgl from "@vietmap/vietmap-gl-js";
 import { useVietMap } from "@/lib/useVietMap";
 import { requestService } from "@/services/User/requestService";
 import { vietmapService } from "@/services/User/vietmapService";
+import { useChatbox } from "@/hooks/useChatBox";
 import {
   requestSchema,
   type RequestSchemaType,
@@ -19,6 +20,7 @@ export const useRequestController = (
   const location = useLocation();
   const routeState = location.state;
   const { map, mount, unmount } = useVietMap();
+  const { fetchMessage, sendMessage } = useChatbox();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const markerRef = useRef<vietmapgl.Marker | null>(null);
@@ -30,6 +32,7 @@ export const useRequestController = (
   const [activeTab, setActiveTab] = useState("address");
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatTick, setChatTick] = useState(0);
   const [imageUrls, setImageUrls] = useState<string[]>(
     routeState?.imageUrls ?? [],
   );
@@ -231,6 +234,38 @@ export const useRequestController = (
     [submittedPreviews],
   );
 
+  useEffect(() => {
+    if (!isChatOpen) return;
+    const interval = setInterval(() => {
+      setChatTick((prev) => prev + 1);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [isChatOpen]);
+
+  useEffect(() => {
+    const loadChat = async () => {
+      if (!isChatOpen || !requestId) return;
+      const rows = await fetchMessage(String(requestId), "citizen");
+      const formatted: ChatMessage[] = rows.map((msg) => {
+        const isUser = msg.senderRole === "người dân";
+        return {
+          id: Number(String(msg.id).slice(0, 12).replace(/\D/g, "")) || Date.now(),
+          role: isUser ? "user" : "staff",
+          name: msg.senderName,
+          time: new Date(msg.sentAt).toLocaleTimeString("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          text: msg.content,
+          colorClass: isUser ? "text-gray-700" : "text-indigo-600",
+          bgClass: isUser ? "bg-gray-200 text-gray-800" : "bg-indigo-600 text-white",
+        };
+      });
+      setChatMessages(formatted);
+    };
+    loadChat();
+  }, [isChatOpen, requestId, fetchMessage, chatTick]);
+
   // ── Handlers ──────────────────────────────────────────
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -382,20 +417,28 @@ export const useRequestController = (
       e.preventDefault();
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
+    if (!requestId) return;
+    const sent = await sendMessage(
+      String(requestId),
+      "",
+      chatInput,
+      "citizen",
+    );
+    if (!sent) return;
     setChatMessages((prev) => [
       ...prev,
       {
-        id: Date.now(),
+        id: Number(String(sent.id).slice(0, 12).replace(/\D/g, "")) || Date.now(),
         role: "user",
-        name: submittedData?.name || "Bạn",
-        time: new Date().toLocaleTimeString("vi-VN", {
+        name: sent.senderName,
+        time: new Date(sent.sentAt).toLocaleTimeString("vi-VN", {
           hour: "2-digit",
           minute: "2-digit",
         }),
-        text: chatInput,
+        text: sent.content,
         colorClass: "text-gray-700",
         bgClass: "bg-gray-200 text-gray-800",
       },

@@ -46,4 +46,20 @@ export const chatService = {
       params: { testAccountId: senderId || undefined },
     })) as unknown as ChatMessageDto;
   },
+
+  getCitizenMessages: async (requestId: string): Promise<ChatMessageDto[]> => {
+    return (await apiClient.get(
+      `/citizen/chat/${requestId}`,
+    )) as unknown as ChatMessageDto[];
+  },
+
+  sendCitizenMessage: async (
+    requestId: string,
+    payload: SendMessagePayload,
+  ): Promise<ChatMessageDto> => {
+    return (await apiClient.post(
+      `/citizen/chat/${requestId}`,
+      payload,
+    )) as unknown as ChatMessageDto;
+  },
 };

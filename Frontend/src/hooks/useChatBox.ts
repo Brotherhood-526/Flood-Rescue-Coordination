@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { chatService, type ChatMessageDto } from "@/services/chatSerivice";
 import { getAxiosErrorMessage } from "@/utils/errorHandler";
 
-type ChatScope = "coordinator" | "rescue";
+type ChatScope = "coordinator" | "rescue" | "citizen";
 
 export const useChatbox = () => {
   const [loading, setLoading] = useState(false);
@@ -16,6 +16,9 @@ export const useChatbox = () => {
         setError(null);
         if (scope === "rescue") {
           return await chatService.getRescueMessages(requestId);
+        }
+        if (scope === "citizen") {
+          return await chatService.getCitizenMessages(requestId);
         }
         return await chatService.getCoordinatorMessages(requestId);
       } catch (err) {
@@ -35,7 +38,7 @@ export const useChatbox = () => {
       content: string,
       scope: ChatScope = "coordinator",
     ): Promise<ChatMessageDto | null> => {
-      if (!requestId || !senderId || !content.trim()) return null;
+      if (!requestId || !content.trim()) return null;
       try {
         setLoading(true);
         setError(null);
@@ -43,6 +46,10 @@ export const useChatbox = () => {
           content: content.trim(),
           sendAt: new Date().toISOString(),
         };
+        if (scope === "citizen") {
+          return await chatService.sendCitizenMessage(requestId, payload);
+        }
+        if (!senderId) return null;
         if (scope === "rescue") {
           return await chatService.sendRescueMessage(requestId, senderId, payload);
         }
