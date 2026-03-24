@@ -11,10 +11,27 @@
 - Many technologies
 - Automated testing
 ## 5.3 Lesson Learned
-- Teamwork: Task distribution and communication
-- Version control: Git and GitHub
-- Hands-on experience in deploying Java Web Application systems
-- Time management and planning throug the development process
+- Teamwork:
+  - The team realized the importance of proper task distribution and maintaining effective communication among members.
+  - At the beginning, the team did not have a unified workflow, which led to inefficient coordination.
+  - When there were major changes such as source code, database, or business logic, the lack of timely communication made it difficult for members to fully understand the project flow.
+  - The team did not use a task management platform, which led to forgotten tasks and missed deadlines.
+  - When encountering problems, information sharing was not proactive, affecting collaboration and overall problem-solving.
+
+- Version control:
+  - This was the first time the team worked collaboratively and used Git and GitHub to manage source code.
+  - Through the project, the team learned how to manage versions, collaborate, and handle conflicts during development.
+
+- Hands-on experience:
+  - When receiving the project, the team did not accurately assess the capability and workload, leading to high pressure and rushing work at the final stage.
+  - The team realized the importance of synchronizing configuration files such as .env, database, as well as source code between frontend and backend.
+  - On the backend side, exceptions need to be handled carefully to support debugging and improve system stability.
+  - The team gained practical experience in debugging in both local and production environments for both frontend and backend.
+  - Backend use cases need to be analyzed and handled carefully to avoid unexpected errors.
+  - The project provided opportunities for members to explore and get familiar with many new technologies.
+  - Improved self-learning ability and problem-solving skills when facing issues.
+
+- Time management and planning throughout the development process
 ## 5.4 Future Improvements
 - Refine database design: restructure Rescue Teams to better represent specific vehicle types
 - Improve handling of circular dependencies between Staff, Vehicle, and Request entities
