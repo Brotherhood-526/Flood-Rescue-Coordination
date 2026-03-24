@@ -7,34 +7,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MapPin, Locate, X, Upload } from "lucide-react";
-import type {
-  UseFormRegister,
-  FieldErrors,
-  UseFormSetValue,
-} from "react-hook-form";
-import { type RequestSchemaType } from "@/validations/user.request.schema";
-import type { RefObject } from "react";
-
-interface EditRequestDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  isSubmitted: boolean;
-  isSubmitting: boolean;
-  onSubmitForm: (e?: React.BaseSyntheticEvent) => Promise<void>;
-  handleKeyDown: (e: React.KeyboardEvent<HTMLFormElement>) => void;
-  register: UseFormRegister<RequestSchemaType>;
-  errors: FieldErrors<RequestSchemaType>;
-  selectedType: string;
-  setValue: UseFormSetValue<RequestSchemaType>;
-  activeTab: string;
-  setActiveTab: (val: string) => void;
-  handleConfirmAddress: () => void;
-  handleGetLocation: () => void;
-  previews: string[];
-  handleRemoveImage: (index: number) => void;
-  inputRef: RefObject<HTMLInputElement | null>;
-  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import type { EditRequestDialogProps } from "@/types/requestProps";
 
 export default function EditRequestDialog(props: EditRequestDialogProps) {
   const {
@@ -76,7 +49,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                 </Label>
                 <input
                   type="text"
-                  placeholder="Nhập họ và tên..."
+                  placeholder="Nhập họ và tên"
                   className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-100 ${errors.name ? "border-red-500" : "border-gray-300"}`}
                   {...register("name")}
                 />
@@ -118,7 +91,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
 
               <div>
                 <Label className="font-semibold text-gray-700 block mb-2">
-                  Link nguồn (nếu có)
+                  Link gg map (nếu có)
                 </Label>
                 <input
                   type="text"
@@ -134,7 +107,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                 </Label>
                 <textarea
                   rows={5}
-                  placeholder="Mô tả chi tiết tình trạng hiện tại..."
+                  placeholder="Mô tả chi tiết tình trạng hiện tại"
                   className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-100 resize-none ${errors.description ? "border-red-500" : "border-gray-300"}`}
                   {...register("description")}
                 />
@@ -153,7 +126,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                 </Label>
                 <input
                   type="text"
-                  placeholder="Nhập số điện thoại..."
+                  placeholder="Nhập số điện thoại"
                   className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm outline-none transition-all focus:ring-2 focus:ring-blue-100 ${errors.phone ? "border-red-500" : "border-gray-300"}`}
                   {...register("phone")}
                 />

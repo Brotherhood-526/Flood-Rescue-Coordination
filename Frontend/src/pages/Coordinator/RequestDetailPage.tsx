@@ -24,11 +24,10 @@ import vietmapgl from "@vietmap/vietmap-gl-js";
 import { ROUTES } from "@/router/routes";
 import { useRequestDetail } from "@/hooks/Coordinator/useRequestDetail";
 import { useVehicleList } from "@/hooks/Coordinator/useVehicle";
-import { useRequestUpdate } from "@/hooks/Coordinator/useRequestUpdate";
 import { timeAgo } from "@/utils/timeAgo";
 import { getRequestTypeLabel } from "@/utils/requestHelpers";
 import type { CoordinatorRequest } from "@/types/coordinator";
-import { coordinatorService } from "@/services/Coordinator/coordinatorService";
+import { useRequestUpdate } from "@/hooks/Coordinator/useRequestUpdate";
 
 export default function RequestDetailPage() {
   const navigate = useNavigate();
@@ -52,8 +51,7 @@ export default function RequestDetailPage() {
             <Button
               className="bg-gray-300! text-black! font-bold!"
               onClick={() =>
-                id &&
-                navigate(ROUTES.COORDINATE_CHAT.replace(":requestId", id))
+                id && navigate(ROUTES.COORDINATE_CHAT.replace(":requestId", id))
               }
             >
               Hộp thoại
@@ -108,8 +106,7 @@ function Information() {
   const [vehicle, setVehicle] = useState<string | null>(null);
   const [urgency, setUrgency] = useState<string | null>(null);
   const [rescueTeam, setRescueTeam] = useState<string | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
-
+  const { updateRequest, cancelRequest } = useRequestUpdate();
   const { requestDetail } = useRequestDetail(id!);
   const tempDisplayVehicle = vehicle ?? requestDetail?.vehicleType ?? null;
   const { vehicleList } = useVehicleList(id, tempDisplayVehicle);
@@ -117,8 +114,8 @@ function Information() {
   const displayUrgency = urgency ?? requestDetail?.urgency ?? null;
   const selectedRescueTeamName =
     vehicleList.find((t) => t.id === rescueTeam)?.teamName ?? null;
-  const displayRescueTeam = selectedRescueTeamName ?? requestDetail?.rescueTeamName ?? null;
-  const requestImages = requestDetail?.images ?? [];
+  const displayRescueTeam =
+    selectedRescueTeamName ?? requestDetail?.rescueTeamName ?? null;
 
   const activeStyle = "!bg-white !border-green-600 !border-2 !text-black";
   const normalStyle =
@@ -126,64 +123,6 @@ function Information() {
   const vehiclesButton =
     "flex flex-col gap-0 !w-[6vw] !h-[8vh] !border-gray-300 !text-black";
   const miniDiv = "flex flex-col gap-1";
-  // hàm xử lý 2 cái nút chấp nhận và từ chối
-  const handleUpdateStatus = async (action: "accept" | "reject") => {
-    if (!id) return;
-    try {
-      setIsUpdating(true);
-      if (action === "accept") {
-        if (!displayUrgency || !displayRescueTeam || !displayVehicle) {
-          alert(
-            "Vui lòng chọn loại phương tiện, mức độ khẩn cấp và đội cứu hộ trước khi chấp nhận",
-          );
-          setIsUpdating(false);
-          return;
-        }
-
-        const selectedTeam = vehicleList.find(
-          (t) => t.teamName === displayRescueTeam,
-        );
-        const teamId = selectedTeam?.id;
-
-        if (!teamId) {
-          alert("Không tìm thấy thông tin đội cứu hộ!");
-          setIsUpdating(false);
-          return;
-        }
-
-        const res = await coordinatorService.acceptRequest(id, {
-          status: "đang xử lý",
-          urgency: displayUrgency,
-          rescueTeamID: teamId,
-          vehicleType: displayVehicle,
-        });
-
-        navigate(ROUTES.COORDINATE_MAP, {
-          state: {
-            userLat: res.latitude,
-            userLng: res.longitude,
-            userName: res.citizenName,
-            teamLat: res.rescueTeamLatitude,
-            teamLng: res.rescueTeamLongitude,
-            teamName: res.rescueTeamName,
-          },
-        });
-        return;
-      } else if (action === "reject") {
-        await coordinatorService.acceptRequest(id, {
-          status: "đã huỷ",
-        });
-
-        alert("Đã từ chối yêu cầu!");
-      }
-      navigate(-1);
-    } catch (error) {
-      console.error("Lỗi API:", error);
-      alert("Lỗi khi cập nhật trạng thái yêu cầu.");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
 
   const handleUpdateStatus = async (action: "accept" | "reject") => {
     if (!id) return;
@@ -381,7 +320,6 @@ function Information() {
           <CardFooter className="flex flex-row items-center justify-center px-[2vw] gap-[3vw]">
             <Button
               onClick={() => handleUpdateStatus("reject")}
-              disabled={isUpdating}
               className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-red-600! hover:!bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Từ chối
@@ -390,7 +328,6 @@ function Information() {
             {requestDetail?.status === "yêu cầu mới" && (
               <Button
                 onClick={() => handleUpdateStatus("accept")}
-                disabled={isUpdating}
                 className="h-[5vh]! w-[8vw]! text-white! font-bold! bg-blue-600! hover:!bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Chấp Nhận

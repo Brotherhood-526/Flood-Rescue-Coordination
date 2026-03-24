@@ -64,9 +64,7 @@ export default function RequestPage() {
             requestId={c.requestId}
             status={c.status}
             urgency={c.urgency}
-            submittedPreviews={
-              c.imageUrls.length > 0 ? c.imageUrls : c.submittedPreviews
-            }
+            imageUrls={c.imageUrls}
             onCancel={c.handleCancelRequest}
             onOpenEdit={() => c.setIsDialogOpen(true)}
             onOpenChat={() => c.setIsChatOpen(true)}
@@ -123,6 +121,7 @@ export default function RequestPage() {
         chatInput={c.chatInput}
         setChatInput={c.setChatInput}
         handleSendMessage={c.handleSendMessage}
+        requestStatus={status}
       />
     </div>
   );

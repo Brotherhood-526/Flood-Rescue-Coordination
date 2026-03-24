@@ -1,7 +1,7 @@
 import apiClient from "@/services/axiosClient";
 import { PAGE_SIZE } from "@/constants/coordinatorConfig";
 import type {
-  NearbyTeamOption,
+  VehicleAndRescueTeamInfo,
   RequestDetail,
   TakePageResponse,
 } from "@/types/coordinator";
@@ -34,7 +34,7 @@ export const coordinatorService = {
   getNearbyTeams: async (
     requestId: string,
     vehicleType: string,
-  ): Promise<NearbyTeamOption[]> => {
+  ): Promise<VehicleAndRescueTeamInfo[]> => {
     const res = (await apiClient.get(
       `/coordinator/requests/${requestId}/nearby-teams`,
       {

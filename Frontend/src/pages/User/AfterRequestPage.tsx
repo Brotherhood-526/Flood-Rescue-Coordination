@@ -1,23 +1,13 @@
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 import { useState } from "react";
-import { type RequestSchemaType } from "@/validations/user.request.schema";
 import axiosClient from "@/services/axiosClient";
-interface AfterRequestPageProps {
-  submittedData: RequestSchemaType | null;
-  requestId: string | number | null;
-  submittedPreviews: string[];
-  status: string | null;
-  urgency: string | null;
-  onCancel: () => void;
-  onOpenEdit: () => void;
-  onOpenChat: () => void;
-}
+import type { AfterRequestPageProps } from "@/types/requestProps";
 
 export default function AfterRequestPage({
   submittedData,
   requestId,
-  submittedPreviews,
+  imageUrls,
   status,
   urgency,
   onCancel,
@@ -26,7 +16,7 @@ export default function AfterRequestPage({
 }: AfterRequestPageProps) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const isFinished = status === "đã huỷ" || status === "hoàn thành";
   const handleCancelRequest = async () => {
     try {
       setLoading(true);
@@ -92,7 +82,6 @@ export default function AfterRequestPage({
           </span>{" "}
           {submittedData?.phone}
         </p>
-
         <div className="flex items-center">
           <span className="font-semibold w-32">Phân loại:</span>
           <span className="bg-red-600 text-white border px-3 py-1 rounded-full text-xs font-bold capitalize">
@@ -107,7 +96,6 @@ export default function AfterRequestPage({
               : "Yêu cầu mới"}
           </span>
         </div>
-
         <div className="flex items-center">
           <span className="font-semibold w-32">Mức độ khẩn cấp:</span>
           <span
@@ -127,14 +115,12 @@ export default function AfterRequestPage({
             )}
           </span>
         </div>
-
         <p>
           <span className="font-semibold w-32 inline-block">
             Thời gian gửi:
           </span>{" "}
           {new Date().toLocaleString("vi-VN")}
         </p>
-
         <div>
           <Label className="font-semibold text-gray-800 mb-1 block">
             Vị trí
@@ -146,7 +132,6 @@ export default function AfterRequestPage({
             </p>
           </div>
         </div>
-
         <div>
           <Label className="font-semibold text-gray-800 mb-1 block">
             Mô tả
@@ -155,14 +140,13 @@ export default function AfterRequestPage({
             {submittedData?.description}
           </div>
         </div>
-
-        {submittedPreviews && submittedPreviews.length > 0 && (
+        {imageUrls && imageUrls.length > 0 && (
           <div>
             <Label className="font-semibold text-gray-800 mb-2 block">
               Hình ảnh hiện trường
             </Label>
             <div className="grid grid-cols-3 gap-2">
-              {submittedPreviews.map((src, idx) => (
+              {imageUrls.map((src, idx) => (
                 <img
                   key={idx}
                   src={src}
@@ -178,6 +162,7 @@ export default function AfterRequestPage({
       <div className="flex gap-3 mt-8">
         <button
           onClick={onOpenEdit}
+          disabled={isFinished}
           className="flex-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-semibold py-3 rounded-lg transition-colors text-sm"
         >
           Chỉnh sửa thông tin

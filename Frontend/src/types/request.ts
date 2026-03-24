@@ -66,7 +66,6 @@ export interface ChatMessage {
   colorClass: string;
   bgClass: string;
 }
-
 // Route State (khi navigate sang trang request)
 export interface RequestRouteState {
   isSubmitted?: boolean;
