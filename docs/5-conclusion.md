@@ -1,15 +1,57 @@
 # 5. Conclusion
 
 ## 5.1 Advantages
-- Clear separation between Frontend and Backend using a client–server architecture
-- Used RESTful APIs 
-- Effective use of Vietmap GL JS for real-time map visualization and location-based features
-- Strong backend with Spring Boot the ecosystem
+- Clear separation between Frontend and Backend
+    - Frontend handles UI and interactions
+    - Backend handles logic and data
+    - Makes it easier to develop and maintain each side independently
+
+- RESTful APIs
+    - Backend exposes endpoints for frontend
+    - Frontend can request and send data easily
+    - Makes integration simpler
+
+- Real-time map visualization with Vietmap GL JS
+    - Shows rescue teams and requests dynamically
+    - Helps users track locations in real time
+
+- Backend with Spring Boot
+    - Provides core frameworks for security, database, and services
+    - Handles requests reliably and scales well
+
+- Modular frontend structure
+    - Organized folders for components, hooks, services, and store
+    - Easy to add features or fix issues
+
+- Efficient data management
+    - MySQL with JPA and Hibernate
+    - Entities and DAOs handle database interactions
+    - Keeps data consistent and reliable
+
 ## 5.2 Limitations
 - Deployment
+    - Frontend, backend, database, and third-party services all need setup
+    - Can be tricky to coordinate
+
 - WebSocket
+    - Real-time communication is partial
+    - Some features like live updates are not fully implemented
+
 - Many technologies
+    - Multiple frameworks and libraries in the project
+    - Increases complexity and learning curve
+
 - Automated testing
+    - Few or no unit/integration tests
+    - Makes catching errors harder
+
+- Performance
+    - Real-time updates and multiple users can slow things down
+    - May need optimization in future
+
+- External dependencies
+    - Cloudinary for media, Vietmap APIs for maps
+    - Can be affected by service changes or downtime
 ## 5.3 Lesson Learned
 - Teamwork:
   - The team realized the importance of proper task distribution and maintaining effective communication among members.
@@ -39,6 +81,7 @@
 - Add WebSocket support for real-time coordination updates
 - Enhance deployment pipeline for stability and scalability
 - Introduce automated testing (unit and integration tests)
+
 ## 5.5 Conclusion
 This project demonstrates the design and implementation of a flood rescue coordination system using a modern client–server architecture. By integrating a structured backend with Spring Boot and an interactive frontend supported by Vietmap, the system achieves a clear separation of concerns and maintainable design.
 
