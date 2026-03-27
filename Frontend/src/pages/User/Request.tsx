@@ -113,6 +113,8 @@ export default function RequestPage() {
         inputRef={c.inputRef}
         handleFileChange={c.handleFileChange}
         imageUrls={c.imageUrls}
+        serverImages={c.serverImages}
+        handleRemoveServerImage={c.handleRemoveServerImage}
       />
 
       <ChatBoxDialog

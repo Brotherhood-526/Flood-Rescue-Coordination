@@ -36,6 +36,7 @@ export function buildSubmitFormData(data: RequestSchemaType): FormData {
 export function buildUpdateFormData(
   requestId: string,
   data: RequestSchemaType,
+  deleteImageIds?: string[],
 ): FormData {
   const formData = new FormData();
   formData.append("requestId", requestId);
@@ -55,7 +56,7 @@ export function buildUpdateFormData(
 
   if (data.url) formData.append("additionLink", data.url);
   data.image?.forEach((file) => formData.append("images", file));
-
+  deleteImageIds?.forEach((id) => formData.append("deleteImageIds", id));
   return formData;
 }
 
