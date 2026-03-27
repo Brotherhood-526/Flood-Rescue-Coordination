@@ -168,7 +168,7 @@ _Chức năng:_
 **S26. Manager – Edit Vehicle**
 
 ## 3. Database Design
-![ERD Diagram](img/database/ERD_Diagram.png) 
+![ERD Diagram](img/database/ERD_diagram.png) 
 
 ## 4. System Design
 ### 4.1 Source tree
