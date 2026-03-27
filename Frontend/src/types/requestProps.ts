@@ -55,6 +55,7 @@ export interface EditRequestDialogProps {
   handleRemoveImage: (index: number) => void;
   inputRef: RefObject<HTMLInputElement | null>;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  imageUrls: string[];
 }
 
 export interface ChatBoxDialogProps {

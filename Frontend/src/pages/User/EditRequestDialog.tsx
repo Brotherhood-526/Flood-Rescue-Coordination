@@ -29,6 +29,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
     handleRemoveImage,
     inputRef,
     handleFileChange,
+    imageUrls,
   } = props;
 
   return (
@@ -233,7 +234,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                       </button>
                     </div>
                   ))}
-                  {previews.length < 3 && (
+                  {imageUrls.length + previews.length < 3 && (
                     <div
                       onClick={() => inputRef.current?.click()}
                       className="aspect-square flex flex-col cursor-pointer items-center justify-center rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors border-2 border-gray-300"
@@ -244,7 +245,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                       />
                       <span className="text-[11px] font-semibold text-gray-500 text-center px-1">
                         Tải ảnh lên
-                        <br />({previews.length}/3)
+                        <br />({imageUrls.length + previews.length}/3)
                       </span>
                     </div>
                   )}

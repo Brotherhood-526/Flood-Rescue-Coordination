@@ -112,6 +112,7 @@ export default function RequestPage() {
         handleRemoveImage={c.handleRemoveImage}
         inputRef={c.inputRef}
         handleFileChange={c.handleFileChange}
+        imageUrls={c.imageUrls}
       />
 
       <ChatBoxDialog
@@ -121,7 +122,7 @@ export default function RequestPage() {
         chatInput={c.chatInput}
         setChatInput={c.setChatInput}
         handleSendMessage={c.handleSendMessage}
-        requestStatus={status}
+        requestStatus={c.status}
       />
     </div>
   );

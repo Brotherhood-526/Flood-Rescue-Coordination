@@ -1,5 +1,5 @@
 import { useEffect, useRef, useMemo, useState, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation } from "react-router-dom";
 import vietmapgl from "@vietmap/vietmap-gl-js";
@@ -68,6 +68,7 @@ export const useRequestController = (
     getValues,
     watch,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<RequestSchemaType>({
     mode: "onSubmit",
@@ -223,21 +224,13 @@ export const useRequestController = (
   }, [isDialogOpen, submittedData, setValue]);
 
   // ── Image preview ─────────────────────────────────────
-  const previews = useMemo(() => {
-    const images = (watch("image") as File[]) || [];
-    return images.map((f) => URL.createObjectURL(f));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch("image")]);
-  useEffect(() => () => previews.forEach(URL.revokeObjectURL), [previews]);
+  const imageFiles = (useWatch({ control, name: "image" }) as File[]) || [];
 
-  const submittedPreviews = useMemo(() => {
-    const imgs = (submittedData?.image as File[]) || [];
-    return imgs.map((f) => URL.createObjectURL(f));
-  }, [submittedData?.image]);
-  useEffect(
-    () => () => submittedPreviews.forEach(URL.revokeObjectURL),
-    [submittedPreviews],
-  );
+  const previews = useMemo(() => {
+    return imageFiles.map((f) => URL.createObjectURL(f));
+  }, [imageFiles]);
+
+  useEffect(() => () => previews.forEach(URL.revokeObjectURL), [previews]);
 
   useEffect(() => {
     if (!isChatOpen) return;
@@ -254,7 +247,9 @@ export const useRequestController = (
       const formatted: ChatMessage[] = rows.map((msg) => {
         const isUser = msg.senderRole === "người dân";
         return {
-          id: Number(String(msg.id).slice(0, 12).replace(/\D/g, "")) || Date.now(),
+          id:
+            Number(String(msg.id).slice(0, 12).replace(/\D/g, "")) ||
+            Date.now(),
           role: isUser ? "user" : "staff",
           name: msg.senderName,
           time: new Date(msg.sentAt).toLocaleTimeString("vi-VN", {
@@ -263,7 +258,9 @@ export const useRequestController = (
           }),
           text: msg.content,
           colorClass: isUser ? "text-gray-700" : "text-indigo-600",
-          bgClass: isUser ? "bg-gray-200 text-gray-800" : "bg-indigo-600 text-white",
+          bgClass: isUser
+            ? "bg-gray-200 text-gray-800"
+            : "bg-indigo-600 text-white",
         };
       });
       setChatMessages(formatted);
@@ -271,15 +268,17 @@ export const useRequestController = (
     loadChat();
   }, [isChatOpen, requestId, fetchMessage, chatTick]);
 
-  // ── Handlers ──────────────────────────────────────────
+  // Handlers
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
+    const maxNew = 3 - imageUrls.length;
     const total = [...currentImages, ...files];
-    setValue("image", total.length > 3 ? total.slice(0, 3) : total, {
+    const capped = total.slice(0, maxNew);
+    setValue("image", capped.length > 0 ? capped : undefined, {
       shouldValidate: true,
     });
-    if (total.length > 3) alert("Bạn chỉ được tải lên tối đa 3 ảnh");
+    if (total.length > maxNew) alert(`Chỉ được tải thêm tối đa ${maxNew} ảnh`);
     if (inputRef.current) inputRef.current.value = "";
   };
 
@@ -361,6 +360,14 @@ export const useRequestController = (
         // Cập nhật
         const formData = buildUpdateFormData(requestId, data);
         await requestService.update(formData);
+        if (phone) {
+          const raw = (await requestService.lookup(
+            phone,
+          )) as unknown as CitizenLookupData;
+          setImageUrls(
+            raw.images?.map((img: RescueImage) => img.imageUrl) ?? [],
+          );
+        }
         alert("Cập nhật thông tin thành công!");
         setIsDialogOpen(false);
       } else {
@@ -372,13 +379,17 @@ export const useRequestController = (
         alert("Gửi yêu cầu thành công!");
         setIsSubmitted(true);
         setPhone(data.phone);
+        const raw = (await requestService.lookup(
+          data.phone,
+        )) as unknown as CitizenLookupData;
+        setImageUrls(raw.images?.map((img: RescueImage) => img.imageUrl) ?? []);
         localStorage.setItem(
           RESCUE_STORAGE_KEYS.REQUEST_ID,
           response.requestId,
         );
         localStorage.setItem(RESCUE_STORAGE_KEYS.PHONE, data.phone);
       }
-      setSubmittedData(data);
+      setSubmittedData({ ...data, image: undefined });
     } catch (err) {
       console.error(err);
       alert("Có lỗi xảy ra, vui lòng thử lại!");
@@ -407,17 +418,13 @@ export const useRequestController = (
     e.preventDefault();
     if (!chatInput.trim()) return;
     if (!requestId) return;
-    const sent = await sendMessage(
-      String(requestId),
-      "",
-      chatInput,
-      "citizen",
-    );
+    const sent = await sendMessage(String(requestId), "", chatInput, "citizen");
     if (!sent) return;
     setChatMessages((prev) => [
       ...prev,
       {
-        id: Number(String(sent.id).slice(0, 12).replace(/\D/g, "")) || Date.now(),
+        id:
+          Number(String(sent.id).slice(0, 12).replace(/\D/g, "")) || Date.now(),
         role: "user",
         name: sent.senderName,
         time: new Date(sent.sentAt).toLocaleTimeString("vi-VN", {
@@ -455,7 +462,6 @@ export const useRequestController = (
     isSubmitting,
     selectedType,
     previews,
-    submittedPreviews,
     handleFileChange,
     handleRemoveImage,
     handleGetLocation,
