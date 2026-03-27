@@ -1,7 +1,6 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { XIcon } from "lucide-react";
 import type { ChatBoxDialogProps } from "@/types/requestProps";
-
 export default function ChatBoxDialog({
   isOpen,
   onOpenChange,

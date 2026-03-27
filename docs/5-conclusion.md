@@ -53,28 +53,27 @@
     - Cloudinary for media, Vietmap APIs for maps
     - Can be affected by service changes or downtime
 ## 5.3 Lesson Learned
-- Teamwork
-    - Effective task distribution and communication are critical for collaborative development
-    - Early in the project, the absence of a unified workflow led to inefficiencies in coordination
-    - Major changes to source code, database structures, or business logic highlighted the need for timely communication to ensure all members understood the overall project flow
-    - The lack of a task management system resulted in overlooked tasks and occasional missed deadlines
-    - Proactive information sharing is essential for effective problem-solving and collaboration
+- Teamwork:
+  - The team realized the importance of proper task distribution and maintaining effective communication among members.
+  - At the beginning, the team did not have a unified workflow, which led to inefficient coordination.
+  - When there were major changes such as source code, database, or business logic, the lack of timely communication made it difficult for members to fully understand the project flow.
+  - The team did not use a task management platform, which led to forgotten tasks and missed deadlines.
+  - When encountering problems, information sharing was not proactive, affecting collaboration and overall problem-solving.
 
-- Version Control
-    - This project marked the team’s first experience using Git and GitHub for collaborative development
-    - Through hands-on practice, the team learned to manage versions, coordinate work, and resolve conflicts efficiently
+- Version control:
+  - This was the first time the team worked collaboratively and used Git and GitHub to manage source code.
+  - Through the project, the team learned how to manage versions, collaborate, and handle conflicts during development.
 
-- Technical and Practical Experience
-    - Initial underestimation of workload emphasized the importance of realistic project planning
-    - Synchronization of configuration files (e.g., .env, database) and source code between frontend and backend proved essential
-    - Backend exception handling is crucial to support debugging and maintain system stability
-    - Debugging in both local and production environments provided valuable hands-on experience
-    - Careful analysis of backend use cases helped prevent unexpected errors
-    - Exposure to multiple new technologies improved the team’s self-learning and problem-solving abilities
+- Hands-on experience:
+  - When receiving the project, the team did not accurately assess the capability and workload, leading to high pressure and rushing work at the final stage.
+  - The team realized the importance of synchronizing configuration files such as .env, database, as well as source code between frontend and backend.
+  - On the backend side, exceptions need to be handled carefully to support debugging and improve system stability.
+  - The team gained practical experience in debugging in both local and production environments for both frontend and backend.
+  - Backend use cases need to be analyzed and handled carefully to avoid unexpected errors.
+  - The project provided opportunities for members to explore and get familiar with many new technologies.
+  - Improved self-learning ability and problem-solving skills when facing issues.
 
-- Time Management
-    - Effective planning and time allocation throughout the development process are essential to maintain project progress and meet deadlines
-
+- Time management and planning throughout the development process
 ## 5.4 Future Improvements
 - Refine database design: restructure Rescue Teams to better represent specific vehicle types
 - Improve handling of circular dependencies between Staff, Vehicle, and Request entities
