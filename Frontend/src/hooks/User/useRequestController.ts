@@ -82,12 +82,11 @@ export const useRequestController = (
   });
 
   const selectedType = useWatch({ control, name: "type" });
-  const currentImages = (useWatch({ control, name: "image" }) as File[]) || [];
   // sub hook
   const images = useRequestImages({
     control,
     setValue,
-    currentImages,
+    getValues,
     initialServerImages: routeState?.serverImages ?? [],
   });
 
@@ -104,8 +103,6 @@ export const useRequestController = (
   const { serverImages, setServerImages, setPendingDeleteImageIds } = images;
 
   useEffect(() => {
-    // SỬA ĐIỀU KIỆN DỪNG:
-    // Nếu chưa submit, hoặc không có số điện thoại, HOẶC ĐÃ CÓ data (submittedData !== null) thì KHÔNG cần fetch nữa.
     if (!isSubmitted || !phone || submittedData !== null) return;
 
     const refetch = async () => {
@@ -258,20 +255,26 @@ export const useRequestController = (
         alert("Gửi yêu cầu thành công!");
         setIsSubmitted(true);
         setPhone(data.phone);
+
         const raw = (await requestService.lookup(
           data.phone,
         )) as unknown as CitizenLookupData;
-        images.setServerImages(
+
+        const newServerImages =
           raw.images?.map((img: RescueImage) => ({
             id: img.id,
             url: img.imageUrl,
-          })) ?? [],
-        );
+          })) ?? [];
+
+        images.setServerImages(newServerImages);
+        serverImagesSnapshotRef.current = newServerImages;
+
         localStorage.setItem(
           RESCUE_STORAGE_KEYS.REQUEST_ID,
           response.requestId,
         );
         localStorage.setItem(RESCUE_STORAGE_KEYS.PHONE, data.phone);
+        setValue("image", undefined);
       }
       setSubmittedData({ ...data, image: undefined });
     } catch (err) {
