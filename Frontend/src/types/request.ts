@@ -83,3 +83,23 @@ export interface RequestRouteState {
     url: string;
   };
 }
+
+export interface CitizenRescueResponse {
+  requestId: string;
+  address: string;
+  description: string;
+  additionalLink: string | null;
+  createdAt: string;
+  latitude: number;
+  longitude: number;
+  status: string;
+  type: string;
+  urgency: string;
+  citizenId: string;
+  citizenName: string;
+  citizenPhone: string;
+  images: RescueImage[];
+  coordinatorName: string | null;
+  rescueLeaderName: string | null;
+  vehicleType: string | null;
+}

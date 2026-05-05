@@ -29,7 +29,8 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
     handleRemoveImage,
     inputRef,
     handleFileChange,
-    imageUrls,
+    serverImages,
+    handleRemoveServerImage,
   } = props;
 
   return (
@@ -214,6 +215,26 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                   <span className="text-red-500">*</span>
                 </Label>
                 <div className="grid grid-cols-3 gap-3">
+                  {serverImages.map((img) => (
+                    <div
+                      key={img.id}
+                      className="relative aspect-square w-full group rounded-xl bg-gray-50 border border-gray-200"
+                    >
+                      <img
+                        src={img.url}
+                        alt="server-img"
+                        className="h-full w-full rounded-xl object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveServerImage(img.id)}
+                        className="absolute -right-2 -top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-gray-300 text-black transition-all hover:scale-120"
+                        title="Xóa ảnh"
+                      >
+                        <X className="w-3.5 h-3.5" strokeWidth={3} />
+                      </button>
+                    </div>
+                  ))}
                   {previews.map((src, index) => (
                     <div
                       key={index}
@@ -234,7 +255,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                       </button>
                     </div>
                   ))}
-                  {imageUrls.length + previews.length < 3 && (
+                  {serverImages.length + previews.length < 3 && (
                     <div
                       onClick={() => inputRef.current?.click()}
                       className="aspect-square flex flex-col cursor-pointer items-center justify-center rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors border-2 border-gray-300"
@@ -245,7 +266,7 @@ export default function EditRequestDialog(props: EditRequestDialogProps) {
                       />
                       <span className="text-[11px] font-semibold text-gray-500 text-center px-1">
                         Tải ảnh lên
-                        <br />({imageUrls.length + previews.length}/3)
+                        <br />({serverImages.length + previews.length}/3)
                       </span>
                     </div>
                   )}
