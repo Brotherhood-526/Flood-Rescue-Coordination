@@ -41,18 +41,22 @@ public class MissionController {
                     new ResponseObject(401, "Lỗi: Vui lòng truyền testAccountId trên Swagger hoặc đăng nhập", null)
             );
         }
+        Page<TeamAssignmentResponse> tasks = rescueTeamService.getTaskByFilter(teamId, filter, page);
 
-        try {
-            Page<TeamAssignmentResponse> tasks = rescueTeamService.getTaskByFilter(teamId, filter, page);
-
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject(200, "Trả về tasks cho đội cứu hộ", tasks)
-            );
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject(404, e.getMessage(), null)
-            );
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject(200, "Trả về tasks cho đội cứu hộ", tasks)
+        );
+//        try {
+//            Page<TeamAssignmentResponse> tasks = rescueTeamService.getTaskByFilter(teamId, filter, page);
+//
+//            return ResponseEntity.status(HttpStatus.OK).body(
+//                    new ResponseObject(200, "Trả về tasks cho đội cứu hộ", tasks)
+//            );
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new ResponseObject(404, e.getMessage(), null)
+//            );
+//        }
 
     }
 
@@ -68,20 +72,25 @@ public class MissionController {
                     new ResponseObject(401, "Lỗi: Vui lòng truyền testAccountId trên Swagger hoặc đăng nhập", null)
             );
         }
-        try {
-            TaskDetailResponse detailResponse = rescueTeamService.getAssignmentDetail(id, teamId);
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject(200, "Danh sách yêu cầu tải thành công", detailResponse)
-            );
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject(404, e.getMessage(), null)
-            );
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ResponseObject(500, e.getMessage(), null)
-            );
-        }
+        TaskDetailResponse detailResponse = rescueTeamService.getAssignmentDetail(id, teamId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject(200, "Danh sách yêu cầu tải thành công", detailResponse)
+        );
+
+//        try {
+//            TaskDetailResponse detailResponse = rescueTeamService.getAssignmentDetail(id, teamId);
+//            return ResponseEntity.status(HttpStatus.OK).body(
+//                    new ResponseObject(200, "Danh sách yêu cầu tải thành công", detailResponse)
+//            );
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new ResponseObject(404, e.getMessage(), null)
+//            );
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                    new ResponseObject(500, e.getMessage(), null)
+//            );
+//        }
 
     }
 
@@ -90,35 +99,43 @@ public class MissionController {
             @PathVariable UUID id,
             @RequestBody UpdateTaskRequest updateRequest
     ) {
-        try {
-            String result = rescueTeamService.updateAssignment(id, updateRequest);
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject(201, "Tự động chuyển về trang task", result)
-            );
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ResponseObject(200, e.getMessage(), null)
-            );
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ResponseObject(500, e.getMessage(), null)
-            );
-        }
+        String result = rescueTeamService.updateAssignment(id, updateRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject(201, "Tự động chuyển về trang task", result)
+        );
+
+//        try {
+//            String result = rescueTeamService.updateAssignment(id, updateRequest);
+//            return ResponseEntity.status(HttpStatus.OK).body(
+//                    new ResponseObject(201, "Tự động chuyển về trang task", result)
+//            );
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                    new ResponseObject(200, e.getMessage(), null)
+//            );
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                    new ResponseObject(500, e.getMessage(), null)
+//            );
+//        }
 
     }
 
     @GetMapping("/chat/{requestId}")
     public ResponseEntity<ResponseObject> getAllMessages(@PathVariable UUID requestId) {
-        try {
-            List<MessageResponse> result = rescueTeamService.getAllMessagesByRequest(requestId);
-            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject(404, e.getMessage(), null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ResponseObject(500, "Không thể tải lịch sử chat", e.getMessage()));
-        }
+        List<MessageResponse> result = rescueTeamService.getAllMessagesByRequest(requestId);
+        return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+
+//        try {
+//            List<MessageResponse> result = rescueTeamService.getAllMessagesByRequest(requestId);
+//            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new ResponseObject(404, e.getMessage(), null));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                    new ResponseObject(500, "Không thể tải lịch sử chat", e.getMessage()));
+//        }
     }
 
     @PostMapping("/chat/{requestId}")
@@ -133,21 +150,31 @@ public class MissionController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     new ResponseObject(401, "Vui lòng đăng nhập hoặc truyền testAccountId", null));
         }
-        try {
-            MessageResponse result = rescueTeamService.sendMessage(
-                    requestId,
-                    rescueTeamId,
-                    dto.content(),
-                    dto.sendAt()
-            );
-            return ResponseEntity.status(HttpStatus.CREATED).body(
-                    new ResponseObject(201, "Gửi tin nhắn thành công", result));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ResponseObject(400, e.getMessage(), null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ResponseObject(500, "Không thể gửi tin nhắn", e.getMessage()));
-        }
+
+        MessageResponse result = rescueTeamService.sendMessage(
+                requestId,
+                rescueTeamId,
+                dto.content(),
+                dto.sendAt()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                new ResponseObject(201, "Gửi tin nhắn thành công", result));
+
+//        try {
+//            MessageResponse result = rescueTeamService.sendMessage(
+//                    requestId,
+//                    rescueTeamId,
+//                    dto.content(),
+//                    dto.sendAt()
+//            );
+//            return ResponseEntity.status(HttpStatus.CREATED).body(
+//                    new ResponseObject(201, "Gửi tin nhắn thành công", result));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                    new ResponseObject(400, e.getMessage(), null));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                    new ResponseObject(500, "Không thể gửi tin nhắn", e.getMessage()));
+//        }
     }
 }

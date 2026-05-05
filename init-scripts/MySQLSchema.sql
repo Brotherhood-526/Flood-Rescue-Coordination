@@ -1,12 +1,4 @@
--- 1. Lệnh tạo database với bảng mã hỗ trợ tiếng Việt và Emoji (utf8mb4)
-CREATE DATABASE IF NOT EXISTS flood_rescue_coordination
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
-
--- 2. Lệnh để bắt đầu sử dụng database này
-USE flood_rescue_coordination;
-
-SHOW TABLE STATUS;
+use railway;
 
 DROP TABLE IF EXISTS RequestImage;
 DROP TABLE IF EXISTS Message;
@@ -297,13 +289,13 @@ INSERT INTO Citizen (id, name, phone) VALUES
 
 -- 3. requests
 INSERT INTO Request (id, user_id, type, description, address, latitude, longitude, status, urgency, created_at, coordinator_id, rescue_team_id, vehicle_id, report)
-VALUES (@ReqCompletedId, @citizenId, 'cứu hộ', 'Cần sơ tán khẩn cấp (Đã xong)', '789 Đường ven đê', 10.7890, 106.7890, 'hoàn thành', 'cao', DATE_SUB(NOW(), INTERVAL 2 HOUR), @Coordinator2Id, @RescueTeam2Id, @vehicle2Id, 'hoàn thành việc sơ tán 5 người già và 2 trẻ em an toàn.');
+VALUES (@ReqCompletedId, @citizenId, 'cứu hộ', 'Cần sơ tán khẩn cấp (Đã xong)', '789 Đường ven đê', 10.7890, 106.6890, 'hoàn thành', 'cao', DATE_SUB(NOW(), INTERVAL 24 HOUR), @Coordinator2Id, @RescueTeam2Id, @vehicle2Id, 'hoàn thành việc sơ tán 5 người già và 2 trẻ em an toàn.');
 
 INSERT INTO Request (id, user_id, type, description, address, latitude, longitude, status, urgency, created_at)
-VALUES (@ReqRejectId, @citizenId, 'tiếp tế', 'Cần hỗ trợ lương thực (Bị đã huỷ)', '456 Đường Hẻm Sâu', 10.5678, 106.5678, 'đã huỷ', 'trung bình', DATE_SUB(NOW(), INTERVAL 1 HOUR));
+VALUES (@ReqRejectId, @citizenId, 'tiếp tế', 'Cần hỗ trợ lương thực (Bị đã huỷ)', '456 Đường Hẻm Sâu', 10.7678, 106.6678, 'đã huỷ', 'trung bình', DATE_SUB(NOW(), INTERVAL 12 HOUR));
 
 INSERT INTO Request (id, user_id, type, description, address, latitude, longitude, status, urgency, created_at, coordinator_id, rescue_team_id, vehicle_id, report)
-VALUES (@ReqActiveId, @citizenId, 'cứu hộ', 'Nước đang dâng cao, cần xuồng gấp (Mới nhất)', '123 Đường ven sông', 10.1234, 106.1234, 'yêu cầu mới', 'cao', NOW(), @CoordinatorId, @RescueTeamId, @vehicleId, 'Đang di chuyển tiếp cận hiện trường');
+VALUES (@ReqActiveId, @citizenId, 'cứu hộ', 'Nước đang dâng cao, cần xuồng gấp (Mới nhất)', '123 Đường ven sông', 10.7734, 106.6734, 'yêu cầu mới', 'cao', DATE_SUB(NOW(), INTERVAL 11 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId, 'Đang di chuyển tiếp cận hiện trường');
 
 -- =========================================================================
 -- THÊM 50 YÊU CẦU CỨU HỘ 
@@ -316,68 +308,68 @@ INSERT INTO Request (id, user_id, type, description, address, latitude, longitud
 -- Khu vực dân cư Quận 5, Quận 10
 -- =======================================================================================
 -- Công dân 1 (C0000000...01)
-('d0000000-0000-0000-0000-000000000001', 'C0000000-0000-0000-0000-000000000001', 'tiếp tế', 'Cần gạo và nước sạch', 'Hẻm 211 Nguyễn Trãi, Quận 5, Hồ Chí Minh', 10.7618, 106.6805, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 24 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001'),
-('d0000000-0000-0000-0000-000000000002', 'C0000000-0000-0000-0000-000000000001', 'cứu hộ', 'Nhà ngập sâu', 'Hẻm 302 Sư Vạn Hạnh, Quận 10, Hồ Chí Minh', 10.7711, 106.6710, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 20 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000003'),
-('d0000000-0000-0000-0000-000000000003', 'C0000000-0000-0000-0000-000000000001', 'khác', 'Hỏi thông tin đường đi', 'Khu dân cư Phú Thọ, Quận 11, Hồ Chí Minh', 10.7681, 106.6503, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 15 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000004', 'C0000000-0000-0000-0000-000000000001', 'tiếp tế', 'Test hệ thống', 'Hẻm 456 Lê Văn Thọ, Gò Vấp, Hồ Chí Minh', 10.8415, 106.6582, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 10 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000005', 'C0000000-0000-0000-0000-000000000001', 'cứu hộ', 'Có người già bị kẹt', 'Khu Bùi Đình Túy, Bình Thạnh, Hồ Chí Minh', 10.8062, 106.7020, 'đang xử lý', 'cao', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000001', 'C0000000-0000-0000-0000-000000000001', 'tiếp tế', 'Cần gạo và nước sạch', 'Hẻm 211 Nguyễn Trãi, Quận 5, Thành Phố Hồ Chí Minh', 10.7618, 106.6805, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 24 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001'),
+('d0000000-0000-0000-0000-000000000002', 'C0000000-0000-0000-0000-000000000001', 'cứu hộ', 'Nhà ngập sâu', 'Hẻm 302 Sư Vạn Hạnh, Quận 10, Thành Phố Hồ Chí Minh', 10.7711, 106.6710, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 20 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000003'),
+('d0000000-0000-0000-0000-000000000003', 'C0000000-0000-0000-0000-000000000001', 'khác', 'Hỏi thông tin đường đi', 'Khu dân cư Phú Thọ, Quận 11, Thành Phố Hồ Chí Minh', 10.7681, 106.6503, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 15 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000004', 'C0000000-0000-0000-0000-000000000001', 'tiếp tế', 'Test hệ thống', 'Hẻm 456 Lê Văn Thọ, Gò Vấp, Thành Phố Hồ Chí Minh', 10.8415, 106.6582, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 10 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000005', 'C0000000-0000-0000-0000-000000000001', 'cứu hộ', 'Có người già bị kẹt', 'Khu Bùi Đình Túy, Bình Thạnh, Thành Phố Hồ Chí Minh', 10.8062, 106.7020, 'đang xử lý', 'cao', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
 
 -- Công dân 2 (C0000000...02)
-('d0000000-0000-0000-0000-000000000006', 'C0000000-0000-0000-0000-000000000002', 'tiếp tế', 'Cần mì gói', 'Hẻm 112 Xô Viết Nghệ Tĩnh, Bình Thạnh, Hồ Chí Minh', 10.8021, 106.7115, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 23 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000005'),
-('d0000000-0000-0000-0000-000000000007', 'C0000000-0000-0000-0000-000000000002', 'cứu hộ', 'Ngập nửa nhà', 'KDC Tân Quy, Quận 7, Hồ Chí Minh', 10.7410, 106.7051, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 19 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
-('d0000000-0000-0000-0000-000000000008', 'C0000000-0000-0000-0000-000000000002', 'khác', 'Báo cáo cây đổ', 'Hẻm Phạm Thế Hiển, Quận 8, Hồ Chí Minh', 10.7305, 106.6541, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 14 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000009', 'C0000000-0000-0000-0000-000000000002', 'tiếp tế', 'Xin quần áo', 'Khu Bình Trị Đông, Bình Tân, Hồ Chí Minh', 10.7602, 106.6111, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 9 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000010', 'C0000000-0000-0000-0000-000000000002', 'cứu hộ', 'Nước ngập đến nóc', 'Hẻm Tân Sơn Nhì, Tân Phú, Hồ Chí Minh', 10.8034, 106.6341, 'đang xử lý', 'cao', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000004', 'e0000000-0000-0000-0000-000000000015'),
+('d0000000-0000-0000-0000-000000000006', 'C0000000-0000-0000-0000-000000000002', 'tiếp tế', 'Cần mì gói', 'Hẻm 112 Xô Viết Nghệ Tĩnh, Bình Thạnh, Thành Phố Hồ Chí Minh', 10.8021, 106.7115, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 23 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000005'),
+('d0000000-0000-0000-0000-000000000007', 'C0000000-0000-0000-0000-000000000002', 'cứu hộ', 'Ngập nửa nhà', 'KDC Tân Quy, Quận 7, Thành Phố Hồ Chí Minh', 10.7410, 106.7051, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 19 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000008', 'C0000000-0000-0000-0000-000000000002', 'khác', 'Báo cáo cây đổ', 'Hẻm Phạm Thế Hiển, Quận 8, Thành Phố Hồ Chí Minh', 10.7305, 106.6541, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 14 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000009', 'C0000000-0000-0000-0000-000000000002', 'tiếp tế', 'Xin quần áo', 'Khu Bình Trị Đông, Bình Tân, Thành Phố Hồ Chí Minh', 10.7602, 106.6111, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 9 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000010', 'C0000000-0000-0000-0000-000000000002', 'cứu hộ', 'Nước ngập đến nóc', 'Hẻm Tân Sơn Nhì, Tân Phú, Thành Phố Hồ Chí Minh', 10.8034, 106.6341, 'đang xử lý', 'cao', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000004', 'e0000000-0000-0000-0000-000000000015'),
 
 -- Công dân 3 (C0000000...03)
-('d0000000-0000-0000-0000-000000000011', 'C0000000-0000-0000-0000-000000000003', 'tiếp tế', 'Cần sữa cho bé', 'Đường Lê Lợi, Quận 1, Hồ Chí Minh', 10.7720, 106.6980, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 22 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000011'),
-('d0000000-0000-0000-0000-000000000012', 'C0000000-0000-0000-0000-000000000003', 'cứu hộ', 'Di dời đồ đạc', 'Đường Nguyễn Huệ, Quận 1, Hồ Chí Minh', 10.7681, 106.6503, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 18 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
-('d0000000-0000-0000-0000-000000000013', 'C0000000-0000-0000-0000-000000000003', 'tiếp tế', 'Trùng lặp đơn', 'Đường 3/2, Quận 10, Hồ Chí Minh', 10.7681, 106.6503, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 13 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000014', 'C0000000-0000-0000-0000-000000000003', 'khác', 'Hỏi sdt phường', 'Đường Hoàng Văn Thụ, Phú Nhuận, Hồ Chí Minh', 10.7681, 106.6503, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 8 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000015', 'C0000000-0000-0000-0000-000000000003', 'cứu hộ', 'Mái tôn bị tốc', 'Đường Cộng Hòa, Tân Bình, Hồ Chí Minh', 10.7681, 106.6503, 'đang xử lý', 'cao', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000011', 'C0000000-0000-0000-0000-000000000003', 'tiếp tế', 'Cần sữa cho bé', 'Đường Lê Lợi, Quận 1, Thành Phố Hồ Chí Minh', 10.7720, 106.6980, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 22 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000011'),
+('d0000000-0000-0000-0000-000000000012', 'C0000000-0000-0000-0000-000000000003', 'cứu hộ', 'Di dời đồ đạc', 'Đường Nguyễn Huệ, Quận 1, Thành Phố Hồ Chí Minh', 10.7681, 106.6503, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 18 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000013', 'C0000000-0000-0000-0000-000000000003', 'tiếp tế', 'Trùng lặp đơn', 'Đường 3/2, Quận 10, Thành Phố Hồ Chí Minh', 10.7681, 106.6503, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 13 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000014', 'C0000000-0000-0000-0000-000000000003', 'khác', 'Hỏi sdt phường', 'Đường Hoàng Văn Thụ, Phú Nhuận, Thành Phố Hồ Chí Minh', 10.7681, 106.6503, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 8 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000015', 'C0000000-0000-0000-0000-000000000003', 'cứu hộ', 'Mái tôn bị tốc', 'Đường Cộng Hòa, Tân Bình, Thành Phố Hồ Chí Minh', 10.7681, 106.6503, 'đang xử lý', 'cao', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
 
 -- =======================================================================================
 -- Nhóm 2: Người 4, 5, 6 (Mỗi người: 2 Hoàn thành, 2 Hủy, 1 Tạm hoãn)
 -- Khu vực dân cư Gò Vấp, Bình Thạnh
 -- =======================================================================================
 -- Công dân 4 (C0000000...04)
-('d0000000-0000-0000-0000-000000000016', 'C0000000-0000-0000-0000-000000000004', 'cứu hộ', 'Cứu hộ chó mèo', 'Đường Âu Cơ, Tân Phú, Hồ Chí Minh', 10.7922, 106.6365, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 24 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
-('d0000000-0000-0000-0000-000000000017', 'C0000000-0000-0000-0000-000000000004', 'tiếp tế', 'Nhận thuốc men', 'Đường Nguyễn Văn Linh, Quận 7, Hồ Chí Minh', 10.7290, 106.7220, 'hoàn thành', 'cao', DATE_SUB(NOW(), INTERVAL 20 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
-('d0000000-0000-0000-0000-000000000018', 'C0000000-0000-0000-0000-000000000004', 'khác', 'Đã tự giải quyết', 'Đường Huỳnh Tấn Phát, Quận 7, Hồ Chí Minh', 10.7455, 106.7380, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 16 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000019', 'C0000000-0000-0000-0000-000000000004', 'tiếp tế', 'Spam', 'Đường Võ Văn Kiệt, Quận 5, Hồ Chí Minh', 10.7550, 106.6800, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 11 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000020', 'C0000000-0000-0000-0000-000000000004', 'cứu hộ', 'Chờ nước rút để vào', 'Đường Kinh Dương Vương, Bình Tân, Hồ Chí Minh', 10.7420, 106.6150, 'tạm hoãn', 'trung bình', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000005', 'e0000000-0000-0000-0000-000000000015'),
+('d0000000-0000-0000-0000-000000000016', 'C0000000-0000-0000-0000-000000000004', 'cứu hộ', 'Cứu hộ chó mèo', 'Đường Âu Cơ, Tân Phú, Thành Phố Hồ Chí Minh', 10.7922, 106.6365, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 24 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000017', 'C0000000-0000-0000-0000-000000000004', 'tiếp tế', 'Nhận thuốc men', 'Đường Nguyễn Văn Linh, Quận 7, Thành Phố Hồ Chí Minh', 10.7290, 106.7220, 'hoàn thành', 'cao', DATE_SUB(NOW(), INTERVAL 20 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000018', 'C0000000-0000-0000-0000-000000000004', 'khác', 'Đã tự giải quyết', 'Đường Huỳnh Tấn Phát, Quận 7, Thành Phố Hồ Chí Minh', 10.7455, 106.7380, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 16 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000019', 'C0000000-0000-0000-0000-000000000004', 'tiếp tế', 'Spam', 'Đường Võ Văn Kiệt, Quận 5, Thành Phố Hồ Chí Minh', 10.7550, 106.6800, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 11 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000020', 'C0000000-0000-0000-0000-000000000004', 'cứu hộ', 'Chờ nước rút để vào', 'Đường Kinh Dương Vương, Bình Tân, Thành Phố Hồ Chí Minh', 10.7420, 106.6150, 'tạm hoãn', 'trung bình', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000005', 'e0000000-0000-0000-0000-000000000015'),
 
 -- Công dân 5 (C0000000...05)
-('d0000000-0000-0000-0000-000000000021', 'C0000000-0000-0000-0000-000000000005', 'tiếp tế', 'Nhận đèn pin', 'Đường Lũy Bán Bích, Tân Phú, Hồ Chí Minh', 10.7865, 106.6320, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 23 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
-('d0000000-0000-0000-0000-000000000022', 'C0000000-0000-0000-0000-000000000005', 'cứu hộ', 'Điện giật', 'Đường Trường Chinh, Tân Bình, Hồ Chí Minh', 10.8020, 106.6430, 'hoàn thành', 'cao', DATE_SUB(NOW(), INTERVAL 19 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
-('d0000000-0000-0000-0000-000000000023', 'C0000000-0000-0000-0000-000000000005', 'cứu hộ', 'Yêu cầu trùng', 'Đường Quang Trung, Gò Vấp, Hồ Chí Minh', 10.8380, 106.6650, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 15 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000024', 'C0000000-0000-0000-0000-000000000005', 'khác', 'Không rõ thông tin', 'Đường Phan Văn Trị, Gò Vấp, Hồ Chí Minh', 10.8062, 106.7020, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 10 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000025', 'C0000000-0000-0000-0000-000000000005', 'cứu hộ', 'Đường đang kẹt xe chưa vào được', 'Đường Nguyễn Oanh, Gò Vấp, Hồ Chí Minh', 10.8385, 106.6840, 'tạm hoãn', 'trung bình', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000021', 'C0000000-0000-0000-0000-000000000005', 'tiếp tế', 'Nhận đèn pin', 'Đường Lũy Bán Bích, Tân Phú, Thành Phố Hồ Chí Minh', 10.7865, 106.6320, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 23 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000022', 'C0000000-0000-0000-0000-000000000005', 'cứu hộ', 'Điện giật', 'Đường Trường Chinh, Tân Bình, Thành Phố Hồ Chí Minh', 10.8020, 106.6430, 'hoàn thành', 'cao', DATE_SUB(NOW(), INTERVAL 19 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000023', 'C0000000-0000-0000-0000-000000000005', 'cứu hộ', 'Yêu cầu trùng', 'Đường Quang Trung, Gò Vấp, Thành Phố Hồ Chí Minh', 10.8380, 106.6650, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 15 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000024', 'C0000000-0000-0000-0000-000000000005', 'khác', 'Không rõ thông tin', 'Đường Phan Văn Trị, Gò Vấp, Thành Phố Hồ Chí Minh', 10.8062, 106.7020, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 10 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000025', 'C0000000-0000-0000-0000-000000000005', 'cứu hộ', 'Đường đang kẹt xe chưa vào được', 'Đường Nguyễn Oanh, Gò Vấp, Thành Phố Hồ Chí Minh', 10.8385, 106.6840, 'tạm hoãn', 'trung bình', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
 
 -- Công dân 6 (C0000000...06)
-('d0000000-0000-0000-0000-000000000026', 'C0000000-0000-0000-0000-000000000006', 'cứu hộ', 'Sơ tán người', 'Đường Đinh Bộ Lĩnh, Bình Thạnh, Hồ Chí Minh', 10.8100, 106.7100, 'hoàn thành', 'cao', DATE_SUB(NOW(), INTERVAL 22 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000010', 'e0000000-0000-0000-0000-000000000040'),
-('d0000000-0000-0000-0000-000000000027', 'C0000000-0000-0000-0000-000000000006', 'tiếp tế', 'Cơm hộp', 'Đường Ung Văn Khiêm, Bình Thạnh, Hồ Chí Minh', 10.8060, 106.7150, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 18 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
-('d0000000-0000-0000-0000-000000000028', 'C0000000-0000-0000-0000-000000000006', 'khác', 'Báo sai địa chỉ', 'Đường Điện Biên Phủ, Bình Thạnh, Hồ Chí Minh', 10.8010, 106.7105, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 14 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000029', 'C0000000-0000-0000-0000-000000000006', 'tiếp tế', 'Gọi nhầm', 'Đường Xô Viết Nghệ Tĩnh, Bình Thạnh, Hồ Chí Minh', 10.8030, 106.7130, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 9 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000030', 'C0000000-0000-0000-0000-000000000006', 'tiếp tế', 'Hết hàng chờ kho', 'Đường Phạm Văn Đồng, Thủ Đức, Hồ Chí Minh', 10.8230, 106.7200, 'tạm hoãn', 'trung bình', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000026', 'C0000000-0000-0000-0000-000000000006', 'cứu hộ', 'Sơ tán người', 'Đường Đinh Bộ Lĩnh, Bình Thạnh, Thành Phố Hồ Chí Minh', 10.8100, 106.7100, 'hoàn thành', 'cao', DATE_SUB(NOW(), INTERVAL 22 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000010', 'e0000000-0000-0000-0000-000000000040'),
+('d0000000-0000-0000-0000-000000000027', 'C0000000-0000-0000-0000-000000000006', 'tiếp tế', 'Cơm hộp', 'Đường Ung Văn Khiêm, Bình Thạnh, Thành Phố Hồ Chí Minh', 10.8060, 106.7150, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 18 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000028', 'C0000000-0000-0000-0000-000000000006', 'khác', 'Báo sai địa chỉ', 'Đường Điện Biên Phủ, Bình Thạnh, Thành Phố Hồ Chí Minh', 10.8010, 106.7105, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 14 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000029', 'C0000000-0000-0000-0000-000000000006', 'tiếp tế', 'Gọi nhầm', 'Đường Xô Viết Nghệ Tĩnh, Bình Thạnh, Thành Phố Hồ Chí Minh', 10.8030, 106.7130, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 9 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000030', 'C0000000-0000-0000-0000-000000000006', 'tiếp tế', 'Hết hàng chờ kho', 'Đường Phạm Văn Đồng, Thủ Đức, Thành Phố Hồ Chí Minh', 10.8230, 106.7200, 'tạm hoãn', 'trung bình', DATE_SUB(NOW(), INTERVAL 1 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
 
 -- =======================================================================================
 -- Nhóm 3: Người 7, 8, 9, 10 (Mỗi người: 2 Tạm hoãn, 2 Hủy, 1 Yêu cầu mới)
 -- Khu vực dân cư Quận 7, Quận 8, Bình Tân, Tân Phú
 -- =======================================================================================
 -- Công dân 7 (C0000000...07)
-('d0000000-0000-0000-0000-000000000031', 'C0000000-0000-0000-0000-000000000007', 'tiếp tế', 'Chờ áo phao', 'Đường Đồng Văn Cống, Quận 2, Hồ Chí Minh', 10.7600, 106.7500, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 6 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
-('d0000000-0000-0000-0000-000000000032', 'C0000000-0000-0000-0000-000000000007', 'cứu hộ', 'Đợi cứu hộ đến', 'Đường Lương Định Của, Quận 2, Hồ Chí Minh', 10.7800, 106.7400, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 5 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000010', 'e0000000-0000-0000-0000-000000000039'),
-('d0000000-0000-0000-0000-000000000033', 'C0000000-0000-0000-0000-000000000007', 'khác', 'Không có thật', 'Đường Trần Não, Quận 2, Hồ Chí Minh', 10.7900, 106.7300, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 20 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000034', 'C0000000-0000-0000-0000-000000000007', 'tiếp tế', 'Không có thật', 'Đường Quốc Hương, Thảo Điền, Hồ Chí Minh', 10.8000, 106.7400, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 15 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000035', 'C0000000-0000-0000-0000-000000000007', 'cứu hộ', 'Nước đang tràn vào', 'Đường Nguyễn Thị Định, Quận 2, Hồ Chí Minh', 10.7550, 106.7700, 'yêu cầu mới', NULL, DATE_SUB(NOW(), INTERVAL 1 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000031', 'C0000000-0000-0000-0000-000000000007', 'tiếp tế', 'Chờ áo phao', 'Đường Đồng Văn Cống, Quận 2, Thành Phố Hồ Chí Minh', 10.7600, 106.7500, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 6 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000032', 'C0000000-0000-0000-0000-000000000007', 'cứu hộ', 'Đợi cứu hộ đến', 'Đường Lương Định Của, Quận 2, Thành Phố Hồ Chí Minh', 10.7800, 106.7400, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 5 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000010', 'e0000000-0000-0000-0000-000000000039'),
+('d0000000-0000-0000-0000-000000000033', 'C0000000-0000-0000-0000-000000000007', 'khác', 'Không có thật', 'Đường Trần Não, Quận 2, Thành Phố Hồ Chí Minh', 10.7900, 106.7300, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 20 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000034', 'C0000000-0000-0000-0000-000000000007', 'tiếp tế', 'Không có thật', 'Đường Quốc Hương, Thảo Điền, Thành Phố Hồ Chí Minh', 10.8000, 106.7400, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 15 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000035', 'C0000000-0000-0000-0000-000000000007', 'cứu hộ', 'Nước đang tràn vào', 'Đường Nguyễn Thị Định, Quận 2, Thành Phố Hồ Chí Minh', 10.7550, 106.7700, 'yêu cầu mới', NULL, DATE_SUB(NOW(), INTERVAL 1 HOUR), NULL, NULL, NULL),
 
 -- Công dân 8 (C0000000...08)
-('d0000000-0000-0000-0000-000000000036', 'C0000000-0000-0000-0000-000000000008', 'tiếp tế', 'Chờ nước lọc', 'Đường Kha Vạn Cân, Thủ Đức, Hồ Chí Minh', 10.8450, 106.7560, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 7 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
-('d0000000-0000-0000-0000-000000000037', 'C0000000-0000-0000-0000-000000000008', 'cứu hộ', 'Đường chưa thông', 'Đường Linh Trung, Thủ Đức, Hồ Chí Minh', 10.8700, 106.7700, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 4 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000009', 'e0000000-0000-0000-0000-000000000035'),
-('d0000000-0000-0000-0000-000000000038', 'C0000000-0000-0000-0000-000000000008', 'cứu hộ', 'Hủy do báo sai', 'Đường Tô Ngọc Vân, Thủ Đức, Hồ Chí Minh', 10.8550, 106.7500, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 21 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000039', 'C0000000-0000-0000-0000-000000000008', 'tiếp tế', 'Không liên lạc được', 'Đường Nguyễn Duy Trinh, Quận 2, Hồ Chí Minh', 10.7700, 106.7700, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 16 HOUR), NULL, NULL, NULL),
-('d0000000-0000-0000-0000-000000000040', 'C0000000-0000-0000-0000-000000000008', 'cứu hộ', 'Nhà có người ốm', 'Đường Mai Chí Thọ, Quận 2, Hồ Chí Minh', 10.7750, 106.7300, 'yêu cầu mới', NULL, DATE_SUB(NOW(), INTERVAL 1 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000036', 'C0000000-0000-0000-0000-000000000008', 'tiếp tế', 'Chờ nước lọc', 'Đường Kha Vạn Cân, Thủ Đức, Thành Phố Hồ Chí Minh', 10.8450, 106.7560, 'hoàn thành', 'thấp', DATE_SUB(NOW(), INTERVAL 7 HOUR), @CoordinatorId, @RescueTeamId, @vehicleId),
+('d0000000-0000-0000-0000-000000000037', 'C0000000-0000-0000-0000-000000000008', 'cứu hộ', 'Đường chưa thông', 'Đường Linh Trung, Thủ Đức, Thành Phố Hồ Chí Minh', 10.8700, 106.7700, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 4 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000009', 'e0000000-0000-0000-0000-000000000035'),
+('d0000000-0000-0000-0000-000000000038', 'C0000000-0000-0000-0000-000000000008', 'cứu hộ', 'Hủy do báo sai', 'Đường Tô Ngọc Vân, Thủ Đức, Thành Phố Hồ Chí Minh', 10.8550, 106.7500, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 21 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000039', 'C0000000-0000-0000-0000-000000000008', 'tiếp tế', 'Không liên lạc được', 'Đường Nguyễn Duy Trinh, Quận 2, Thành Phố Hồ Chí Minh', 10.7700, 106.7700, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 16 HOUR), NULL, NULL, NULL),
+('d0000000-0000-0000-0000-000000000040', 'C0000000-0000-0000-0000-000000000008', 'cứu hộ', 'Nhà có người ốm', 'Đường Mai Chí Thọ, Quận 2, Thành Phố Hồ Chí Minh', 10.7750, 106.7300, 'yêu cầu mới', NULL, DATE_SUB(NOW(), INTERVAL 1 HOUR), NULL, NULL, NULL),
 
 -- Công dân 9 (C0000000...09)
 ('d0000000-0000-0000-0000-000000000041', 'C0000000-0000-0000-0000-000000000009', 'cứu hộ', 'Xe cứu hộ chưa tới', 'Đường Đại lộ Bình Dương, Thủ Dầu Một, Bình Dương', 10.9804, 106.6519, 'hoàn thành', 'trung bình', DATE_SUB(NOW(), INTERVAL 8 HOUR), @CoordinatorId, '00000000-0000-0000-0000-000000000006', 'e0000000-0000-0000-0000-000000000021'),
@@ -392,6 +384,7 @@ INSERT INTO Request (id, user_id, type, description, address, latitude, longitud
 ('d0000000-0000-0000-0000-000000000048', 'C0000000-0000-0000-0000-000000000010', 'tiếp tế', 'Trùng người nhận', 'Đường Thùy Vân, Vũng Tàu', 10.4110, 107.1360, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 23 HOUR), NULL, NULL, NULL),
 ('d0000000-0000-0000-0000-000000000049', 'C0000000-0000-0000-0000-000000000010', 'khác', 'Không cần thiết', 'Đường Võ Thị Sáu, Vũng Tàu', 10.4030, 107.1350, 'đã huỷ', NULL, DATE_SUB(NOW(), INTERVAL 18 HOUR), NULL, NULL, NULL),
 ('d0000000-0000-0000-0000-000000000050', 'C0000000-0000-0000-0000-000000000010', 'cứu hộ', 'Cửa bị kẹt do cây đổ', 'Đường 30/4, Vũng Tàu', 10.3800, 107.1200, 'yêu cầu mới', NULL, DATE_SUB(NOW(), INTERVAL 1 HOUR), NULL, NULL, NULL);
+
 
 -- 4. request Images
 INSERT INTO RequestImage (id, image_url, request_id)
@@ -516,7 +509,7 @@ INSERT INTO RequestImage (id, image_url, request_id) VALUES
 
 
 INSERT INTO Message (id, request_id, sender_id, sender_role, content, send_at) VALUES
--- ID từ 1 đến 12 được format chuẩn UUID (8-4-4-4-12)
+-- ID từ 1 đến 11 được format chuẩn UUID
 ('a1000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000005', @CitizenId, 'người dân', 'Nhà tôi ở hẻm 211 có người già 80 tuổi bị kẹt, nước đang dâng cao quá đầu gối rồi!', DATE_SUB(NOW(), INTERVAL 55 MINUTE)),
 
 ('a1000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000005', @CoordinatorId, 'điều phối viên', 'Đã tiếp nhận yêu cầu từ hẻm 211 Nguyễn Trãi. Bạn vui lòng giữ bình tĩnh, đội cứu hộ đang chuẩn bị xuất phát.', DATE_SUB(NOW(), INTERVAL 53 MINUTE)),
@@ -571,7 +564,7 @@ LEFT JOIN Vehicle v ON r.vehicle_id = v.id
 WHERE c.phone = '0912345678'
 ORDER BY r.created_at DESC;
 
-SELECT * FROM Staff WHERE role = "quản ly";
+SELECT * FROM Staff;
 
 SELECT s.team_name, COUNT(v.id) as total_vehicles
 FROM Staff s
@@ -581,30 +574,9 @@ GROUP BY s.id;
 SELECT type, state, COUNT(*) as quantity 
 FROM Vehicle 
 GROUP BY type, state;
-
-SELECT * FROM Staff ORDER BY id asc;
-select * FROM Vehicle where state = "không hoạt động";
-
-SELECT * FROM Citizen;
-SELECT * FROM Request WHERE status = "yêu cầu mới";
-SELECT * FROM Request WHERE id = "d0000000-0000-0000-0000-000000000040";
-SELECT * FROM Request WHERE rescue_team_id = "706b8e5c-21e4-11f1-87cb-74d4dd3b82d5";
-
-SELECT * FROM RequestImage;
-SELECT * FROM Message;
-select * FROM Request;
-
 UPDATE Staff SET staff_state = "không hoạt động" where id = "00000000-0000-0000-0000-000000000006";
 
-SELECT 
-    m.id, 
-    m.sender_role, 
-    m.content, 
-    m.send_at, 
-    COALESCE(c.name, s.name) AS sender_name,
-    m.sender_id
-FROM message m
-LEFT JOIN citizen c ON m.sender_id = c.id
-LEFT JOIN staff s ON m.sender_id = s.id
-WHERE m.request_id = 'd0000000-0000-0000-0000-000000000005'
-ORDER BY m.send_at;
+SELECT * FROM Staff;
+SELECT * FROM Request ;
+SELECT * FROM Citizen;
+SELECT * FROM RequestImage;

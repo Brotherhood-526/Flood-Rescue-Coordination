@@ -1,5 +1,7 @@
 package com.rescue.backend.model.service;
 
+import com.rescue.backend.controller.exception.BusinessException;
+import com.rescue.backend.controller.exception.ErrorCode;
 import com.rescue.backend.model.bean.Message;
 import com.rescue.backend.model.bean.Request;
 import com.rescue.backend.model.bean.Staff;
@@ -46,7 +48,7 @@ public class RescueTeamService {
             case "đang xử lý", "on the way" -> "đang xử lý";
             case "tạm hoãn", "delayed" -> "tạm hoãn";
             case "hoàn thành", "completed" -> "hoàn thành";
-            default -> throw new IllegalArgumentException("Trạng thái lọc không hợp lệ: " + filter);
+            default -> throw new BusinessException(ErrorCode.INVALID_STATUS, filter);
         };
 
         return fetchTaskByFilter(teamId, dbStatus, page);
@@ -69,10 +71,13 @@ public class RescueTeamService {
 
     public TaskDetailResponse getAssignmentDetail(UUID assignmentId, UUID teamId) {
         Request assignment = requestDAO.findByRescueTeamIdAndId(teamId, assignmentId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhiệm vụ"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.ASSIGNMENT_NOT_FOUND));
 
 
-        List<LookupImageResponse> imageResponses = assignment.getImages().stream()
+        List<LookupImageResponse> imageResponses =
+                (assignment.getImages() == null || assignment.getImages().isEmpty())
+                        ? null
+                        : assignment.getImages().stream()
                 .map(img -> new LookupImageResponse(img.getId(), img.getImageUrl()))
                 .toList();
 
@@ -97,7 +102,7 @@ public class RescueTeamService {
     @Transactional
     public String updateAssignment(UUID assignmentId, UpdateTaskRequest updateTaskRequest) {
         Request assignment = requestDAO.findById(assignmentId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bản ghi phân công"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.ASSIGNMENT_NOT_FOUND));
 
         assignment.setReport(updateTaskRequest.report());
 
@@ -110,7 +115,7 @@ public class RescueTeamService {
                 assignment.setStatus("tạm hoãn");
                 break;
             default:
-                throw new IllegalArgumentException("Trạng thái không hợp lệ");
+                throw new BusinessException(ErrorCode.INVALID_STATUS, status);
         }
 
         requestDAO.save(assignment);
@@ -130,24 +135,22 @@ public class RescueTeamService {
             LocalDateTime sendAt
     ) {
         if (requestId == null) {
-            throw new IllegalArgumentException("Thiếu requestId");
+            throw new BusinessException(ErrorCode.INVALID_REQUEST_ID);
         }
         if (senderId == null) {
-            throw new IllegalArgumentException("Thiếu senderId");
+            throw new BusinessException(ErrorCode.INVALID_SENDER_ID);
         }
         if (content == null || content.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nội dung tin nhắn không được để trống");
+            throw new BusinessException(ErrorCode.INVALID_MESSAGE_CONTENT);
         }
 
         Request request = requestDAO.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy yêu cầu với id: " + requestId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.REQUEST_NOT_FOUND));
 
         Staff sender = staffDAO.findById(senderId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy đội cứu hộ với id: " + senderId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESCUE_TEAM_NOT_FOUND));
         if (sender.getRole() == null || !sender.getRole().trim().equalsIgnoreCase("cứu hộ")) {
-            throw new IllegalArgumentException("Tài khoản gửi tin nhắn không phải đội cứu hộ");
+            throw new BusinessException(ErrorCode.INVALID_TEAM_ROLE);
         }
 
         Message message = new Message();

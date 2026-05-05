@@ -1,5 +1,7 @@
 package com.rescue.backend.model.service;
 
+import com.rescue.backend.controller.exception.BusinessException;
+import com.rescue.backend.controller.exception.ErrorCode;
 import com.rescue.backend.model.bean.Staff;
 import com.rescue.backend.model.bean.Vehicle;
 import com.rescue.backend.model.dao.RequestDAO;
@@ -62,8 +64,7 @@ public class ManagerService {
 
     public StaffResponse getStaffDetail(UUID id) {
         Staff staff = staffDAO.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy nhân viên với ID: " + id));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STAFF_NOT_FOUND, id));
 
         return toStaffResponse(staff);
     }
@@ -88,11 +89,11 @@ public class ManagerService {
     public StaffResponse createStaffs(CreateStaffRequest createStaffRequest) {
         String role = createStaffRequest.role();
         if (role == null || !VALID_ROLES.contains(role.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Role không hợp lệ. Chỉ chấp nhận: 'điều phối viên' hoặc 'cứu hộ'");
+            throw new BusinessException(ErrorCode.INVALID_ROLE);
         }
 
         if (staffDAO.existsByPhone(createStaffRequest.phone())) {
-            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + createStaffRequest.phone());
+            throw new BusinessException(ErrorCode.STAFF_ALREADY_EXISTS);
         }
 
         Staff staff = new Staff();
@@ -122,21 +123,21 @@ public class ManagerService {
 
     public StaffResponse updateStaff(UpdateStaffRequest updateStaffRequest, UUID id) {
         Staff staff = staffDAO.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên với ID" + id));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STAFF_NOT_FOUND, id));
 
         String role = updateStaffRequest.role();
         if (role == null || !VALID_ROLES.contains(role.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Role không hợp lệ. Chỉ chấp nhận: 'điều phối viên' hoặc 'cứu hộ'");
+            throw new BusinessException(ErrorCode.INVALID_ROLE);
         }
 
         String state = updateStaffRequest.state();
         if (state == null || !VALID_STAFF_STATE.contains(state.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Trạng thái không hợp lệ. Chỉ chấp nhận: 'hoạt động' hoặc 'không hoạt động'");
+            throw new BusinessException(ErrorCode.INVALID_STAFF_STATE);
         }
 
         if (!staff.getPhone().equals(updateStaffRequest.phone()) &&
                 staffDAO.existsByPhone(updateStaffRequest.phone())) {
-            throw new IllegalArgumentException("Số điện thoại đã tồn tại: " + updateStaffRequest.phone());
+            throw new BusinessException(ErrorCode.STAFF_ALREADY_EXISTS);
         }
         staff.setStaffState(state);
         staff.setName(updateStaffRequest.name());
@@ -169,7 +170,7 @@ public class ManagerService {
 
     public StaffResponse deleteStaff(UUID id) {
         if (!staffDAO.existsById(id)) {
-            throw new IllegalArgumentException("Không tìm thấy nhân viên với id:" + id);
+            throw new BusinessException(ErrorCode.STAFF_NOT_FOUND, id);
         }
 
         StaffResponse deletedStaff = getStaffDetail(id);
@@ -196,8 +197,7 @@ public class ManagerService {
 
     public VehicleResponse getVehicleDetail(UUID id) {
         Vehicle vehicle = vehicleDAO.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy phương tiện với ID: " + id));
+                .orElseThrow(() -> new BusinessException(ErrorCode.VEHICLE_NOT_FOUND, id.toString()));
 
         return toVehicleResponse(vehicle);
     }
@@ -221,16 +221,16 @@ public class ManagerService {
     public VehicleResponse createVehicle(CreateVehicleRequest createVehicleRequest) {
         String type = createVehicleRequest.type();
         if (type == null || !VALID_VehicleTypes.contains(type.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Loại phương tiện không hợp lệ. Chỉ chấp nhận: 'xuồng', 'xe cứu hộ', 'trực thăng'");
+            throw new BusinessException(ErrorCode.INVALID_VEHICLE_TYPE);
         }
 
         Vehicle vehicle = new Vehicle();
 
         Staff staff = staffDAO.findById(createVehicleRequest.rescueTeamId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đội cứu hộ với ID " + createVehicleRequest.rescueTeamId()));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STAFF_NOT_FOUND, createVehicleRequest.rescueTeamId()));
 
         if (!"cứu hộ".equals(staff.getRole())) {
-            throw new IllegalArgumentException("Nhân viên không hợp lệ: chỉ cho phép 'cứu hộ'");
+            throw new BusinessException(ErrorCode.INVALID_VEHICLE_OWNER);
         }
 
         vehicle.setType(createVehicleRequest.type());
@@ -243,20 +243,20 @@ public class ManagerService {
 
     public VehicleResponse updateVehicle(CreateVehicleRequest createVehicleRequest, UUID vehicleId) {
         Vehicle vehicle = vehicleDAO.findById(vehicleId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy xe với id" + vehicleId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.VEHICLE_NOT_FOUND, vehicleId));
 
         Staff staff = staffDAO.findById(createVehicleRequest.rescueTeamId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đội cứu hộ với ID này"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.STAFF_NOT_FOUND, createVehicleRequest.rescueTeamId()));
 
         String newType = createVehicleRequest.type();
 
         if (newType == null || !VALID_VehicleTypes.contains(newType.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Loại phương tiện '" + newType + "' không hợp lệ");
+            throw new BusinessException(ErrorCode.INVALID_VEHICLE_TYPE);
         }
 
         String state = createVehicleRequest.state();
         if (state == null || !VALID_VEHICLE_STATE.contains(state.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Trạng thái không hợp lệ. Chỉ chấp nhận: 'đang sử dụng', 'không hoạt động' hoặc 'bảo trì'");
+            throw new BusinessException(ErrorCode.INVALID_VEHICLE_STATE);
         }
 
         vehicle.setType(createVehicleRequest.type());
@@ -269,7 +269,7 @@ public class ManagerService {
 
     public VehicleResponse deleteVehicle(UUID vehicleId) {
         if (!vehicleDAO.existsById(vehicleId)) {
-            throw new IllegalArgumentException("Không tìm thấy phương tiện với id: " + vehicleId);
+            throw new BusinessException(ErrorCode.VEHICLE_NOT_FOUND, vehicleId);
         }
 
         VehicleResponse deletedVehicle = getVehicleDetail(vehicleId);
@@ -335,19 +335,19 @@ public class ManagerService {
         long activeStaffCount = staffDAO.countByStaffState("hoạt động");
         long totalStaff = staffDAO.countBy();
         if (totalStaff == 0) {
-            throw new IllegalStateException("Lỗi thống kê: không có dữ liệu nhân viên");
+            throw new BusinessException(ErrorCode.STAFF_DATA_EMPTY);
         }
 
         long availableVehicleCount = vehicleDAO.countByState("sẵn sàng");
         long totalVehicles = vehicleDAO.countBy();
         if (totalVehicles == 0) {
-            throw new IllegalStateException("Lỗi thống kê: không có dữ liệu phương tiện");
+            throw new BusinessException(ErrorCode.VEHICLE_DATA_EMPTY);
         }
 
         // Top 4 đội hiệu suất
         List<Object[]> teamRows = requestDAO.findTop4TeamsByCompletedRequests("hoàn thành");
         if (teamRows == null || teamRows.isEmpty()) {
-            throw new IllegalStateException("Lỗi thống kê: không có dữ liệu hiệu suất đội");
+            throw new BusinessException(ErrorCode.TEAM_PERFORMANCE_EMPTY);
         }
         List<DashboardResponse.TeamPerformance> topTeams = teamRows.stream()
                 .map(row -> new DashboardResponse.TeamPerformance(
@@ -359,7 +359,7 @@ public class ManagerService {
         //  Top 3 thành phố
         List<Object[]> cityRows = requestDAO.findTop3CitiesByRequestCount();
         if (cityRows == null || cityRows.isEmpty()) {
-            throw new IllegalStateException("Lỗi thống kê: không có dữ liệu thành phố");
+            throw new BusinessException(ErrorCode.CITY_DATA_EMPTY);
         }
         List<DashboardResponse.CityRequest> topCities = cityRows.stream()
                 .map(row -> new DashboardResponse.CityRequest(

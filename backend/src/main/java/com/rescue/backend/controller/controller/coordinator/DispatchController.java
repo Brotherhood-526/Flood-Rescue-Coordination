@@ -27,117 +27,36 @@ public class DispatchController {
     @Autowired
     private DispatchService dispatchService;
 
-//    @PostMapping("/takeListRequest")
-//    public ResponseEntity<ResponseObject> takeListRequest(@RequestBody TakeListRequest takeListRequest, HttpServletRequest session){
-//        try{
-//            TakePageResponse data =
-//                    dispatchService.getRequestCitizen(takeListRequest);
-//
-//            return ResponseEntity.status(HttpStatus.OK).body(
-//                    new ResponseObject(200, "Lấy danh sách thành công", data)
-//            );
-//        } catch (BadCredentialsException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-//                    new ResponseObject(401, "Không thể lấy dữ liệu", null)
-//            );
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-//                    new ResponseObject(500, "Lỗi hệ thống", e.getMessage())
-//            );
-//        }
-//    }
-//
-//    @PostMapping("/takeSpecificRequest")
-//    public ResponseEntity<ResponseObject> takeSpecificRequest(@RequestBody SpecificRequest specificRequest, HttpServletRequest session){
-//        try{
-//            SpecificResponse data =
-//                    dispatchService.getSpecificRequest(specificRequest.id());
-//            return ResponseEntity.status(HttpStatus.OK).body(
-//                    new ResponseObject(200, "Lấy yêu cầu thành công", data)
-//            );
-//        } catch (BadCredentialsException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-//                    new ResponseObject(401, "Không thể lấy dữ liệu", null)
-//            );
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-//                    new ResponseObject(500, "Lỗi hệ thống", e.getMessage())
-//            );
-//        }
-//    }
-//
-//    @PostMapping("/update")
-//    public ResponseEntity<ResponseObject> updateRequest(
-//            @RequestBody UpdateMissionReqeuest updateMissionReqeuest,
-//            HttpServletRequest session
-//    ){
-//        try{
-//
-//            boolean success = dispatchService.updateRequest(updateMissionReqeuest);
-//
-//            if(success){
-//                return ResponseEntity.status(HttpStatus.OK).body(
-//                        new ResponseObject(200, "Cập nhật yêu cầu thành công", null)
-//                );
-//            }
-//
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//                    new ResponseObject(400, "Không thể cập nhật yêu cầu", null)
-//            );
-//
-//        } catch (Exception e) {
-//
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-//                    new ResponseObject(500, "Lỗi hệ thống", e.getMessage())
-//            );
-//        }
-//    }
-//
-//    @PostMapping("/filterVehicle")
-//    public ResponseEntity<ResponseObject> filterVehicleByType(@RequestBody FilterVehicleRequest filterVehicleRequest, HttpServletRequest session){
-//        try{
-//            List<FilterVehicleResponse> data =
-//                    dispatchService.filterVehicleByType(filterVehicleRequest);
-//
-//            return ResponseEntity.status(HttpStatus.OK).body(
-//                    new ResponseObject(200, "Lấy danh sách thành công", data)
-//            );
-//        } catch (BadCredentialsException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-//                    new ResponseObject(401, "Không thể lấy dữ liệu", null)
-//            );
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-//                    new ResponseObject(500, "Lỗi hệ thống", e.getMessage())
-//            );
-//        }
-//    }
-
     @GetMapping("/requests")
     public ResponseEntity<ResponseObject> getRequests(
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        try {
-            Page<RequestListResponse> result = dispatchService.getRequests(status, page, size);
-            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ResponseObject(400, e.getMessage(), null));
-        }
+        Page<RequestListResponse> result = dispatchService.getRequests(status, page, size);
+        return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+
+//        try {
+//            Page<RequestListResponse> result = dispatchService.getRequests(status, page, size);
+//            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                    new ResponseObject(400, e.getMessage(), null));
+//        }
     }
 
 
     @GetMapping("/requests/{requestId}")
     public ResponseEntity<ResponseObject> getRequestDetail(@PathVariable UUID requestId) {
-        try {
-            RequestDetailResponse result = dispatchService.getRequestDetail(requestId);
-            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject(404, e.getMessage(), null));
-        }
+        RequestDetailResponse result = dispatchService.getRequestDetail(requestId);
+        return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+//        try {
+//            RequestDetailResponse result = dispatchService.getRequestDetail(requestId);
+//            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new ResponseObject(404, e.getMessage(), null));
+//        }
     }
 
     @GetMapping("/requests/{requestId}/nearby-teams")
@@ -145,19 +64,21 @@ public class DispatchController {
             @PathVariable UUID requestId,
             @RequestParam String vehicleType
     ) {
-        try {
-            List<NearbyTeamResponse> result = dispatchService.getNearbyTeams(requestId, vehicleType);
-            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ResponseObject(400, e.getMessage(), null));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject(404, e.getMessage(), null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ResponseObject(500, "Không thể lấy đội cứu hộ gần nhất", e.getMessage()));
-        }
+        List<NearbyTeamResponse> result = dispatchService.getNearbyTeams(requestId, vehicleType);
+        return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+//        try {
+//            List<NearbyTeamResponse> result = dispatchService.getNearbyTeams(requestId, vehicleType);
+//            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                    new ResponseObject(400, e.getMessage(), null));
+//        } catch (IllegalStateException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new ResponseObject(404, e.getMessage(), null));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                    new ResponseObject(500, "Không thể lấy đội cứu hộ gần nhất", e.getMessage()));
+//        }
     }
 
     @PutMapping("/requests/{requestId}/accept")
@@ -175,34 +96,37 @@ public class DispatchController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     new ResponseObject(401, "Vui lòng đăng nhập hoặc truyền testAccountId", null));
         }
-
-        try {
-            RequestDetailResponse detail = dispatchService.updateRequest(requestId, coordinatorId, dto);
-            return ResponseEntity.ok(new ResponseObject(200, "Chấp nhận yêu cầu thành công", detail));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ResponseObject(400, e.getMessage(), null));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ResponseObject(400, e.getMessage(), null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ResponseObject(500, "Không thể cập nhật yêu cầu", e.getMessage()));
-        }
+        RequestDetailResponse detail = dispatchService.updateRequest(requestId, coordinatorId, dto);
+        return ResponseEntity.ok(new ResponseObject(200, "Chấp nhận yêu cầu thành công", detail));
+//        try {
+//            RequestDetailResponse detail = dispatchService.updateRequest(requestId, coordinatorId, dto);
+//            return ResponseEntity.ok(new ResponseObject(200, "Chấp nhận yêu cầu thành công", detail));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                    new ResponseObject(400, e.getMessage(), null));
+//        } catch (IllegalStateException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                    new ResponseObject(400, e.getMessage(), null));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                    new ResponseObject(500, "Không thể cập nhật yêu cầu", e.getMessage()));
+//        }
     }
 
     @GetMapping("/chat/{requestId}")
     public ResponseEntity<ResponseObject> getAllMessages(@PathVariable UUID requestId) {
-        try {
-            List<MessageResponse> result = dispatchService.takeAllMessageOfRequest(requestId);
-            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject(404, e.getMessage(), null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ResponseObject(500, "Không thể tải lịch sử chat", e.getMessage()));
-        }
+        List<MessageResponse> result = dispatchService.takeAllMessageOfRequest(requestId);
+        return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+//        try {
+//            List<MessageResponse> result = dispatchService.takeAllMessageOfRequest(requestId);
+//            return ResponseEntity.ok(new ResponseObject(200, "Success", result));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new ResponseObject(404, e.getMessage(), null));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                    new ResponseObject(500, "Không thể tải lịch sử chat", e.getMessage()));
+//        }
     }
 
     @PostMapping("/chat/{requestId}")
@@ -220,22 +144,29 @@ public class DispatchController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     new ResponseObject(401, "Vui lòng đăng nhập hoặc truyền testAccountId", null));
         }
-
-        try {
-            MessageResponse result = dispatchService.sendMessage(
-                    requestId,
-                    coordinatorId,
-                    dto.content(),
-                    dto.sendAt()
-            );
-            return ResponseEntity.status(HttpStatus.CREATED).body(
-                    new ResponseObject(201, "Gửi tin nhắn thành công", result));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ResponseObject(400, e.getMessage(), null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ResponseObject(500, "Không thể gửi tin nhắn", e.getMessage()));
-        }
+        MessageResponse result = dispatchService.sendMessage(
+                requestId,
+                coordinatorId,
+                dto.content(),
+                dto.sendAt()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                new ResponseObject(201, "Gửi tin nhắn thành công", result));
+//        try {
+//            MessageResponse result = dispatchService.sendMessage(
+//                    requestId,
+//                    coordinatorId,
+//                    dto.content(),
+//                    dto.sendAt()
+//            );
+//            return ResponseEntity.status(HttpStatus.CREATED).body(
+//                    new ResponseObject(201, "Gửi tin nhắn thành công", result));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                    new ResponseObject(400, e.getMessage(), null));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                    new ResponseObject(500, "Không thể gửi tin nhắn", e.getMessage()));
+//        }
     }
 }
