@@ -113,16 +113,6 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
             """)
     List<Object[]> findTop4TeamsByCompletedRequests(@Param("status") String status);
 
-//    @Query("""
-//            SELECT r.address, COUNT(r)
-//            FROM Request r
-//            WHERE r.address IS NOT NULL
-//            GROUP BY r.address
-//            ORDER BY COUNT(r) DESC
-//            LIMIT 3
-//            """)
-//    List<Object[]> findTop3CitiesByRequestCount();
-
     @Query(value = """
     SELECT 
         TRIM(SUBSTRING_INDEX(r.address, ',', -1)) AS city,
@@ -134,7 +124,7 @@ public interface RequestDAO extends JpaRepository<Request, UUID> {
     GROUP BY TRIM(SUBSTRING_INDEX(r.address, ',', -1))
     ORDER BY requestCount DESC
     LIMIT 3
-    """, nativeQuery = true) // <-- PHẢI CÓ DÒNG NÀY
+    """, nativeQuery = true)
     List<Object[]> findTop3CitiesByRequestCount();
 
     Page<Request> findAllByStatus(String status, Pageable pageable);

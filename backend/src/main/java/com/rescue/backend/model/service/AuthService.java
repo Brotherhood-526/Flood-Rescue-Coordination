@@ -1,5 +1,7 @@
 package com.rescue.backend.model.service;
 
+import com.rescue.backend.controller.exception.BusinessException;
+import com.rescue.backend.controller.exception.ErrorCode;
 import com.rescue.backend.model.bean.Staff;
 import com.rescue.backend.model.dao.StaffDAO;
 import com.rescue.backend.view.dto.auth.request.LoginRequest;
@@ -22,13 +24,11 @@ public class AuthService {
 
     public LoginResponse authenticateUser(LoginRequest loginRequest) {
 
-        String loginErrorMessage = "Số điện thoại hoặc mật khẩu không chính xác";
-
         Staff staff = staffDAO.findByPhone(loginRequest.phone())
-                .orElseThrow(() -> new BadCredentialsException(loginErrorMessage));
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_CREDENTIALS));
 
         if (!bCryptPasswordEncoder.matches(loginRequest.password(), staff.getPassword())) {
-            throw new BadCredentialsException(loginErrorMessage);
+            throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
         }
 
         boolean isRescueTeam = RESCUE_TEAM.equalsIgnoreCase(staff.getRole());

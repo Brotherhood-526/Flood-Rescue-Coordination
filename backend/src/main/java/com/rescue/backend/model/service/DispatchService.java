@@ -1,6 +1,8 @@
 package com.rescue.backend.model.service;
 
 
+import com.rescue.backend.controller.exception.BusinessException;
+import com.rescue.backend.controller.exception.ErrorCode;
 import com.rescue.backend.model.bean.Message;
 import com.rescue.backend.model.bean.Request;
 import com.rescue.backend.model.bean.Staff;
@@ -65,7 +67,7 @@ public class DispatchService {
         SpecificResponse response = requestDAO.findRequestDetail(id);
 
         if (response == null) {
-            throw new RuntimeException("Request not found");
+            throw new BusinessException(ErrorCode.REQUEST_NOT_FOUND, id.toString());
         }
 
         return response;
@@ -101,7 +103,7 @@ public class DispatchService {
         return vehicleDAO.filterVehicleByType(filterVehicleRequest.vehicle_type());
     }
 
-    public Page<RequestListResponse> getRequests(String status, int page,int size) {
+    public Page<RequestListResponse> getRequests(String status, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Request> requests;
 
@@ -114,8 +116,7 @@ public class DispatchService {
                 case "tạm hoãn", "delayed" -> "tạm hoãn";
                 case "hoàn thành", "completed" -> "hoàn thành";
                 case "đã huỷ", "rejected" -> "đã huỷ";
-                default -> throw new IllegalArgumentException(
-                        "Status không hợp lệ: " + status);
+                default -> throw new BusinessException(ErrorCode.INVALID_STATUS, status);
             };
             requests = requestDAO.findAllByStatus(cleanStatus, pageable);
         }
@@ -131,8 +132,7 @@ public class DispatchService {
 
     public RequestDetailResponse getRequestDetail(UUID requestId) {
         Request r = requestDAO.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy yêu cầu với id: " + requestId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.REQUEST_NOT_FOUND, requestId.toString()));
 
         List<CoordinatorImageResponse> images =
                 (r.getImages() != null)
@@ -174,28 +174,26 @@ public class DispatchService {
     public List<NearbyTeamResponse> getNearbyTeams(UUID requestId, String vehicleType) {
         if (vehicleType == null
                 || !VALID_VEHICLE_TYPES.contains(vehicleType.trim().toLowerCase())) {
-            throw new IllegalArgumentException(
-                    "Loại phương tiện không hợp lệ. Chỉ chấp nhận: 'xuồng', 'xe cứu hộ', 'trực thăng'");
+            throw new BusinessException(ErrorCode.INVALID_VEHICLE_TYPE, vehicleType);
         }
 
+        String trimmedVehicleType = vehicleType.trim().toLowerCase();
+
         Request request = requestDAO.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy yêu cầu với id: " + requestId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.REQUEST_NOT_FOUND, requestId.toString()));
 
         if (request.getLatitude() == null || request.getLongitude() == null) {
-            throw new IllegalStateException(
-                    "Yêu cầu chưa có thông tin vị trí của yêu cầu cứu hộ, không thể tìm đội gần nhất");
+            throw new BusinessException(ErrorCode.REQUEST_LOCATION_MISSING);
         }
 
         double lat = request.getLatitude().doubleValue();
         double lng = request.getLongitude().doubleValue();
 
         List<Object[]> rows = staffDAO.findTop4NearbyTeams(
-                lat, lng, vehicleType.trim().toLowerCase());
+                lat, lng, trimmedVehicleType);
 
         if (rows == null || rows.isEmpty()) {
-            throw new IllegalStateException(
-                    "Không tìm thấy đội cứu hộ nào phù hợp với phương tiện: " + vehicleType);
+            throw new BusinessException(ErrorCode.NO_NEARBY_TEAM_FOUND, trimmedVehicleType);
         }
 
         return rows.stream()
@@ -218,21 +216,22 @@ public class DispatchService {
 
     public RequestDetailResponse updateRequest(UUID requestID, UUID coordinatorID, UpdateRequest dto) {
         Request request = requestDAO.findById(requestID)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy yêu cầu với id: " + requestID));
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.REQUEST_NOT_FOUND,
+                        requestID.toString()
+                ));
 
 
         if (dto.status() != null) {
             String newStatus = switch (dto.status().trim().toLowerCase()) {
                 case "đang xử lý", "processing" -> "đang xử lý";
                 case "đã huỷ", "rejected" -> "đã huỷ";
-                default -> throw new IllegalArgumentException(
-                        "Coordinator chỉ được set status 'đang xử lý' hoặc 'đã huỷ'");
+                default -> throw new BusinessException(ErrorCode.INVALID_STATUS_UPDATE);
             };
 
             if ("đã huỷ".equals(newStatus)) {
                 if ("hoàn thành".equals(request.getStatus())) {
-                    throw new IllegalStateException("Yêu cầu đã hoàn thành, không thể huỷ");
+                    throw new BusinessException(ErrorCode.REQUEST_ALREADY_COMPLETED);
                 }
                 if ("đã huỷ".equals(request.getStatus())) {
                     return getRequestDetail(request.getId());
@@ -244,7 +243,7 @@ public class DispatchService {
 
             if (!"yêu cầu mới".equals(request.getStatus())) {
                 // Nếu không phải huỷ, mà muốn cập nhật xe/đội cứu hộ, thì mới chặn lại
-                throw new IllegalStateException("Yêu cầu đang ở trạng thái '" + request.getStatus() + "', không thể cập nhật");
+                throw new BusinessException(ErrorCode.INVALID_STATUS_TRANSITION, request.getStatus());
             }
 
             request.setStatus(newStatus);
@@ -253,24 +252,28 @@ public class DispatchService {
         String urgency = dto.urgency();
 
         if (urgency == null || !VALID_URGENCY_TYPES.contains(urgency.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Mức độ khẩn cấp không hợp lệ. Chỉ chấp nhận: 'cao', 'trung bình', 'thấp'");
+            throw new BusinessException(ErrorCode.INVALID_URGENCY);
         }
         String normalizedUrgency = urgency.trim().toLowerCase();
         request.setUrgency(normalizedUrgency);
 
         Staff rescueTeam = staffDAO.findById(dto.rescueTeamID())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy đội cứu hộ với id: " + dto.rescueTeamID()));
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.RESCUE_TEAM_NOT_FOUND,
+                        dto.rescueTeamID()
+                ));
         request.setRescueTeam(rescueTeam);
 
         Staff coordinator = staffDAO.findById(coordinatorID)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy điều phối viên với id: " + coordinatorID));
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.COORDINATOR_NOT_FOUND,
+                        coordinatorID
+                ));
         request.setCoordinator(coordinator);
 
         String type = dto.vehicleType();
         if (type == null || !VALID_VEHICLE_TYPES.contains(type.trim().toLowerCase())) {
-            throw new IllegalArgumentException("Loại phương tiện không hợp lệ. Chỉ chấp nhận: 'xuồng', 'xe cứu hộ' hoặc 'trực thăng'");
+            throw new BusinessException(ErrorCode.INVALID_VEHICLE_TYPE);
         }
         String normalizedVehicleType = type.trim().toLowerCase();
 
@@ -278,7 +281,7 @@ public class DispatchService {
                 .findAvailableVehicle(dto.rescueTeamID(), normalizedVehicleType, PageRequest.of(0, 1))
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Không có phương tiện khả dụng"));
+                .orElseThrow(() -> new  BusinessException(ErrorCode.VEHICLE_NOT_AVAILABLE));
         vehicle.setState("đang sử dụng");
 
         request.setVehicle(vehicle);
@@ -296,24 +299,22 @@ public class DispatchService {
             LocalDateTime sendAt
     ) {
         if (requestId == null) {
-            throw new IllegalArgumentException("Thiếu requestId");
+            throw new BusinessException(ErrorCode.INVALID_REQUEST_ID);
         }
         if (senderId == null) {
-            throw new IllegalArgumentException("Thiếu senderId");
+            throw new BusinessException(ErrorCode.INVALID_SENDER_ID);
         }
         if (content == null || content.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nội dung tin nhắn không được để trống");
+            throw new BusinessException(ErrorCode.INVALID_MESSAGE_CONTENT);
         }
 
         Request request = requestDAO.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy yêu cầu với id: " + requestId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.REQUEST_NOT_FOUND, requestId));
 
         Staff sender = staffDAO.findById(senderId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy điều phối viên với id: " + senderId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.COORDINATOR_NOT_FOUND, senderId));
         if (sender.getRole() == null || !sender.getRole().trim().equalsIgnoreCase("điều phối viên")) {
-            throw new IllegalArgumentException("Tài khoản gửi tin nhắn không phải điều phối viên");
+            throw new BusinessException(ErrorCode.INVALID_COORDINATOR_ROLE);
         }
 
         Message message = new Message();
@@ -335,7 +336,7 @@ public class DispatchService {
         );
     }
 
-    public List<MessageResponse> takeAllMessageOfRequest(UUID requestId){
+    public List<MessageResponse> takeAllMessageOfRequest(UUID requestId) {
         return chatService.takeAllMessageOfRequest(requestId);
     }
 }

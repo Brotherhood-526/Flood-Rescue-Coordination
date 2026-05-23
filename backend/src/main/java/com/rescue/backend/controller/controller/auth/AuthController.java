@@ -29,26 +29,35 @@ public class AuthController {
         //HttpServletRequest: Đại diện cho toàn bộ một yêu cầu HTTP. Nó chứa mọi thứ: Header, Cookies, IP người gửi, Body, Parameters... và cả Session bên trong nó.
         //HttpSession: Chỉ đại diện cho phiên làm việc của một người dùng cụ thể. Nó là một "ngăn chứa đồ" riêng biệt trên server dành cho user đó.
         //Nguyên tắc vàng: Tầng Service chỉ nên xử lý Logic (check pass, check phone). KHông cần phải biết về "HTTP", "Request" hay "Session".
-        try {
-            LoginResponse account = authService.authenticateUser(loginRequest);
 
-            session.setAttribute("STAFF_ID", account.accountId());
-            session.setAttribute("STAFF_ROLE", account.role());
+        LoginResponse account = authService.authenticateUser(loginRequest);
 
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject(200, "Đăng nhập thành công", account)
-            );
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    new ResponseObject(401, "Số điện thoại hoặc mật khẩu không đúng", null)
-            );
-        } catch (Exception e) {
-            log.error("Lỗi hệ thống khi đăng nhập cho số {}: ", loginRequest.phone(), e);
+        session.setAttribute("STAFF_ID", account.accountId());
+        session.setAttribute("STAFF_ROLE", account.role());
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ResponseObject(500, "Lỗi hệ thống", null)
-            );
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject(200, "Đăng nhập thành công", account)
+        );
+//        try {
+//            LoginResponse account = authService.authenticateUser(loginRequest);
+//
+//            session.setAttribute("STAFF_ID", account.accountId());
+//            session.setAttribute("STAFF_ROLE", account.role());
+//
+//            return ResponseEntity.status(HttpStatus.OK).body(
+//                    new ResponseObject(200, "Đăng nhập thành công", account)
+//            );
+//        } catch (BadCredentialsException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+//                    new ResponseObject(401, "Số điện thoại hoặc mật khẩu không đúng", null)
+//            );
+//        } catch (Exception e) {
+//            log.error("Lỗi hệ thống khi đăng nhập cho số {}: ", loginRequest.phone(), e);
+//
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                    new ResponseObject(500, "Lỗi hệ thống", null)
+//            );
+//        }
     }
 
     @PostMapping("/logout")

@@ -3,6 +3,9 @@ package com.rescue.backend.model.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
+import com.rescue.backend.controller.exception.BusinessException;
+import com.rescue.backend.controller.exception.ErrorCode;
+import com.rescue.backend.controller.exception.GlobalExceptionHandler;
 import com.rescue.backend.model.bean.*;
 import com.rescue.backend.model.dao.CitizenDAO;
 import com.rescue.backend.model.dao.MessageDAO;
@@ -13,10 +16,13 @@ import com.rescue.backend.view.dto.citizen.request.RescueRequest;
 import com.rescue.backend.view.dto.citizen.request.UpdateRequest;
 import com.rescue.backend.view.dto.citizen.response.CitizenRescueResponse;
 import com.rescue.backend.view.dto.chat.response.MessageResponse;
+import com.rescue.backend.view.dto.common.ResponseObject;
 import com.rescue.backend.view.dto.image.response.LookupImageResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,10 +55,8 @@ public class CitizenService {
                         rescueRequest.phone()
                 );
 
-        // 3. Nếu tìm thấy request đang hoạt động -> Thông báo lỗi
         if (existingRequest.isPresent()) {
-            throw new RuntimeException("EXISTING_ACTIVE_REQUEST");
-            // Bạn có thể tạo Custom Exception riêng để Controller bắt được dễ hơn
+            throw new BusinessException(ErrorCode.EXISTING_ACTIVE_REQUEST, rescueRequest.phone());
         }
 
         Citizen citizen = citizenDAO.findByPhone(rescueRequest.phone())
@@ -150,14 +154,23 @@ public class CitizenService {
                         lookupRequest.citizenPhone()
                 )
                 .map(this::mapToRequestResponse)
-                .orElse(null);
+                .orElseThrow(() ->
+                        new BusinessException(
+                                ErrorCode.REQUEST_NOT_FOUND,
+                                lookupRequest.citizenPhone()
+                        )
+                );
+
     }
 
     @Transactional
     public CitizenRescueResponse updateRescueRequest(UpdateRequest updateRequest) {
         Request request =
                 requestDAO.findById(updateRequest.requestId())
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu này"));
+                        .orElseThrow(() -> new BusinessException(
+                                ErrorCode.REQUEST_NOT_FOUND,
+                                updateRequest.requestId().toString()
+                        ));
 
         request.setType(updateRequest.Type());
         request.setDescription(updateRequest.description());
@@ -207,6 +220,7 @@ public class CitizenService {
             cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
         } catch (IOException e) {
             log.warn("Không thể xóa ảnh trên Cloudinary: {}", image.getImageUrl());
+            throw new BusinessException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }
     }
 
@@ -241,16 +255,17 @@ public class CitizenService {
                     } catch (IOException e) {
 
                         log.error("Lỗi upload ảnh: {}", file.getOriginalFilename());
-                        throw new RuntimeException("Lỗi khi upload ảnh lên Cloudinary", e);
+                        throw new BusinessException(ErrorCode.CLOUDINARY_DELETE_FAILED);
 
                     }
                 })
                 .toList();
     }
+
     @Transactional
     public void cancelRequest(UUID id) {
         Request request = requestDAO.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy yêu cầu"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.REQUEST_NOT_FOUND, id.toString()));
         request.setStatus("đã huỷ");
         requestDAO.save(request);
     }
@@ -262,18 +277,20 @@ public class CitizenService {
     @Transactional
     public MessageResponse sendMessage(UUID requestId, String content, LocalDateTime sendAt) {
         if (requestId == null) {
-            throw new IllegalArgumentException("Thiếu requestId");
+            throw new BusinessException(ErrorCode.INVALID_REQUEST_ID);
         }
         if (content == null || content.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nội dung tin nhắn không được để trống");
+            throw new BusinessException(ErrorCode.INVALID_MESSAGE_CONTENT);
         }
 
         Request request = requestDAO.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy yêu cầu với id: " + requestId));
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.REQUEST_NOT_FOUND,
+                        requestId
+                ));
         Citizen sender = request.getCitizen();
         if (sender == null || sender.getId() == null) {
-            throw new IllegalStateException("Yêu cầu chưa có thông tin người dân");
+            throw new BusinessException(ErrorCode.SENDER_NOT_FOUND);
         }
 
         Message message = new Message();

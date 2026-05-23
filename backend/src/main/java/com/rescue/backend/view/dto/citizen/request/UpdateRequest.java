@@ -1,13 +1,14 @@
 package com.rescue.backend.view.dto.citizen.request;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-@Schema(name ="CitizenUpdateRequest")
+
+
+@Schema(name = "CitizenUpdateRequest")
 public record UpdateRequest(
         UUID requestId,
         String citizenName,
